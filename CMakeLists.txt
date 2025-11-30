@@ -34,15 +34,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OutputDir}")
 #use the --config Debug option for select the configuration  
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-#MACRO for the resouces
-if(PRODUCTION_BUILD)
-    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCE_PATH="./res/")
-    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=1)
-elseif()
-    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/")
-    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=0)
-endif()
-
 #modules
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(FindDirsCmakeFile)
@@ -86,6 +77,20 @@ FetchContent_Declare(
     GIT_TAG v6.0.2
 )
 FetchContent_MakeAvailable(assimp)
+
+#Fetch FreeType
+FetchContent_Declare(
+    freetype 
+    GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype
+    GIT_TAG VER-2-14-1
+)
+
+#Fetch OpenAL
+FetchContent_Declare(
+    openal 
+    GIT_REPOSITORY https://github.com/kcat/openal-soft
+    GIT_TAG 1.24.3
+)
 
 add_subdirectory("${glad_SOURCE_DIR}/cmake" glad_cmake)
 glad_add_library(glad_gl_core_33 REPRODUCIBLE LOADER API gl:core=3.3)

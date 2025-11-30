@@ -22,7 +22,7 @@ namespace SpaceEngine{
         //Shutdown Managers
         inputManager.Shutdown();
         windowManager.Shutdown();
-        logManager.Shoutdown();
+        logManager.Shutdown();
         delete scene;
         delete renderer;
     }

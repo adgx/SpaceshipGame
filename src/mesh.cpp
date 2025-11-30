@@ -1,8 +1,12 @@
 #include "mesh.h"
 #include "log.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+#include "utils/utils.h"
+#include "texture.h"
 
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 #define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_GenSmoothNormals | \
@@ -47,21 +51,7 @@
 
 namespace SpaceEngine
 {
-    std::string getFullPath(const std::string& dir, const aiString& path)
-    {
-        std::string p(path.data);
-
-        if (p == "C:\\\\") {
-            p = "";
-        }
-        else if (p.substr(0, 2) == ".\\") {
-            p = p.substr(2, p.size() - 2);
-        }
-
-        std::string fullPath = dir + "/" + p;
-
-        return fullPath;
-    }
+    
 
     void Mesh::clear()
     {
@@ -77,64 +67,42 @@ namespace SpaceEngine
         }
     }
 
-    std::string getDirFromFilename(const std::string& fileName)
+    Mesh* MeshManager::pTMPMesh = nullptr;
+    Mesh* MeshManager::loadMesh(const std::string& fileName)
     {
-        // Extract the directory part from the file name
-        std::string::size_type slashIndex;
-
-    #ifdef _WIN64
-        slashIndex = fileName.find_last_of("\\");
-
-        if (slashIndex == -1) {
-            slashIndex = fileName.find_last_of("/");
-        }
-    #else
-        SlashIndex = Filename.find_last_of("/");
-    #endif
-
-        std::string dir;
-
-        if (slashIndex == std::string::npos) {
-            dir = ".";
-        }
-        else if (slashIndex == 0) {
-            dir = "/";
-        }
-        else {
-            dir = fileName.substr(0, slashIndex);
-        }
-
-        return dir;
-    }
-
-    bool Mesh::loadMesh(const std::string& fileName)
-    {
-        clear();
-
+        //clear();
+        Mesh* pMesh = new Mesh();
+        pTMPMesh = pMesh;
         //VAO
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-        glGenBuffers(ARRAY_SIZE_IN_ELEMENTS(buffers), buffers);
+        glGenVertexArrays(1, &pTMPMesh->VAO);
+        glBindVertexArray(pTMPMesh->VAO);
+        glGenBuffers(ARRAY_SIZE_IN_ELEMENTS(pTMPMesh->buffers), pTMPMesh->buffers);
 
         bool ret = false;
-
-        pScene = importer.ReadFile(fileName.c_str(), ASSIMP_LOAD_FLAGS);
+        
+        Assimp::Importer importer;
+        const aiScene* pScene = importer.ReadFile(fileName.c_str(), ASSIMP_LOAD_FLAGS);
 
         if(pScene)
         {
-            globalInverseTransform = aiMat4_2_Mat4(pScene->mRootNode->mTransformation);
-            globalInverseTransform = inverse(globalInverseTransform);
-            ret = initFromScene(pScene, fileName);
+            /*capiamo*/
+            //globalInverseTransform = aiMat4_2_Mat4(pScene->mRootNode->mTransformation);
+            //globalInverseTransform = inverse(globalInverseTransform);
+            if(!initFromScene(pScene, fileName))
+            {
+                SPACE_ENGINE_FATAL("Impossible to init the scene:{}", fileName);
+                exit(-1);
+            }
         }
-
-        return ret;
+        pTMPMesh = nullptr;
+        return pMesh;
     }
 
-    bool Mesh::initFromScene(const aiScene* pScene, const std::string& fileName)
+    bool MeshManager::initFromScene(const aiScene* pScene, const std::string& fileName)
     {
         //number of the meshes in the scene
-        meshes.resize(pScene->mNumMeshes);
-        materials.resize(pScene->mNumMaterials);
+        pTMPMesh->meshes.resize(pScene->mNumMeshes);
+        pTMPMesh->materials.resize(pScene->mNumMaterials);
 
         unsigned int numVertices = 0;
         unsigned int numIndices = 0;
@@ -149,35 +117,35 @@ namespace SpaceEngine
             return false;
         }
 
-        populateBuffers();
+        //populateBuffers();
 
         return glGetError() == GL_NO_ERROR;
     }
-
-    void Mesh::countVerticesAndIndices(const aiScene* pScene, unsigned int& numVertices, unsigned int& numIndices)
+    
+    void MeshManager::countVerticesAndIndices(const aiScene* pScene, unsigned int& numVertices, unsigned int& numIndices)
     {
-        for (unsigned int i = 0 ; i < meshes.size() ; i++) 
+        for (unsigned int i = 0 ; i < pTMPMesh->meshes.size() ; i++) 
         {
-            meshes[i].materialIndex = pScene->mMeshes[i]->mMaterialIndex;
-            meshes[i].numIndices = pScene->mMeshes[i]->mNumFaces * 3;
-            meshes[i].baseVertex = numVertices;
-            meshes[i].baseIndex = numIndices;
+            pTMPMesh->meshes[i].materialIndex = pScene->mMeshes[i]->mMaterialIndex;
+            pTMPMesh->meshes[i].numIndices = pScene->mMeshes[i]->mNumFaces * 3;
+            pTMPMesh->meshes[i].baseVertex = numVertices;
+            pTMPMesh->meshes[i].baseIndex = numIndices;
 
             numVertices += pScene->mMeshes[i]->mNumVertices;
-            numIndices  += meshes[i].numIndices;
+            numIndices  += pTMPMesh->meshes[i].numIndices;
         }
     }
 
-    void Mesh::reserveSpace(unsigned int numVertices, unsigned int numIndices)
+    void MeshManager::reserveSpace(unsigned int numVertices, unsigned int numIndices)
     {
-        vertices.reserve(numVertices);
-        indices.reserve(numIndices);
+        pTMPMesh->vertices.reserve(numVertices);
+        pTMPMesh->indices.reserve(numIndices);
     }
 
 
-    void Mesh::initAllMeshes(const aiScene* pScene)
+    void MeshManager::initAllMeshes(const aiScene* pScene)
     {
-        for (unsigned int i = 0 ; i < meshes.size() ; i++) 
+        for (unsigned int i = 0 ; i < pTMPMesh->meshes.size() ; i++) 
         {
             const aiMesh* paiMesh = pScene->mMeshes[i];
             initSingleMesh(i, paiMesh);
@@ -185,12 +153,12 @@ namespace SpaceEngine
     }
 
 
-    void Mesh::initSingleMesh(uint32_t meshIndex, const aiMesh* paiMesh)
+    void MeshManager::initSingleMesh(uint32_t meshIndex, const aiMesh* paiMesh)
     {
         const aiVector3D zero3D(0.0f, 0.0f, 0.0f);
 
         //populate the vertex attribute vectors
-        Vertex v;
+        Mesh::Vertex v;
 
         for (unsigned int i = 0; i < paiMesh->mNumVertices; i++) {
             const aiVector3D& pPos = paiMesh->mVertices[i];
@@ -208,29 +176,31 @@ namespace SpaceEngine
             const aiVector3D& pTexCoord = paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][i] : zero3D;
             v.texCoords = Vector2(pTexCoord.x, pTexCoord.y);
 
-            vertices.push_back(v);
+            pTMPMesh->vertices.push_back(v);
         }
 
         //populate the index buffer
         for (unsigned int i = 0; i < paiMesh->mNumFaces; i++) {
             const aiFace& face = paiMesh->mFaces[i];
-            indices.push_back(face.mIndices[0]);
-            indices.push_back(face.mIndices[1]);
-            indices.push_back(face.mIndices[2]);
+            pTMPMesh->indices.push_back(face.mIndices[0]);
+            pTMPMesh->indices.push_back(face.mIndices[1]);
+            pTMPMesh->indices.push_back(face.mIndices[2]);
         }
     }
 
-    bool Mesh::initMaterials(const aiScene* pScene, const std::string& fileName)
+    bool MeshManager::initMaterials(const aiScene* pScene, const std::string& fileName)
     {
-        std::string dir = getDirFromFilename(fileName);
+        std::string dir = Utils::getDirFromFilename(fileName);
 
         SPACE_ENGINE_DEBUG("Num materials: {}", pScene->mNumMaterials);
 
         // Initialize the materials
         for (unsigned int i = 0 ; i < pScene->mNumMaterials ; i++) {
             const aiMaterial* pMaterial = pScene->mMaterials[i];
-
-            loadTextures(dir, pMaterial, i);
+            std::unique_ptr<PBRMaterial> pbrMat = std::make_unique<PBRMaterial>();
+            pbrMat.get()->pShader = nullptr;//TODO: make the biding 
+            pTMPMesh->materials.push_back(std::move(pbrMat));
+            loadTextures(dir, pMaterial, pScene, i);
             loadColors(pMaterial, i);
         }
 
@@ -238,39 +208,47 @@ namespace SpaceEngine
     }
 
 
-    void Mesh::loadTextures(const std::string& dir, const aiMaterial* pMaterial, int index)
+    void MeshManager::loadTextures(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int index)
     {
-        loadDiffuseTexture(dir, pMaterial, index);
-        loadSpecularTexture(dir, pMaterial, index);
+        loadDiffuseTexture(dir, pMaterial, pScene, index);
+        loadSpecularTexture(dir, pMaterial, pScene, index);
 
         // PBR
-        loadAlbedoTexture(dir, pMaterial, index);
-        loadMetalnessTexture(dir, pMaterial, index);
-        loadRoughnessTexture(dir, pMaterial, index);
+        loadAlbedoTexture(dir, pMaterial, pScene, index);
+        loadMetalnessTexture(dir, pMaterial, pScene, index);
+        loadRoughnessTexture(dir, pMaterial, pScene, index);
     }
 
 
-    void Mesh::loadDiffuseTexture(const std::string& dir, const aiMaterial* pMaterial, int materialIndex)
+    void MeshManager::loadDiffuseTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
     {
-        materials[materialIndex].pTextures[TEXTURE_TYPE::BASE] = NULL;
-
         if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
             aiString path;
 
-            if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) 
+            {
                 const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
 
                 if (paiTexture) {
-                    loadDiffuseTextureEmbedded(paiTexture, materialIndex);
-                } else {
-                    loadDiffuseTextureFromFile(dir, path, materialIndex);
+                    SPACE_ENGINE_DEBUG("Embeddeded diffuse texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = true;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("diffuse_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = true;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("diffuse_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded diffuse texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
+                        
         }
     }
 
-
-    void Mesh::loadDiffuseTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
+/*
+    void MeshManager::loadDiffuseTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
     {
         SPACE_ENGINE_DEBUG("Embeddeded diffuse texture type '{}'\n", paiTexture->achFormatHint);
         materials[materialIndex].pTextures[TEXTURE_TYPE::BASE] = new Texture(GL_TEXTURE_2D);
@@ -280,7 +258,7 @@ namespace SpaceEngine
     }
 
 
-    void Mesh::loadDiffuseTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
+    void MeshManager::loadDiffuseTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
     {
         std::string fullPath = getFullPath(dir, path);
 
@@ -296,29 +274,35 @@ namespace SpaceEngine
             SPACE_ENGINE_INFO("Loaded diffuse texture '{}' at index {}", fullPath.c_str(), materialIndex);
         }
     }
+*/
 
-
-    void Mesh::loadSpecularTexture(const std::string& dir, const aiMaterial* pMaterial, int materialIndex)
+    void MeshManager::loadSpecularTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
     {
-        materials[materialIndex].pTextures[TEXTURE_TYPE::SPECULAR] = NULL;
-
         if (pMaterial->GetTextureCount(aiTextureType_SHININESS) > 0) {
             aiString path;
 
             if (pMaterial->GetTexture(aiTextureType_SHININESS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-                const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
+               const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
 
                 if (paiTexture) {
-                    loadSpecularTextureEmbedded(paiTexture, materialIndex);
-                } else {
-                    loadSpecularTextureFromFile(dir, path, materialIndex);
+                    SPACE_ENGINE_DEBUG("Embeddeded specular texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("specular_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("specular_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded specular texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
         }
     }
 
-
-    void Mesh::loadSpecularTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
+/*
+    void MeshManager::loadSpecularTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
     {
         SPACE_ENGINE_DEBUG("Embeddeded specular texture type '{}'", paiTexture->achFormatHint);
         materials[materialIndex].pTextures[TEXTURE_TYPE::SPECULAR] = new Texture(GL_TEXTURE_2D);
@@ -328,7 +312,7 @@ namespace SpaceEngine
     }
 
 
-    void Mesh::loadSpecularTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
+    void MeshManager::loadSpecularTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
     {
         std::string fullPath = getFullPath(dir, path);
 
@@ -344,12 +328,10 @@ namespace SpaceEngine
             SPACE_ENGINE_INFO("Loaded specular texture '{}'", fullPath.c_str());
         }
     }
+*/
 
-
-    void Mesh::loadAlbedoTexture(const std::string& dir, const aiMaterial* pMaterial, int materialIndex)
+    void MeshManager::loadAlbedoTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
     {
-        materials[materialIndex].PBRmaterial.pAlbedo = NULL;
-
         if (pMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0) {
             aiString path;
 
@@ -357,16 +339,24 @@ namespace SpaceEngine
                 const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
 
                 if (paiTexture) {
-                    loadAlbedoTextureEmbedded(paiTexture, materialIndex);
-                } else {
-                    loadAlbedoTextureFromFile(dir, path, materialIndex);
+                    SPACE_ENGINE_DEBUG("Embeddeded albedo texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = true;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("albedo_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = true;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("albedo_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded albedo texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
         }
     }
 
-
-    void Mesh::loadAlbedoTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
+/*
+    void MeshManager::loadAlbedoTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
     {
         SPACE_ENGINE_DEBUG("Embeddeded albedo texture type '{}'", paiTexture->achFormatHint);
         materials[materialIndex].PBRmaterial.pAlbedo = new Texture(GL_TEXTURE_2D);
@@ -376,7 +366,7 @@ namespace SpaceEngine
     }
 
 
-    void Mesh::loadAlbedoTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
+    void MeshManager::loadAlbedoTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
     {
         std::string FullPath = getFullPath(dir, path);
 
@@ -392,11 +382,10 @@ namespace SpaceEngine
             SPACE_ENGINE_INFO("Loaded albedo texture '{}'", FullPath.c_str());
         }
     }
+*/
 
-
-    void Mesh::loadMetalnessTexture(const std::string& dir, const aiMaterial* pMaterial, int materialIndex)
+    void MeshManager::loadMetalnessTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
     {
-        materials[materialIndex].PBRmaterial.pMetallic = NULL;
 
         int NumTextures = pMaterial->GetTextureCount(aiTextureType_METALNESS);
 
@@ -409,17 +398,24 @@ namespace SpaceEngine
                 const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
 
                 if (paiTexture) {
-                    loadMetalnessTextureEmbedded(paiTexture, materialIndex);
-                }
-                else {
-                    loadMetalnessTextureFromFile(dir, path, materialIndex);
+                    SPACE_ENGINE_DEBUG("Embeddeded metalness texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("metalness_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("metalness_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded metalness texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
         }
     }
 
-
-    void Mesh::loadMetalnessTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
+/*
+    void MeshManager::loadMetalnessTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
     {
         SPACE_ENGINE_DEBUG("Embeddeded metalness texture type '{}'", paiTexture->achFormatHint);
         materials[materialIndex].PBRmaterial.pMetallic = new Texture(GL_TEXTURE_2D);
@@ -429,7 +425,7 @@ namespace SpaceEngine
     }
 
 
-    void Mesh::loadMetalnessTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
+    void MeshManager::loadMetalnessTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
     {
         std::string FullPath = getFullPath(dir, path);
 
@@ -445,12 +441,10 @@ namespace SpaceEngine
             SPACE_ENGINE_INFO("Loaded metalness texture '{}'", FullPath.c_str());
         }
     }
+*/
 
-
-    void Mesh::loadRoughnessTexture(const std::string& dir, const aiMaterial* pMaterial, int materialIndex)
+    void MeshManager::loadRoughnessTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
     {
-        materials[materialIndex].PBRmaterial.pRoughness = NULL;
-
         int NumTextures = pMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS);
 
         if (NumTextures > 0) {
@@ -462,17 +456,24 @@ namespace SpaceEngine
                 const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
 
                 if (paiTexture) {
-                    loadRoughnessTextureEmbedded(paiTexture, materialIndex);
-                }
-                else {
-                    loadRoughnessTextureFromFile(dir, path, materialIndex);
+                    SPACE_ENGINE_DEBUG("Embeddeded roughness texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("roughness_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex].get()->addTexture("roughness_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded roughness texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
         }
     }
 
-
-    void Mesh::loadRoughnessTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
+/*
+    void MeshManager::loadRoughnessTextureEmbedded(const aiTexture* paiTexture, int materialIndex)
     {
         SPACE_ENGINE_DEBUG("Embeddeded roughness texture type '{}'", paiTexture->achFormatHint);
         materials[materialIndex].PBRmaterial.pRoughness = new Texture(GL_TEXTURE_2D);
@@ -482,9 +483,9 @@ namespace SpaceEngine
     }
 
 
-    void Mesh::loadRoughnessTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
+    void MeshManager::loadRoughnessTextureFromFile(const std::string& dir, const aiString& path, int materialIndex)
     {
-        std::string FullPath = getFullPath(dir, path);
+        std::string FullPath = Utils::getFullPath(dir, path);
 
         materials[materialIndex].PBRmaterial.pRoughness = new Texture(GL_TEXTURE_2D, FullPath.c_str());
         bool IsSRGB = false;
@@ -497,9 +498,9 @@ namespace SpaceEngine
             SPACE_ENGINE_INFO("Loaded roughness texture '{}'", FullPath.c_str());
         }
     }
+*/
 
-
-    void Mesh::loadColors(const aiMaterial* pMaterial, int index)
+    void MeshManager::loadColors(const aiMaterial* pMaterial, int index)
     {
         aiColor4D ambientColor(0.0f, 0.0f, 0.0f, 0.0f);
         Vector4 allOnes(1.0f);
@@ -511,29 +512,29 @@ namespace SpaceEngine
 
         if (pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor) == AI_SUCCESS) {
             SPACE_ENGINE_INFO("Loaded ambient color [{} {} {}]", ambientColor.r, ambientColor.g, ambientColor.b);
-            materials[index].ambientColor.r = ambientColor.r;
-            materials[index].ambientColor.g = ambientColor.g;
-            materials[index].ambientColor.b = ambientColor.b;
+            std::get<Vector4>(pTMPMesh->materials[index].get()->props["base_color_val"]).r = ambientColor.r;
+            std::get<Vector4>(pTMPMesh->materials[index].get()->props["base_color_val"]).g = ambientColor.g;
+            std::get<Vector4>(pTMPMesh->materials[index].get()->props["base_color_val"]).b = ambientColor.b;
         } else {
-            materials[index].ambientColor = allOnes;
+            std::get<Vector4>(pTMPMesh->materials[index].get()->props["base_color_val"]) = allOnes;
         }
 
         aiColor3D diffuseColor(0.0f, 0.0f, 0.0f);
 
         if (pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
             SPACE_ENGINE_INFO("Loaded diffuse color [{} {} {}]", diffuseColor.r, diffuseColor.g, diffuseColor.b);
-            materials[index].diffuseColor.r = diffuseColor.r;
-            materials[index].diffuseColor.g = diffuseColor.g;
-            materials[index].diffuseColor.b = diffuseColor.b;
+            std::get<Vector3>(pTMPMesh->materials[index].get()->props["diffuse_color_val"]).r = diffuseColor.r;
+            std::get<Vector3>(pTMPMesh->materials[index].get()->props["diffuse_color_val"]).g = diffuseColor.g;
+            std::get<Vector3>(pTMPMesh->materials[index].get()->props["diffuse_color_val"]).b = diffuseColor.b;
         }
 
         aiColor3D specularColor(0.0f, 0.0f, 0.0f);
 
         if (pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor) == AI_SUCCESS) {
             SPACE_ENGINE_INFO("Loaded specular color [{} {} {}]\n", specularColor.r, specularColor.g, specularColor.b);
-            materials[index].specularColor.r = specularColor.r;
-            materials[index].specularColor.g = specularColor.g;
-            materials[index].specularColor.b = specularColor.b;
+            std::get<Vector3>(pTMPMesh->materials[index].get()->props["specular_color_val"]).r = specularColor.r;
+            std::get<Vector3>(pTMPMesh->materials[index].get()->props["specular_color_val"]).g = specularColor.g;
+            std::get<Vector3>(pTMPMesh->materials[index].get()->props["specular_color_val"]).b = specularColor.b;
         }
     }
 
@@ -559,7 +560,8 @@ namespace SpaceEngine
         glVertexAttribPointer(NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
     }
 
-    void Mesh::render(IRenderCallbacks* pRenderCallbacks)
+    /*
+    void Mesh::render()
     {
         if (isPBR) {
             setupRenderMaterialsPBR();
@@ -571,10 +573,6 @@ namespace SpaceEngine
             unsigned int materialIndex = meshes[meshIndex].materialIndex;
             assert(materialIndex < materials.size());
 
-            if (!isPBR) {
-                setupRenderMaterialsPhong(meshIndex, materialIndex, pRenderCallbacks);
-            }
-
             glDrawElementsBaseVertex(GL_TRIANGLES,
                                      meshes[meshIndex].numIndices,
                                      GL_UNSIGNED_INT,
@@ -585,42 +583,6 @@ namespace SpaceEngine
         // Make sure the VAO is not changed from the outside
         glBindVertexArray(0);
     }
-
-
-    void Mesh::setupRenderMaterialsPhong(unsigned int meshIndex, unsigned int materialIndex, IRenderCallbacks* pRenderCallbacks)
-    {
-        if (materials[materialIndex].pTextures[TEXTURE_TYPE::BASE]) 
-        {
-            materials[materialIndex].pTextures[TEXTURE_TYPE::BASE]->bind(COLOR_TEXTURE_UNIT);
-        }
-
-        if (materials[materialIndex].pTextures[TEXTURE_TYPE::SPECULAR]) 
-        {
-            materials[materialIndex].pTextures[TEXTURE_TYPE::SPECULAR]->bind(SPECULAR_EXPONENT_UNIT);
-
-            if (pRenderCallbacks) 
-            {
-                pRenderCallbacks->controlSpecularExponent(true);
-            }
-        } 
-        else 
-        {
-            if (pRenderCallbacks) 
-            {
-                pRenderCallbacks->controlSpecularExponent(false);
-            }
-        }
-
-        if (pRenderCallbacks) {
-            if (materials[materialIndex].pTextures[TEXTURE_TYPE::BASE]) {
-                pRenderCallbacks->drawStartCB(meshIndex);
-                pRenderCallbacks->setMaterial(materials[materialIndex]);
-            }  else {
-                pRenderCallbacks->disableDiffuseTexture();
-            }
-        }
-    }
-
 
     void Mesh::setupRenderMaterialsPBR()
     {
@@ -644,7 +606,7 @@ namespace SpaceEngine
 
     }
 
-
+    
     void Mesh::render(unsigned int drawIndex, unsigned int primID)
     {
         glBindVertexArray(VAO);
@@ -707,9 +669,9 @@ namespace SpaceEngine
         // Make sure the VAO is not changed from the outside
         glBindVertexArray(0);
     }
-
-
-    const Material& Mesh::getMaterial()
+*/
+/*
+    const BaseMaterial& Mesh::getMaterial()
     {
         for (unsigned int i = 0 ; i < materials.size() ; i++) {
             if (materials[i].ambientColor != Vector4(0.0f)) {
@@ -724,8 +686,8 @@ namespace SpaceEngine
 
         return materials[0];
     }
-
-
+*/
+/*
     void Mesh::getLeadingVertex(uint32_t drawIndex, uint32_t primID, Vector3& vertex)
     {
         uint32_t meshIndex = drawIndex; // Each mesh is rendered in its own draw call
@@ -744,4 +706,5 @@ namespace SpaceEngine
         vertex.y = Pos.y;
         vertex.z = Pos.z;
     }
+*/
 }

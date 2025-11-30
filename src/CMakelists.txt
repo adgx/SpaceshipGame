@@ -27,15 +27,16 @@ add_library(ShaderProgram STATIC shader.cpp)
 target_link_libraries(ShaderProgram PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
     PRIVATE LogManager
-    PRIVATE glm)
-target_include_directories(Main PRIVATE ${CMAKE_SOURCE_DIR}/include/)
+    PUBLIC Utils)
+target_include_directories(ShaderProgram PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 set_target_properties(ShaderProgram PROPERTIES FOLDER "ShaderProgram")
 #Mesh
-add_library(Mesh STATIC mesh.cpp)
+add_library(Mesh STATIC mesh.cpp material.cpp)
 target_link_libraries(Mesh PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
     PRIVATE assimp
-    PRIVATE glm)
+    PRIVATE glm
+    PRIVATE Texture)
 target_include_directories(Mesh PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(Mesh PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)
 set_target_properties(Mesh PROPERTIES FOLDER "Mesh")
@@ -44,7 +45,9 @@ set_target_properties(Mesh PROPERTIES FOLDER "Mesh")
 add_library(Texture STATIC texture.cpp)
 target_link_libraries(Texture PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
-    PRIVATE glm)
+    PUBLIC Utils
+    PUBLIC STB
+    PRIVATE LogManager)
 target_include_directories(Texture PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(Texture PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)
-set_target_properties(Texture PROPERTIES FOLDER "Mesh")
+set_target_properties(Texture PROPERTIES FOLDER "Texture")

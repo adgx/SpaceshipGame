@@ -3,9 +3,11 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <map>
+#include <unordered_map>
 #include <string>
+#include <tuple>
 
-namespace SpaceEngine::Shader
+namespace SpaceEngine
 {
     enum Type
     {
@@ -52,6 +54,7 @@ namespace SpaceEngine::Shader
             void setUniform(const char *name, GLuint val);
 
             void findUniformLocations();
+            std::vector<std::tuple<const std::string, GLenum>> getPairUniformNameLocation();
             void printActiveUniforms();
             void printActiveUniformBlocks();
             void printActiveAttribs();
@@ -59,10 +62,20 @@ namespace SpaceEngine::Shader
             const char *getTypeString(GLenum type);
 
             private:
+                struct UniformInfo
+                {
+                    GLint location;
+                    GLenum type;
+                    GLint size; 
+                };
+
                 GLuint handle;
                 bool linked;
-                std::map<std::string, int> uniformLocations;
+                bool isVSComp = false;
+                bool isFSComp = false;
+                std::unordered_map<std::string, UniformInfo> uniformsInfo;
 
+                void reflectUniforms();
                 inline GLint getUniformLocation(const char *name);
 	            void detachAndDeleteShaderObjects();
                 bool fileExists(const std::string &fileName);
@@ -70,15 +83,28 @@ namespace SpaceEngine::Shader
         
     };
 
-    int ShaderProgram::getUniformLocation(const char *name) {
-	auto pos = uniformLocations.find(name);
+    int ShaderProgram::getUniformLocation(const char *name) 
+    {
+	    auto pos = uniformsInfo.find(name);
 
-	if (pos == uniformLocations.end()) {
-		GLint loc = glGetUniformLocation(handle, name);
-		uniformLocations[name] = loc;
-		return loc;
-	}
+	    if (pos == uniformsInfo.end()) 
+        {
+	    	return -1;
+	    }
 
-	return pos->second;
-}
+	    return pos->second.location;
+    }
+
+    class ShaderManager
+    {
+        public:
+            ShaderManager() = default;
+            ~ShaderManager() = default;
+            void Inizialize();
+            static ShaderProgram* createShaderProgram(const std::string nameFile);
+            static ShaderProgram* findShaderProgram(const std::string nameShader);
+            void Shutdown();
+        private:
+            static std::unordered_map<std::string, ShaderProgram*> shadersMap;
+    };
 }

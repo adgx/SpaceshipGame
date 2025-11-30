@@ -13,13 +13,13 @@ namespace SpaceEngine{
         GameScene();
         ~GameScene();
 
-        unsigned int LoadCubemap(vector<string> faces);
+        unsigned int LoadCubemap(std::vector<std::string> faces);
         void Init();
         void Render();
         void Update();
     private:
         unsigned int cubemapTexture;
-        vector<string> faces = {            //TODO: sistemare i path con i file giusti
+        std::vector<std::string> faces = {            //TODO: sistemare i path con i file giusti
             "assets/textures/skybox/right.jpg",
             "assets/textures/skybox/left.jpg",
             "assets/textures/skybox/top.jpg",

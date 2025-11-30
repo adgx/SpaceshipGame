@@ -18,7 +18,7 @@ namespace SpaceEngine::Managers
         spdlog::register_logger(logger);
     }
 
-    void LogManager::Shoutdown()
+    void LogManager::Shutdown()
     {
         spdlog::shutdown();
     }

@@ -1,7 +1,7 @@
 #include "GameScene.h"
 
 namespace SpaceEngine{
-    unsigned int GameScene::LoadCubemap(std::vector<string> faces){
+    unsigned int GameScene::LoadCubemap(std::vector<std::string> faces){
         unsigned int textureID;
         glGenTextures(1, &textureID);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);

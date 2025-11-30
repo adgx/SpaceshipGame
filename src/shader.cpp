@@ -1,5 +1,8 @@
 #include "shader.h"
 #include "log.h"
+#include "utils/utils.h"
+
+
 
 #include <fstream>
 
@@ -8,10 +11,11 @@ using std::ios;
 using std::string;
 
 #include <sstream>
+#include <filesystem>
 #include <sys/stat.h>
 #include <vector>
 
-namespace SpaceEngine::Shader
+namespace SpaceEngine
 {
 
     namespace Info 
@@ -35,6 +39,20 @@ namespace SpaceEngine::Shader
     		{".cs",   Type::COMPUTE},
     		{ ".cs.glsl",   Type::COMPUTE }
     	};
+
+        inline const char* typeToString(Type type)
+        {
+            switch(type)
+            {
+                case Type::VERTEX: return "VERTEX";
+                case Type::GEOMETRY: return "GEOMETRY";
+                case Type::TESS_CONTROL: return "TESS_CONTROL";
+                case Type::TESS_EVALUATION: return "TESS_EVALUATION";
+                case Type::FRAGMENT: return "FRAGMENT";
+                case Type::COMPUTE: return "COMPUTE";
+                default: return "Unknown";
+            }
+        }
     }
 
 
@@ -99,8 +117,9 @@ namespace SpaceEngine::Shader
         return "";
     }
 
+    //TODO: track the VERTEX and the FRAMENT shader.
     int ShaderProgram::compileShader(const char *fileName, Type type) {
-        if (!fileExists(fileName)) {
+        if (!Utils::fileExists(fileName)) {
             SPACE_ENGINE_ERROR("Shader: {} not found", fileName);
             return 0;
         }
@@ -119,6 +138,7 @@ namespace SpaceEngine::Shader
             return 0;
         }
 
+        SPACE_ENGINE_DEBUG("Compiling shader Name: {} Type: {}", fileName, Info::typeToString(type));
         // Get file contents
         std::stringstream code;
         code << inFile.rdbuf();
@@ -170,10 +190,23 @@ namespace SpaceEngine::Shader
             }
             SPACE_ENGINE_ERROR("{}", msg);
             return 0;
-        } else {
+        } 
+        else 
+        {
             // Compile succeeded, attach shader
             glAttachShader(handle, shaderHandle);
         }
+
+        if(type == Type::VERTEX)
+        {
+            isVSComp = true;    
+        }
+
+        if(type == Type::FRAGMENT)
+        {
+            isFSComp = true;
+        }
+
         return 1;
     }
 
@@ -185,9 +218,19 @@ namespace SpaceEngine::Shader
             return 0;
         }
 
+        if(!isVSComp)
+        {
+            SPACE_ENGINE_WARN("Warning: no Vertex shader were compiled");
+        }
+        else if(!isFSComp)
+        {
+            SPACE_ENGINE_WARN("Warning: no Fragment shader were compiled");
+        }
+
         glLinkProgram(handle);
     	int status = 0;
     	std::string errString;
+        SPACE_ENGINE_DEBUG("Linking shader");
     	glGetProgramiv(handle, GL_LINK_STATUS, &status);
     	if (GL_FALSE == status) {
     		// Store log and return false
@@ -202,7 +245,7 @@ namespace SpaceEngine::Shader
     		}
     	}
     	else {
-    		findUniformLocations();
+    		reflectUniforms();
     		linked = true;
     	}
     
@@ -215,9 +258,9 @@ namespace SpaceEngine::Shader
         }
         return 1;
     }
-
+/*
     void ShaderProgram::findUniformLocations() {
-        uniformLocations.clear();
+        uniformsInfo.clear();
 
         GLint numUniforms = 0;
         GLint maxLen;
@@ -237,7 +280,7 @@ namespace SpaceEngine::Shader
         }
         delete[] name;
     }
-
+*/
     int ShaderProgram::use() {
         if (handle <= 0 || (!linked)){
             SPACE_ENGINE_DEBUG("Shader has not been linked");
@@ -323,12 +366,42 @@ namespace SpaceEngine::Shader
     
         name = new GLchar[maxLen];
     
-        printf("Active uniforms:\n");
-        printf("------------------------------------------------\n");
-        for (GLuint i = 0; i < nUniforms; ++i) {
+        SPACE_ENGINE_DEBUG("Active uniforms:");
+        SPACE_ENGINE_DEBUG("------------------------------------------------");
+        for (GLint i = 0; i < nUniforms; ++i) {
             glGetActiveUniform(handle, i, maxLen, &written, &size, &type, name);
             location = glGetUniformLocation(handle, name);
-            printf(" %-5d %s (%s)\n", location, name, getTypeString(type));
+            SPACE_ENGINE_DEBUG("{} {} ({})", location, name, getTypeString(type));
+        }
+    
+        delete[] name;
+    }
+
+    void ShaderProgram::reflectUniforms() {
+        GLint nUniforms, size, location, maxLen;
+        GLchar *name;
+        GLsizei written;
+        GLenum type;
+    
+        glGetProgramiv(handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
+        glGetProgramiv(handle, GL_ACTIVE_UNIFORMS, &nUniforms);
+    
+        name = new GLchar[maxLen];
+        if(nUniforms > 0) 
+        {
+            SPACE_ENGINE_DEBUG("Fetch Uniform information for the shader:");
+        } 
+        else
+        {
+            SPACE_ENGINE_DEBUG("No Uniform was found");
+        }
+            
+        for (GLint i = 0; i < nUniforms; ++i) 
+        {
+            glGetActiveUniform(handle, i, maxLen, &written, &size, &type, name);
+            location = glGetUniformLocation(handle, name);
+            uniformsInfo[name] = UniformInfo{location, type, size};
+            SPACE_ENGINE_DEBUG("Uniform information: name: {}, location:{}, type{}", name, location, type);
         }
     
         delete[] name;
@@ -344,12 +417,12 @@ namespace SpaceEngine::Shader
         GLchar *uniName = new GLchar[maxUniLen];
         name = new GLchar[maxLength];
     
-        printf("Active Uniform blocks: \n");
-        printf("------------------------------------------------\n");
-        for (GLuint i = 0; i < nBlocks; i++) {
+        SPACE_ENGINE_DEBUG("Active Uniform blocks:");
+        SPACE_ENGINE_DEBUG("------------------------------------------------\n");
+        for (GLint i = 0; i < nBlocks; i++) {
             glGetActiveUniformBlockName(handle, i, maxLength, &written, name);
             glGetActiveUniformBlockiv(handle, i, GL_UNIFORM_BLOCK_BINDING, &binding);
-            printf("Uniform block \"%s\" (%d):\n", name, binding);
+            SPACE_ENGINE_DEBUG("Uniform block \"{}\" ({}):", name, binding);
         
             GLint nUnis;
             glGetActiveUniformBlockiv(handle, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &nUnis);
@@ -362,7 +435,7 @@ namespace SpaceEngine::Shader
                 GLenum type;
             
                 glGetActiveUniform(handle, uniIndex, maxUniLen, &written, &size, &type, uniName);
-                printf("    %s (%s)\n", name, getTypeString(type));
+                SPACE_ENGINE_DEBUG("    {} ({})", name, getTypeString(type));
             }
         
             delete[] unifIndexes;
@@ -380,12 +453,12 @@ namespace SpaceEngine::Shader
         glGetProgramiv(handle, GL_ACTIVE_ATTRIBUTES, &nAttribs);
     
         name = new GLchar[maxLength];
-        printf("Active Attributes: \n");
-        printf("------------------------------------------------\n");
+        SPACE_ENGINE_DEBUG("Active Attributes:");
+        SPACE_ENGINE_DEBUG("------------------------------------------------");
         for (int i = 0; i < nAttribs; i++) {
             glGetActiveAttrib(handle, i, maxLength, &written, &size, &type, name);
             location = glGetAttribLocation(handle, name);
-            printf(" %-5d %s (%s)\n", location, name, getTypeString(type));
+            SPACE_ENGINE_DEBUG(" {} {} ({})", location, name, getTypeString(type));
         }
         delete[] name;
     }
@@ -416,6 +489,8 @@ namespace SpaceEngine::Shader
                 return "mat3";
             case GL_FLOAT_MAT4:
                 return "mat4";
+            case GL_SAMPLER_2D:
+                return "sampler2D";
             default:
                 return "?";
         }
@@ -453,12 +528,78 @@ namespace SpaceEngine::Shader
         }
         return 1;
     }
+    //ShaderManager
+    std::unordered_map<std::string, ShaderProgram*> ShaderManager::shadersMap;
+
+    ShaderProgram* ShaderManager::createShaderProgram(const std::string nameFile)
+    {
+        ShaderProgram* pSP = new ShaderProgram();
+        std::vector<std::filesystem::path> shaderFiles;
+
+        for (const auto& entry : std::filesystem::directory_iterator(SHADERS_PATH)) 
+        {
+            if (!entry.is_regular_file())
+                continue;
+
+            const auto& p = entry.path();
+            if (p.stem() == nameFile) {
+                shaderFiles.push_back(p);
+            }
+        }
+
+        if(shaderFiles.empty())
+        {
+            SPACE_ENGINE_ERROR("Shader file not found, name: {}", nameFile);
+            return nullptr;
+        }
+
+        
+        for(const std::filesystem::path& path : shaderFiles)
+        {
+            pSP->compileShader(path.string().c_str());
+        }
+        pSP->link();
+
+        shadersMap[nameFile] = pSP;
+        
+        return pSP;
+    }
     
-    bool ShaderProgram::fileExists(const string &fileName) {
-        struct stat info;
-        int ret = -1;
-    
-        ret = stat(fileName.c_str(), &info);
-        return 0 == ret;
+    ShaderProgram* ShaderManager::findShaderProgram(const std::string nameShader)
+    {
+        auto pos = shadersMap.find(nameShader);
+
+        if(pos == shadersMap.end())
+        {
+            SPACE_ENGINE_ERROR("ShaderProgram not found, name: {}", nameShader);
+            return nullptr;
+        }
+
+        return pos->second;
+
+    }
+
+    void ShaderManager::Inizialize()
+    {
+
+    }
+
+    void ShaderManager::Shutdown()
+    {
+        for (auto& [name, pTex] : shadersMap)
+            delete pTex;
+        shadersMap.clear();
+    }
+
+    std::vector<std::tuple<const std::string, GLenum>> ShaderProgram::getPairUniformNameLocation()
+    {
+        std::vector<std::tuple<const std::string, GLenum>> listUniform;
+
+        for( const auto& [key, value] : uniformsInfo)
+        {
+            listUniform.push_back(std::tuple<const std::string, GLenum>{key, value.type});
+        }
+
+        return listUniform;
     }
 }

@@ -9,6 +9,6 @@ namespace SpaceEngine::Managers
             ~LogManager() = default;
 
             void Initialize();
-            void Shoutdown();
+            void Shutdown();
     };
 }
