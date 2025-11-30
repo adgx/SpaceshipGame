@@ -1,6 +1,10 @@
 #pragma once
 #include "utils/stb_image.h"
 #include <vector>
+#include <string>
+#include <GLFW/glfw3.h>
+#include <glad/gl.h>
+#include "log.h"
 using namespace std;
 
 namespace SpaceEngine{
@@ -21,7 +25,7 @@ namespace SpaceEngine{
             "assets/textures/skybox/top.jpg",
             "assets/textures/skybox/bottom.jpg",
             "assets/texture/skybox/front.jpg",
-            "assets/textures/skybox/back.jpg"
+            //"assets/textures/skybox/back.jpg"
         };
     };
 }
