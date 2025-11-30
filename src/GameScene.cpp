@@ -1,7 +1,4 @@
 #include "GameScene.h"
-#include <string>
-#include <glad/gl.h>
-#include "log.h"
 
 namespace SpaceEngine{
     unsigned int GameScene::LoadCubemap(std::vector<std::string> faces){
