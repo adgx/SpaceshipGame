@@ -1,6 +1,7 @@
 #include "app.h"
 #include "log.h"
 #include "camera.h"
+#include "player.h"
 #include <vector>
 
 namespace SpaceEngine{
@@ -13,7 +14,9 @@ namespace SpaceEngine{
         logManager.Initialize();
         windowManager.Initialize();
         inputManager.Initialize();
-        shaderManager.Inizialize();
+        shaderManager.Initialize();
+        materialManager.Initialize();
+        textureManager.Initialize();
         //Objects
         renderer = new Renderer();
         SPACE_ENGINE_INFO("Initilization app done");
@@ -22,6 +25,9 @@ namespace SpaceEngine{
     App::~App()
     {
         //Shutdown Managers
+        textureManager.Shutdown();
+        materialManager.Shutdown();
+        shaderManager.Shutdown();
         inputManager.Shutdown();
         windowManager.Shutdown();
         logManager.Shutdown();
@@ -32,11 +38,14 @@ namespace SpaceEngine{
     void App::Start()
     {
         //initialize main scene
-
         scene = new Scene();
         //TODO: initialize correctly the camera please 
         PerspectiveCamera* pCamera = new PerspectiveCamera();
-        scene->addSceneComponet<PerspectiveCamera>(pCamera);
+        pCamera->transf.translateGlobal(Vector3(0.f, 0.f, -3.f));
+        scene->addSceneComponent<PerspectiveCamera*>(pCamera);
+        Player* pPlayer = new Player("TestCube.obj");
+        scene->addSceneComponent<Player*>(pPlayer);
+
     }
     void App::Run()
     {
@@ -90,7 +99,7 @@ namespace SpaceEngine{
             //collects the renderizable objects in the scene
             scene->gatherRenderables(worldRenderables, uiRenderables);
             renderer->render(worldRenderables, *(scene->getActiveCamera()));
-            
+
             glClearColor(0.f, 0.f, 0.f, 1.f);
             //before rendering
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

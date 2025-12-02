@@ -3,7 +3,7 @@ find_dirs_Cmakefile()
 add_executable(Main main.cpp)
 
 #App library
-add_library(App STATIC app.cpp renderer.cpp TitleScreen.cpp Scene.cpp PlayerShip.cpp gameobject.cpp)
+add_library(App STATIC app.cpp renderer.cpp camera.cpp TitleScreen.cpp scene.cpp PlayerShip.cpp gameobject.cpp player.cpp)
 target_include_directories(App PRIVATE ${CMAKE_SOURCE_DIR}/include/
                             PRIVATE ${CMAKE_SOURCE_DIR}/include/managers)
 
@@ -13,6 +13,7 @@ target_link_libraries(App PRIVATE WindowManager
     PRIVATE OpenGL::GL
     PRIVATE LogManager
     PRIVATE InputManager
+    PUBLIC ShaderProgram
     PUBLIC Mesh)
 
 target_include_directories(Main PRIVATE ${CMAKE_SOURCE_DIR}/include/)
@@ -20,7 +21,8 @@ target_include_directories(Main PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_link_libraries(Main PRIVATE WindowManager 
                         PRIVATE App
                         PRIVATE LogManager
-                        PRIVATE InputManager)
+                        PRIVATE InputManager
+                        PRIVATE Mesh)
 set_target_properties(App PROPERTIES FOLDER "App")
 
 #ShaderProgram
@@ -37,7 +39,7 @@ target_link_libraries(Mesh PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
     PUBLIC assimp
     PRIVATE glm
-    PRIVATE Texture
+    PUBLIC Texture
     PRIVATE LogManager)
 target_include_directories(Mesh PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(Mesh PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)

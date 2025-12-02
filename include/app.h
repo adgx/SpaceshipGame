@@ -24,6 +24,7 @@ namespace SpaceEngine
             LogManager logManager;
             InputManager inputManager;
             MaterialManager materialManager;
+            TextureManager textureManager;
             ShaderManager shaderManager;
             //Objects
             Scene* scene;

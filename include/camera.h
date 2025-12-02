@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "transform.h"
+#include "player.h"
 
 namespace SpaceEngine
 {

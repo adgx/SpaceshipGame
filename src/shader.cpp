@@ -579,7 +579,7 @@ namespace SpaceEngine
 
     }
 
-    void ShaderManager::Inizialize()
+    void ShaderManager::Initialize()
     {
         createShaderProgram("simple");
         createShaderProgram("ui");

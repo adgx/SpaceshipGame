@@ -100,7 +100,7 @@ namespace SpaceEngine
         public:
             ShaderManager() = default;
             ~ShaderManager() = default;
-            void Inizialize();
+            void Initialize();
             static ShaderProgram* createShaderProgram(const std::string nameFile);
             static ShaderProgram* findShaderProgram(const std::string nameShader);
             void Shutdown();

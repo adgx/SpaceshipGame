@@ -77,6 +77,7 @@ namespace SpaceEngine
                     : props(std::move(initProps))
                 {}
                 std::unordered_map<std::string, Texture*> texs;
+            friend class MaterialManager;
     };
 
     class PBRMaterial : public BaseMaterial
@@ -107,6 +108,7 @@ namespace SpaceEngine
                     {"emissive_color_val", Vector3{0.f, 0.f, 0.f}}
                 };
             }
+        friend class MaterialManager;
     };
 
     class UIMaterial : public BaseMaterial
@@ -126,6 +128,7 @@ namespace SpaceEngine
                     {"roughness_val", float{1.f}},
                 };
             }
+        friend class MaterialManager;
     };
 
     class MaterialManager
@@ -133,11 +136,24 @@ namespace SpaceEngine
         public:
             MaterialManager() = default;
             ~MaterialManager() = default;
-            void Inizialize();
-            template <typename T>
-            static BaseMaterial* createMaterial(const std::string name);
+            void Initialize();
             static BaseMaterial* findMaterial(const std::string nameMaterial);
             void Shutdown();
+
+            template <typename T>
+            static BaseMaterial* createMaterial(const std::string name)
+            {
+                static_assert(std::is_base_of_v<BaseMaterial, T>);
+
+                if(materialsMap.find(name) == materialsMap.end())
+                {
+                    T* pMat = new T();
+                    materialsMap[name] = pMat;
+                    return pMat;   
+                }
+                return nullptr;
+            }
+
         private:
             static std::unordered_map<std::string, BaseMaterial*> materialsMap;
     };

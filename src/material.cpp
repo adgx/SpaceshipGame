@@ -148,25 +148,11 @@ namespace SpaceEngine
     }
 
     //MaterialManager
-    static std::unordered_map<std::string, BaseMaterial*> materialsMap;
+    std::unordered_map<std::string, BaseMaterial*> MaterialManager::materialsMap;
     
-    void MaterialManager::Inizialize()
+    void MaterialManager::Initialize()
     {
 
-    }
-
-    template <typename T>
-    BaseMaterial* MaterialManager::createMaterial(const std::string name)
-    {
-        static_assert(std::is_base_of_v<BaseMaterial, T>);
-
-        if(materialsMap.find(name) == materialsMap.end())
-        {
-            T* pMat = new T();
-            materialsMap[name] = pMat;
-            return pMat;   
-        }
-        return nullptr;
     }
 
     BaseMaterial* MaterialManager::findMaterial(const std::string nameMaterial)

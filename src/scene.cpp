@@ -4,6 +4,11 @@
 
 namespace SpaceEngine{
 
+    BaseCamera* Scene::getActiveCamera()
+    {
+        return cameras[0];
+    }
+
     void Scene::Update(float dt)
     {
         for (auto* obj : gameObjects)

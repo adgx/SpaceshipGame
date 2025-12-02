@@ -6,6 +6,11 @@ namespace SpaceEngine
 {
     class Player : public GameObject
     { 
-        Player(std::string filePathModel);
+        public:
+            Player(std::string fileNameModel);
+            void update(float dt) override;
+        
+        private:
+            float angularVY = 10.f;
     };
 }

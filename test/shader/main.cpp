@@ -11,7 +11,7 @@ int main()
     SpaceEngine::ShaderManager shManager{};
     logManager.Initialize();
     winManager.Initialize();
-    shManager.Inizialize();
+    shManager.Initialize();
     SPACE_ENGINE_DEBUG("Test the shaderManager");
     SPACE_ENGINE_DEBUG("Test the shader: simple");
     SPACE_ENGINE_ASSERT(SpaceEngine::ShaderManager::createShaderProgram("simple"), "null pointer shader");
