@@ -17,9 +17,9 @@ namespace SpaceEngine
         public:
             App();
             ~App();
-            void Start();
             void Run();
         private:
+            void Start();
             //managers
             LogManager logManager;
             InputManager inputManager;

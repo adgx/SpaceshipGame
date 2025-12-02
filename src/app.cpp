@@ -20,6 +20,10 @@ namespace SpaceEngine{
         //Objects
         renderer = new Renderer();
         SPACE_ENGINE_INFO("Initilization app done");
+        //scene 
+        SPACE_ENGINE_DEBUG("Start the initialization the scene");
+        Start();
+        SPACE_ENGINE_INFO("Initialization the scene done");
     }
     
     App::~App()
