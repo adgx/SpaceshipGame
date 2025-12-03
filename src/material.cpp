@@ -90,17 +90,20 @@ namespace SpaceEngine
 
     int BaseMaterial::addTexture(const std::string& nameTex, Texture* pTex)
     {
-        if(texs.find(nameTex) == texs.end())
+        auto pos = texs.find(nameTex);
+        if(pos == texs.end() || (pos != texs.end() && texs[nameTex] == nullptr))
         {
             SPACE_ENGINE_INFO("Material: {}, added Texture: {}", name, nameTex);
-            pTex->setBindlessHandle(static_cast<unsigned int>(texs.size()));
+            pTex->setBindlessHandle(static_cast<unsigned int>(GL_TEXTURE0+settedTexs));
+            pTex->bind();
+            settedTexs++;
             texs[nameTex] = pTex;
 
         }
-        else 
+        else
         {
             SPACE_ENGINE_WARN("Material: {}, overwrite Texture: {}", name, nameTex);
-            pTex->setBindlessHandle(static_cast<unsigned int>(texs.size()));
+            pTex->setBindlessHandle(pos->second->getBindlessHandle());
             texs[nameTex] = pTex;
             return 2;
         }
@@ -140,7 +143,9 @@ namespace SpaceEngine
         if(texs.find(nameTex) != texs.end())
         {
             props.erase(nameTex);
+            settedTexs--;
             SPACE_ENGINE_INFO("Texture: {} is removed", nameTex);
+            SPACE_ENGINE_INFO("Texture setted: {}", settedTexs);
             return 1;
         }
         SPACE_ENGINE_ERROR("Texture: {} not found",  nameTex);

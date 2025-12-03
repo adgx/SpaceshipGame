@@ -36,6 +36,8 @@
 #define HEIGHT_TEXTURE_UNIT                         GL_TEXTURE15
 #define HEIGHT_TEXTURE_UNIT_INDEX                   15
 
+#define GET_GL_TEXTURE_UNIT(N) GL_TEXTURE##N
+
 namespace SpaceEngine
 {
     std::wstring toWide(const std::string& str)
@@ -75,12 +77,15 @@ namespace SpaceEngine
     {
         std::string p(path.data);
 
+        /*
         if (p == "C:\\\\") {
             p = "";
         }
         else if (p.substr(0, 2) == ".\\") {
             p = p.substr(2, p.size() - 2);
         }
+        */
+        p = getFileNameFormPath(p);
 
         std::string fullPath = dir + "/" + p;
 

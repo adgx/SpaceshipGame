@@ -77,6 +77,7 @@ namespace SpaceEngine
                     : props(std::move(initProps))
                 {}
                 std::unordered_map<std::string, Texture*> texs;
+                unsigned int settedTexs = 0;
             friend class MaterialManager;
     };
 

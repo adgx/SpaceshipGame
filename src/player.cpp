@@ -7,6 +7,11 @@ namespace SpaceEngine
     {
         m_vecTransform.push_back(new Transform());
         m_pMesh = MeshManager::loadMesh(fileNameModel);
+        //debug
+        //switch the shader for material to show a simple texture on the mesh
+        BaseMaterial* pMat = m_pMesh->getMaterialBySubMeshIndex(0);
+        pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
+
     }
 
     void Player::update(float dt)

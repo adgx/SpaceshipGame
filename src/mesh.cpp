@@ -72,8 +72,8 @@ namespace SpaceEngine
             SPACE_ENGINE_ERROR("Index out of rangeis nullptr")
             return nullptr;
         }
-
-        return materials[index];
+    
+        return materials[subMeshes[index].materialIndex];
     }
 
     //MeshManager
@@ -203,7 +203,7 @@ namespace SpaceEngine
 
     bool MeshManager::initMaterials(const aiScene* pScene, const std::string& fileName)
     {
-        std::string dir = Utils::getDirFromFilename(fileName);
+        std::string dir = TEXTURES_PATH+pTMPMesh->name;
 
         SPACE_ENGINE_DEBUG("Num materials: {}", pScene->mNumMaterials);
 
@@ -258,7 +258,7 @@ namespace SpaceEngine
                 {
                     std::string fullPath = Utils::getFullPath(dir, path);
                     bool IsSRGB = true;
-                    pTMPMesh->materials[materialIndex]->addTexture("diffuse_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("diffuse_tex", TextureManager::load(fullPath, IsSRGB));
                     SPACE_ENGINE_INFO("Loaded diffuse texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
@@ -284,7 +284,7 @@ namespace SpaceEngine
                 {
                     std::string fullPath = Utils::getFullPath(dir, path);
                     bool IsSRGB = false;
-                    pTMPMesh->materials[materialIndex]->addTexture("specular_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("specular_tex", TextureManager::load(fullPath, IsSRGB));
                     SPACE_ENGINE_INFO("Loaded specular texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
@@ -310,7 +310,7 @@ namespace SpaceEngine
                 {
                     std::string fullPath = Utils::getFullPath(dir, path);
                     bool IsSRGB = true;
-                    pTMPMesh->materials[materialIndex]->addTexture("albedo_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("albedo_tex", TextureManager::load(fullPath, IsSRGB));
                     SPACE_ENGINE_INFO("Loaded albedo texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
@@ -340,7 +340,7 @@ namespace SpaceEngine
                 {
                     std::string fullPath = Utils::getFullPath(dir, path);
                     bool IsSRGB = false;
-                    pTMPMesh->materials[materialIndex]->addTexture("metalness_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("metalness_tex", TextureManager::load(fullPath, IsSRGB));
                     SPACE_ENGINE_INFO("Loaded metalness texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
@@ -369,7 +369,7 @@ namespace SpaceEngine
                 {
                     std::string fullPath = Utils::getFullPath(dir, path);
                     bool IsSRGB = false;
-                    pTMPMesh->materials[materialIndex]->addTexture("roughness_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("roughness_tex", TextureManager::load(fullPath, IsSRGB));
                     SPACE_ENGINE_INFO("Loaded roughness texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }

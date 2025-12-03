@@ -12,7 +12,7 @@ namespace SpaceEngine
     class GameObject 
     {
         public:
-            GameObject(){m_numInstances = 1;};
+            GameObject(){m_numInstances = 1; };
             virtual ~GameObject() = default;
             int getNumInstances();
             void destroy(); 
@@ -28,6 +28,10 @@ namespace SpaceEngine
                 else if constexpr (std::is_same_v<T, std::vector<Transform*>>)
                 {
                     return &m_vecTransform;
+                }
+                else if constexpr (std::is_same_v<T, Transform>)
+                {
+                    return m_vecTransform[0];
                 }
             
                 SPACE_ENGINE_ERROR("Component not found");

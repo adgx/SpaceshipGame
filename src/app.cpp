@@ -43,12 +43,15 @@ namespace SpaceEngine{
     {
         //initialize main scene
         scene = new Scene();
-        //TODO: initialize correctly the camera please 
-        PerspectiveCamera* pCamera = new PerspectiveCamera();
-        pCamera->transf.translateGlobal(Vector3(0.f, 0.f, -3.f));
-        scene->addSceneComponent<PerspectiveCamera*>(pCamera);
         Player* pPlayer = new Player("TestCube.obj");
         scene->addSceneComponent<Player*>(pPlayer);
+        //TODO: initialize correctly the camera please 
+        PerspectiveCamera* pCamera = new PerspectiveCamera();
+        pCamera->transf.translateGlobal(Vector3(0.f, 3.f, 5.f));
+        
+        pCamera->transf.lookAt(pPlayer->getComponent<Transform>()->getWorldPosition());
+        scene->addSceneComponent<PerspectiveCamera*>(pCamera);
+
 
     }
     void App::Run()
@@ -56,15 +59,18 @@ namespace SpaceEngine{
         SPACE_ENGINE_DEBUG("App - GameLoop");
         //token debug stuff
         bool token = false; 
-        float currentTime = static_cast<float>(glfwGetTime());
+        float lastTime = static_cast<float>(glfwGetTime());
+        float currentTime;
         //Gathers
         std::vector<RenderObject> worldRenderables;
         std::vector<UIRenderObject> uiRenderables;
         
         while(!windowManager.WindowShouldClose())
         {
-            
-            float dt = static_cast<float>(glfwGetTime()) - currentTime;
+            currentTime = static_cast<float>(glfwGetTime()); 
+            float dt = currentTime - lastTime;
+            lastTime = static_cast<float>(glfwGetTime());
+
             //refresh the input 
             inputManager.Update();
 
@@ -102,11 +108,11 @@ namespace SpaceEngine{
             scene->Update(dt);
             //collects the renderizable objects in the scene
             scene->gatherRenderables(worldRenderables, uiRenderables);
+            //before rendering
+            glClearColor(1.f, 1.f, 1.f, 1.f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderer->render(worldRenderables, *(scene->getActiveCamera()));
 
-            glClearColor(0.f, 0.f, 0.f, 1.f);
-            //before rendering
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             windowManager.PollEvents();
             windowManager.SwapBuffers();
         }

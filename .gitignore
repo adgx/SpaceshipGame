@@ -2,8 +2,6 @@ out/
 bin/
 build/
 res/
-assets/meshes
-assets/textures
 .vs/
 .vscode/
 .idea/

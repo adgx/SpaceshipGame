@@ -73,7 +73,7 @@ namespace SpaceEngine
     bool TextureManager::load(Texture* pTex, bool isSRGB)
     {
         unsigned char* pImageData = NULL;
-        stbi_set_flip_vertically_on_load(1);
+        stbi_set_flip_vertically_on_load(0);
         pImageData = stbi_load(pTex->path.c_str(), &(pTex->imageWidth), &(pTex->imageHeight), &(pTex->imageBPP), 0);
 
         if (!pImageData) {
