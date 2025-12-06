@@ -60,6 +60,10 @@ namespace SpaceEngine{
         bool token = false; 
         float lastTime = static_cast<float>(glfwGetTime());
         float currentTime;
+        //handle the tunneling caused by a to slow frame dt
+        //fixed time step
+        //float fixed_dt = 1.f/60.f
+        //float accumulator = 0.0;
         //Gathers
         std::vector<RenderObject> worldRenderables;
         std::vector<UIRenderObject> uiRenderables;
@@ -105,6 +109,15 @@ namespace SpaceEngine{
 
             //update game objects in the scene
             scene->Update(dt);
+            
+            //collision/physic system
+            //accumulator += dt
+            //while(accumulator >= fixed_dt)
+            //{
+            //    collisionManager->FixedUpdate(fixed_dt);
+            //    accumulator -= fixed_dt;
+            //}
+
             //collects the renderizable objects in the scene
             scene->gatherRenderables(worldRenderables, uiRenderables);
             //before rendering
