@@ -1,26 +1,25 @@
 #pragma once
+#include "gameObject.h"
 #include "utils/utils.h"
 
 namespace SpaceEngine {
 
-    class PlayerShip {
+    class PlayerShip : public GameObject {
     public:
-        PlayerShip();
-        ~PlayerShip();
+        PlayerShip(Scene *scene);
+        virtual ~PlayerShip();
 
-        // Inizializza buffers (VAO/VBO) e texture
+        // Inizializza buffers (VAO/VBO), texture e collider
         void Init();
 
         // Gestisce l'input e aggiorna la posizione
-        void Update(float dt);
+        virtual void update(float dt) override;
 
         void Render(unsigned int shaderProgramID);
 
-        // Getter per la posizione della nave per sapere da dove sparare i prouettili
-        glm::vec3 GetPosition() const { return m_position; }
+        virtual void onCollisionEnter(Collider* col) override;
 
     private:
-        glm::vec3 m_position; 
         float m_speed;
 
         // Limiti di movimento
@@ -28,7 +27,9 @@ namespace SpaceEngine {
         float m_limitY;
 
         unsigned int m_textureID;
-        unsigned int m_VAO, m_VBO, m_EBO; // Buffer per il rettangolo 3D
+        unsigned int m_VAO, m_VBO, m_EBO;
+
+        float m_shootCooldown;
 
         void HandleInput(float dt);
         void InitMesh(); // Funzione interna per creare il rettangolo

@@ -7,25 +7,57 @@
 
 namespace SpaceEngine {
 
-    PlayerShip::PlayerShip()
-        : m_position(0.0f, 0.0f, -10.0f) // Posizionata davanti alla camera
-        , m_speed(15.0f)                 // Velocità in unità/secondo
-        , m_limitX(14.0f)                // Limite orizzontale (dipende dallo zoom camera)
-        , m_limitY(9.0f)                 // Limite verticale
-        , m_textureID(0)
-    {}
+    static unsigned int loadTextureFromFile(const char* path) {
+        int width, height, channels;
+        stbi_set_flip_vertically_on_load(true); 
+        unsigned char* data = stbi_load(path, &width, &height, &channels, 0);
+        
+        if (!data) {
+            SPACE_ENGINE_ERROR("Failed to load texture: {}", path);
+            return 0;
+        }
+
+        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+        unsigned int tex = 0;
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        
+        // Parametri texture
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        stbi_image_free(data);
+        return tex;
+    }
+
+    PlayerShip::PlayerShip(Scene* scene){
+        m_speed = 15.0f;               
+        m_limitX = 14.0f;              
+        m_limitY = 9.0f;               
+        m_shootCooldown = 0.0f;        
+        m_textureID = 0;
+        m_VAO = 0; m_VBO = 0; m_EBO = 0;
+    }
 
     PlayerShip::~PlayerShip() {
-        // Pulizia della memoria video
-        glDeleteVertexArrays(1, &m_VAO);
-        glDeleteBuffers(1, &m_VBO);
-        glDeleteBuffers(1, &m_EBO);
+        if (m_VAO) glDeleteVertexArrays(1, &m_VAO);
+        if (m_VBO) glDeleteBuffers(1, &m_VBO);
+        if (m_EBO) glDeleteBuffers(1, &m_EBO);
         if (m_textureID) glDeleteTextures(1, &m_textureID);
     }
 
     void PlayerShip::Init() {
+        if (m_pTransform) {
+            m_pTransform->setLocalPosition(glm::vec3(0.0f, 0.0f, -10.0f));
+            m_pTransform->setLocalScale(glm::vec3(1.0f));
+        }
         // Carica Texture
-        // m_textureID = loadTextureFromFile("assets/textures/spaceship.png");
+        m_textureID = loadTextureFromFile("assets/textures/spaceship.png");
         
         //Crea la mesh della nave
         InitMesh();
@@ -70,11 +102,18 @@ namespace SpaceEngine {
         glBindVertexArray(0); 
     }
 
-    void PlayerShip::Update(float dt) {
+    void PlayerShip::update(float dt) {
         HandleInput(dt);
+
+        if(m_shootCooldown > 0.0f) {
+            m_shootCooldown -= dt;
+        }
     }
 
     void PlayerShip::HandleInput(float dt) {
+        float velocity = m_speed * dt;
+
+        glm::vec3 m_position = m_pTransform->getLocalPosition();
         float velocity = m_speed * dt;
 
         // --- MOVIMENTO ---
@@ -88,6 +127,8 @@ namespace SpaceEngine {
         if (m_position.x < -m_limitX) m_position.x = -m_limitX;
         if (m_position.y > m_limitY)  m_position.y = m_limitY;
         if (m_position.y < -m_limitY) m_position.y = -m_limitY;
+
+        m_pTransform->setLocalPosition(m_position);
     }
 
     void PlayerShip::Render(unsigned int shaderProgramID) {
@@ -97,7 +138,16 @@ namespace SpaceEngine {
         glBindTexture(GL_TEXTURE_2D, m_textureID);
         
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_position); 
+        if (m_pTransform) {
+            // Usa la posizione del transform
+            model = glm::translate(model, m_pTransform->getLocalPosition());
+            // Applica anche scala e rotazione se servono
+            model = glm::scale(model, m_pTransform->getLocalScale());
+            // model = glm::rotate(model, ...); se vogliamo applicare rotazioni durante il movimento/sparo
+        } else {
+            // Fallback se transform è nullo
+            model = glm::translate(model, glm::vec3(0,0,-10)); 
+        } 
         
         unsigned int modelLoc = glGetUniformLocation(shaderProgramID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
