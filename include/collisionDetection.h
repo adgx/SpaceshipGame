@@ -68,6 +68,7 @@ namespace SpaceEngine
                     bbox.r[0], bbox.r[1], bbox.r[2])
             }
 
+            //bugged
             static int testCollidersLocalSpace(const Collider* a, const Collider* b)
             {
                 Matrix4 invTA = Math::inverse(a->gameObj->getComponent<Transform>()->getWorldMatrix());
