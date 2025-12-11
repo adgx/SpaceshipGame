@@ -46,6 +46,7 @@ namespace SpaceEngine
             TextureManager() = default;
             ~TextureManager() = default;
             void Initialize() {};
+            static Texture* loadCubeMap(const std::string& path);
             static Texture* load(const std::string& path, bool isSRGB = false);
             static Texture* load(const std::string& texName, uint32_t bufferSize, void* pBufferData, bool isSRGB = false);
             static Texture* loadRaw(const std::string&, int width, int height, int BPP, const unsigned char* pImageData, bool isSRGB);

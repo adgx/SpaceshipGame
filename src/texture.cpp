@@ -2,6 +2,10 @@
 #include "utils/stb_image.h"
 #include "utils/utils.h"
 #include "log.h"
+#include <array>
+#include <string_view>
+
+constexpr std::size_t N_CUBEMAP_TEX = 6;
 
 namespace SpaceEngine
 {
@@ -46,6 +50,62 @@ namespace SpaceEngine
         {
             texMap[nameKey] = pTex;
         }
+    }
+
+
+    Texture* TextureManager::loadCubeMap(const std::string& nameDir)
+    {
+        if(!Utils::directoryExists(TEXTURES_PATH+nameDir))
+        {
+            SPACE_ENGINE_ERROR("Dir Texture cubemap not found, dir{}", TEXTURES_PATH+nameDir);
+            exit(-1);
+        }
+
+        Texture* pTex = new Texture(GL_TEXTURE_CUBE_MAP);
+        SPACE_ENGINE_INFO("Loading cubemap texture");
+        constexpr std::array<const char*, N_CUBEMAP_TEX> faces = {
+            "/right.png", 
+            "/left.png",
+            "/top.png", 
+            "/bottom.png", 
+            "/front.png", 
+            "/back.png"  
+        };
+
+        pTex->path = TEXTURES_PATH+nameDir;
+        for(int i = 0; i < N_CUBEMAP_TEX; i++)
+        {
+            
+            std::string fullPath = pTex->path + std::string(faces[i]);   
+            unsigned char *data = stbi_load(fullPath.c_str(), &pTex->imageWidth, &pTex->imageHeight, &pTex->imageBPP, 3);
+            if (data)
+            {
+                // Sommando 'i', accediamo a destra, sinistra, sopra
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+                            0, GL_RGB, pTex->imageWidth, pTex->imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                stbi_image_free(data);
+            }
+            else
+            {
+                SPACE_ENGINE_ERROR("Cubemap texture failed to load at path: {}", fullPath);
+                stbi_image_free(data);
+            }
+
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+            //capiamo
+            //stbi_set_flip_vertically_on_load(true);
+        }
+        
+        pTex->fileName = nameDir;
+
+        insert(pTex->fileName, pTex);
+        
+        return pTex;
     }
 
     Texture* TextureManager::load(const std::string& path, bool isSRGB)

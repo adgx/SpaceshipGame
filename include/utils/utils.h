@@ -64,6 +64,7 @@ namespace SpaceEngine
             static std::string getDirFromFilename(const std::string& fileName);
             static std::string getFullPath(const std::string& dir, const aiString& path);
             static bool fileExists(const std::string &fileName); 
+            static bool directoryExists(const std::string& pathDir);
             static std::string getFileNameFormPath(const std::string& path);
             static std::string getExtension(const char *name); 
             static std::string getFileNameNoExt(const std::string& filePath);

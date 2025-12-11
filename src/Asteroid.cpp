@@ -1,4 +1,4 @@
-#include "Asteroid.h"
+#include "asteroid.h"
 #include <iostream>
 #include <ctime>
 

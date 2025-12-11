@@ -4,8 +4,19 @@
 
 namespace SpaceEngine
 {
-    void Renderer::render(const std::vector<RenderObject>& renderables, BaseCamera& cam)
+    void Renderer::render(const std::vector<RenderObject>& renderables, BaseCamera& cam, Skybox* pSkybox)
     {
+        if(pSkybox)
+        {
+            glDepthFunc(GL_LEQUAL);
+            pSkybox->bindVAO();
+            pSkybox->pShader->use();
+            pSkybox->pShader->setUniform("view", Matrix4(Matrix3(cam.getViewMatrix())));
+            pSkybox->pShader->setUniform("projection", cam.getProjectionMatrix());
+            pSkybox->draw();
+            glDepthFunc(GL_LESS);
+        }
+
         for(const auto& renderObj : renderables)
         {
             if(!renderObj.mesh ) continue;

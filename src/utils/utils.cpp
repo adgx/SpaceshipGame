@@ -73,6 +73,17 @@ namespace SpaceEngine
         #endif
     }
 
+    bool Utils::directoryExists(const std::string& pathDir)
+    {
+        #ifdef _WIN64
+        DWORD attrib = GetFileAttributesA(pathDir.c_str());
+        return (attrib != INVALID_FILE_ATTRIBUTES &&
+           (attrib & FILE_ATTRIBUTE_DIRECTORY));
+        #else
+            return false
+        #endif
+    }
+
     std::string Utils::getFullPath(const std::string& dir, const aiString& path)
     {
         std::string p(path.data);

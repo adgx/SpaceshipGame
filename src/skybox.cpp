@@ -1,0 +1,72 @@
+#include "skybox.h"
+#include "log.h"
+#include "texture.h"
+
+namespace SpaceEngine
+{
+
+        float skyboxVertices[] = {
+            -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f,
+
+             1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,
+
+            -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f
+        };
+
+        Skybox::Skybox()
+        {
+            init();
+        }
+        void Skybox::bindTex()
+        {
+            pCubeMapTex->bind();
+        }
+        void Skybox::init()
+        {
+            
+            // Setup del cubo geometrico (VAO/VBO)
+            glGenVertexArrays(1, &VAO);
+            glGenBuffers(1, &VBO);
+            
+            glBindVertexArray(VAO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+            
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            
+            pCubeMapTex = TextureManager::loadCubeMap("skybox"); 
+            //this is ok if we handle only skybox
+            pCubeMapTex->setBindlessHandle(GL_TEXTURE0); 
+            // per caricare lo shader
+            pShader = ShaderManager::findShaderProgram("skybox");
+            if (!pShader) {
+                SPACE_ENGINE_ERROR("Skybox shader mancante!");
+                return;
+            }
+            
+            pShader->setUniform("skybox", 0);
+        }
+
+        void Skybox::bindVAO()
+        {
+            glBindVertexArray(VAO);
+        }
+
+        void Skybox::draw()
+        {
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+}

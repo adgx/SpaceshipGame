@@ -3,7 +3,19 @@ find_dirs_Cmakefile()
 add_executable(Main main.cpp)
 
 #App library
-add_library(App STATIC app.cpp renderer.cpp camera.cpp TitleScreen.cpp scene.cpp PlayerShip.cpp EnemyShip.cpp Asteroid.cpp gameobject.cpp player.cpp collisionDetection.cpp)
+add_library(App STATIC app.cpp 
+                    renderer.cpp 
+                    camera.cpp 
+                    titleScreen.cpp 
+                    scene.cpp 
+                    playerShip.cpp 
+                    enemyShip.cpp 
+                    asteroid.cpp 
+                    gameobject.cpp 
+                    player.cpp 
+                    collisionDetection.cpp 
+                    skybox.cpp)
+
 target_include_directories(App PRIVATE ${CMAKE_SOURCE_DIR}/include/
                             PRIVATE ${CMAKE_SOURCE_DIR}/include/managers)
 

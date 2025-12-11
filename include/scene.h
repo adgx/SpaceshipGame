@@ -19,14 +19,15 @@ namespace SpaceEngine
     class Scene
     {
         public:
-            Scene(PhysicsManager* pPhyManager):pPhyManager(pPhyManager){};
+            Scene(PhysicsManager* pPhyManager):pPhyManager(pPhyManager)
+            {
+                //add a constructor where you can pass the path of skybox
+                pSkybox = new Skybox();
+            };
             ~Scene() = default;
 
             void Init();
             void createGameObject();
-
-            void initSkybox(std::vector<std::string> faces); 
-            void drawSkybox(const glm::mat4& view, const glm::mat4& projection);
 
             template<typename T>
             void addSceneComponent(T sceneComponent)
@@ -67,14 +68,10 @@ namespace SpaceEngine
             void requestInstatiate(GameObject* pGameObj, Vector3 wPos);
             void requestInstatiate(GameObject* pGameObj, float time, Vector3 wPos);
             BaseCamera* getActiveCamera();
+            Skybox* getSkybox();
             void Update(float dt);
         private:
-            unsigned int skyboxVAO = 0;
-            unsigned int skyboxVBO = 0;
-            unsigned int cubemapTextureID = 0; 
-            ShaderProgram* skyboxShader = nullptr;
-
-            unsigned int LoadCubemap(const std::vector<std::string>& faces);
+            
 
             PhysicsManager* pPhyManager = nullptr;
             void processDestroyQ();
@@ -95,5 +92,6 @@ namespace SpaceEngine
             std::list<SpawnRequest> spawnQ;
             //cameras[0] is always the active camera
             vector<BaseCamera*> cameras;
+            Skybox* pSkybox = nullptr;
     };
 }

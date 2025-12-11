@@ -2,6 +2,9 @@
 #include "log.h"
 #include "camera.h"
 #include "player.h"
+#include "enemyShip.h"
+#include "asteroid.h"
+#include "playerShip.h"
 #include <vector>
 
 namespace SpaceEngine{
@@ -45,17 +48,6 @@ namespace SpaceEngine{
     {
         //initialize main scene
         scene = new Scene(&physicsManager);
-
-        //per skybox
-        std::vector<std::string> faces = {
-            "assets/textures/skybox/right.png", 
-            "assets/textures/skybox/left.png",
-            "assets/textures/skybox/top.png", 
-            "assets/textures/skybox/bottom.png", 
-            "assets/textures/skybox/front.png", 
-            "assets/textures/skybox/back.png"  
-        };
-        scene->initSkybox(faces);
 
         //crea e inizializza il player
         PlayerShip* pPlayer = new PlayerShip("TestCube.obj");
@@ -195,9 +187,8 @@ namespace SpaceEngine{
             glClearColor(0.1f, 0.1f, 0.1f, 1.f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             BaseCamera* cam = scene->getActiveCamera();
-            scene->drawSkybox(cam->getViewMatrix(), cam->getProjectionMatrix());
             
-            renderer->render(worldRenderables, *(scene->getActiveCamera()));
+            renderer->render(worldRenderables, *(scene->getActiveCamera()), scene->getSkybox());
 
             windowManager.PollEvents();
             windowManager.SwapBuffers();

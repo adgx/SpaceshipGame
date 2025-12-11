@@ -4,6 +4,7 @@
 #include "utils/utils.h"
 #include "material.h"
 #include "camera.h"
+#include "skybox.h"
 #include "ui.h"
 
 #include <vector>
@@ -29,7 +30,7 @@ namespace SpaceEngine
     class Renderer
     {
         public:
-            void render(const std::vector<RenderObject>& renderables, BaseCamera& cam);
+            void render(const std::vector<RenderObject>& renderables, BaseCamera& cam, Skybox* pSkybox);
         private:
             bool debug;
     };

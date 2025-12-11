@@ -1,4 +1,4 @@
-#include "TitleScreen.h"
+#include "titleScreen.h"
 #include "inputManager.h"
 #include "windowManager.h"
 #include "log.h"
