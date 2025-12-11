@@ -32,6 +32,9 @@ namespace SpaceEngine
             virtual void fixedUpdate(float fixed_dt);
             virtual void onCollisionEnter(Collider* col);
 
+            Transform* getTransform() const { 
+                return m_pTransform; 
+            }
             
             template<typename T>
             T* getComponent()

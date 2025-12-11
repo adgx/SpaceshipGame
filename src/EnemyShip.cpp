@@ -5,29 +5,53 @@
 
 namespace SpaceEngine {
 
-    EnemyShip::EnemyShip() 
-        : m_position(0.0f), m_speed(10.0f), m_shootTimer(0.0f), m_shootCooldown(2.0f)
+    EnemyShip::EnemyShip(std::string filePathModel) : 
+        m_type(EnemyType::NORMAL), m_pTarget(nullptr), m_speed(10.0f),
+        m_shootTimer(0.0f), m_shootCooldown(2.0f), m_spawnRangeX(50.0f), m_spawnRangeY(30.0f),
+        m_spawnZ(-100.0f), m_despawnZ(20.0f)
     {
-        InitMesh();
+        m_pMesh = MeshManager::loadMesh(filePathModel);
+        BaseMaterial* pMat = m_pMesh->getMaterialBySubMeshIndex(0);
+        pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
+        m_pCollider = new Collider(this);
+
+        m_speed = 10.0f;
     }
 
     EnemyShip::~EnemyShip() {
-        glDeleteVertexArrays(1, &m_VAO);
-        glDeleteBuffers(1, &m_VBO);
+        if(m_pMesh) delete m_pMesh; 
+        if(m_pCollider) delete m_pCollider;       
     }
 
-    void EnemyShip::Init(unsigned int textureID, glm::vec3 spawnPos, EnemyType type) {
-        m_textureID = textureID;
-        m_position = spawnPos;
+    void EnemyShip::Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget) {
         m_type = type;
+        m_pTarget = pTarget;
         
-        // Per decidere velocità di fuoco in base al tipo
-        if (m_type == EnemyType::SPREAD) m_shootCooldown = 3.0f;
-        if (m_type == EnemyType::AIMER) m_shootCooldown = 3.0f;
+        if (m_pTransform) {
+            m_pTransform->setLocalPosition(spawnPos);
+            // Ruota di 180 gradi su Y se il modello guarda verso -Z ma arriva da -Z verso +Z
+            m_pTransform->setLocalRotation(glm::vec3(0, 180.0f, 0)); 
+        }
+
+        // Setup statistiche in base al tipo
+        switch (m_type) {
+            case EnemyType::NORMAL:
+                m_speed = 8.0f;
+                m_shootCooldown = 2.0f;
+                break;
+            case EnemyType::AIMER:
+                m_speed = 6.0f; // Più lento ma mira
+                m_shootCooldown = 1.5f;
+                break;
+            case EnemyType::SPREAD:
+                m_speed = 10.0f; // Veloce
+                m_shootCooldown = 3.0f;
+                break;
+        }
     }
 
-    std::vector<Bullet> EnemyShip::Update(float dt, glm::vec3 playerPos) {
-        m_position.z += m_speed * dt;
+    /*std::vector<Bullet> EnemyShip::update(float dt) {
+        performAI(dt);
 
         m_shootTimer += dt; //
         
@@ -42,9 +66,40 @@ namespace SpaceEngine {
         }
 
         return newBullets; // Ritorna i proiettili alla scena
+    }  PER SPARARE */
+
+    void EnemyShip::update(float dt) {
+        if (!m_pTransform) return;
+
+        performAI(dt);
+
+        // se supera la camera si distrugge
+        if (m_pTransform->getLocalPosition().z > m_despawnZ) {
+            destroy();
+            SPACE_ENGINE_INFO("Enemy despawned (out of bounds)");
+        }
     }
 
-    std::vector<Bullet> EnemyShip::Shoot(glm::vec3 playerPos) {
+    void EnemyShip::performAI(float dt) {
+        // Movimento in avanti
+        glm::vec3 currentPos = m_pTransform->getLocalPosition();
+        currentPos.z += m_speed * dt;
+
+        if (m_type == EnemyType::AIMER && m_pTarget) {
+            // Esempio Aimer: Si sposta lentamente su X verso il giocatore
+            glm::vec3 targetPos = m_pTarget->getTransform()->getLocalPosition();
+            if (currentPos.x < targetPos.x) currentPos.x += m_speed * 0.5f * dt;
+            if (currentPos.x > targetPos.x) currentPos.x -= m_speed * 0.5f * dt;
+        }
+        else if (m_type == EnemyType::SPREAD) {
+            // Esempio Spread: Movimento a zig-zag (seno)
+            currentPos.x += sin(currentPos.z * 0.5f) * 5.0f * dt; 
+        }
+
+        m_pTransform->setLocalPosition(currentPos);
+    }
+
+    /*std::vector<Bullet> EnemyShip::Shoot(glm::vec3 playerPos) {
         std::vector<Bullet> bullets;
         float bulletSpeed = 40.0f; // Velocità del proiettile
 
@@ -92,15 +147,25 @@ namespace SpaceEngine {
         }
 
         return bullets;
+    } PER SPARARE*/
+
+    RenderObject EnemyShip::getRenderObject() {
+        RenderObject obj;
+        obj.mesh = m_pMesh;
+
+        glm::mat4 model = glm::mat4(1.0f);
+
+        if (m_pTransform) {
+            // Traslazione
+            model = glm::translate(model, m_pTransform->getLocalPosition());
+        }
+
+        obj.modelMatrix = model;
+        return obj;
     }
 
-    void EnemyShip::Render(unsigned int shaderProgramID) {
-        // ... (Codice Render standard: glUseProgram, bind texture, model matrix, draw arrays) ...
-        // Usa una matrice Model con translate(m_position) e rotate(180, Y) perché la nave guarda verso di noi
-    }
-    
-    void EnemyShip::InitMesh() {
-        // ... (Copia il codice di creazione VAO/VBO da PlayerShip o Asteroid) ...
-        // Assicurati che i vertici formino un quadrato o un cubo
+    void EnemyShip::onCollisionEnter(Collider* col) {
+        SPACE_ENGINE_INFO("Enemy hit something!");
+        // Logica distruzione da settare
     }
 }
