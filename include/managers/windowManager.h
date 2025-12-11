@@ -1,6 +1,8 @@
 #pragma once
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#include "utils/utils.h"
+
 #define SPACE_ENGINE_MIN_RES_W 720
 #define SPACE_ENGINE_MIN_RES_H 480
 #define SPACE_ENGINE_MAX_RES_W 1920
@@ -28,7 +30,8 @@ namespace SpaceEngine
             static GLFWwindow* window;
             static GLFWmonitor* monitor;
             static bool fullScreenState;
-            constexpr static const float aspectRatio = 16.f/9.f;  
+            constexpr static const float aspectRatio = 16.f/9.f;
+            static Matrix4 sceenProjMatrix; 
         private:
             bool setUpGLFW();
     };

@@ -69,6 +69,14 @@ namespace SpaceEngine
             int removeTexture(const std::string& nameTex);
             std::string name;
             std::unordered_map<std::string, PropertyValue> props;
+            //name subroutine/ bool is active
+            //when switch for a subroutine to another remember to turn of the subroutine
+            struct subroutineInfo
+            {
+                bool active = false;
+                int type = -1;
+            };
+            std::unordered_map<std::string, subroutineInfo> subroutines;
             ShaderProgram* pShader = nullptr;
             protected:
                 BaseMaterial() = default;
@@ -114,7 +122,9 @@ namespace SpaceEngine
 
     class UIMaterial : public BaseMaterial
     {
-        private:
+        public: 
+            virtual ~UIMaterial() {} 
+        protected:
             UIMaterial()
             {
                 texs = 
@@ -124,9 +134,24 @@ namespace SpaceEngine
 
                 props = 
                 {
-                    
-                    {"tint_color_val", Vector4{1.f, 1.f, 1.f, 1.f}},
-                    {"roughness_val", float{1.f}},
+                    {"color_val", Vector4{1.f, 1.f, 1.f, 1.f}},
+                };
+            }
+        friend class MaterialManager;
+    };
+
+    class UIButtonMaterial : public UIMaterial
+    {
+        public:
+            void setSubroutineBase(bool flag);
+            void setSubroutineHover(bool flag);
+        private:
+            UIButtonMaterial()
+            {
+                subroutines = 
+                {
+                    {"uiTextureBase", {true, 0}},
+                    {"uiTextureHover", {false, 0}}
                 };
             }
         friend class MaterialManager;
@@ -142,7 +167,7 @@ namespace SpaceEngine
             void Shutdown();
 
             template <typename T>
-            static BaseMaterial* createMaterial(const std::string name)
+            static T* createMaterial(const std::string name)
             {
                 static_assert(std::is_base_of_v<BaseMaterial, T>);
 

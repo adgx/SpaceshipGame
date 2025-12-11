@@ -86,6 +86,18 @@ namespace SpaceEngine
 
     //MeshManager
     Mesh* MeshManager::pTMPMesh = nullptr;
+    UIMesh* MeshManager::pUIMesh = nullptr;
+    
+    UIMesh* MeshManager::getUIMesh()
+    {
+        if(!pUIMesh)
+        {
+            pUIMesh = new UIMesh();
+        }
+        
+        return pUIMesh;
+    }
+
     
     Mesh* MeshManager::loadMesh(const std::string& fileName)
     {
@@ -139,8 +151,8 @@ namespace SpaceEngine
         }
 
         pTMPMesh->populateBuffers();
-
-        return glGetError() == GL_NO_ERROR;
+        auto flag = glGetError();
+        return flag == GL_NO_ERROR;
     }
     
     void MeshManager::countVerticesAndIndices(const aiScene* pScene, unsigned int& numVertices, unsigned int& numIndices)
@@ -609,4 +621,87 @@ namespace SpaceEngine
         vertex.z = Pos.z;
     }
 */
+
+    const static int N_VERTEX_QUAD = 12;
+    const static int N_TEXTURE_CORD_QUAD = 8;
+    const static int N_INDICES_QUAD = 6;
+    //data quad vertex coords,  texture coords
+    float UIQuand[] = 
+    {
+        //vertex  texture
+        0.f, 1.f, 0.f, 1.f,//top-left
+        1.f, 1.f, 1.f, 1.f,//top-right
+        0.f, 0.f, 0.f, 0.f,//bottom-left
+        1.f, 0.f, 1.f, 0.f//bottom-right 
+    };
+    uint32_t UIindices[N_INDICES_QUAD] =
+    {
+        0, 1, 2, 
+        2, 1, 3
+    };
+
+    UIMesh::UIMesh()
+    {
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        glGenBuffers(2, buffers);
+        populateBuffers();
+    }
+
+    void UIMesh::populateBuffers()
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);//ok
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);//ok
+
+        glBufferData(GL_ARRAY_BUFFER, sizeof(UIQuand), UIQuand, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(UIindices), UIindices, GL_STATIC_DRAW);
+
+        size_t NumFloats = 0;
+
+        glVertexAttribPointer(POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (const void*)(NumFloats * sizeof(float)));
+        glEnableVertexAttribArray(POSITION_LOCATION);
+        NumFloats += 2;
+
+        glVertexAttribPointer(TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (const void*)(NumFloats * sizeof(float)));
+        glEnableVertexAttribArray(TEX_COORD_LOCATION);
+    }
+
+    void UIMesh::draw()
+    {
+        glDrawElements(GL_TRIANGLES,
+                       N_INDICES_QUAD,
+                       GL_UNSIGNED_INT,
+                       0);
+
+        // Make sure the VAO is not changed from the outside
+        glBindVertexArray(0);
+    }
+
+    void UIMesh::bindVAO()
+    {
+        glBindVertexArray(VAO);
+    }
+
+    UIMeshRenderer::UIMeshRenderer()
+    {
+        pMesh = MeshManager::getUIMesh();
+    }
+
+    int UIMeshRenderer::bindMaterial(UIMaterial* pMat)
+    {
+        if(!pMat)
+        {
+            SPACE_ENGINE_ERROR("Material is nullptr")
+            return -1;
+        } 
+
+        this->pMat = pMat;
+
+        return 1;
+    }
+
+    UIMaterial* UIMeshRenderer::getMaterial()
+    {
+        return pMat;
+    }
 }

@@ -40,10 +40,6 @@ namespace SpaceEngine
                 {
                     return m_pMesh;
                 }
-                else if constexpr (std::is_same_v<T, std::vector<Transform*>>)
-                {
-                    return &m_pTransform;
-                }
                 else if constexpr (std::is_same_v<T, Transform>)
                 {
                     return m_pTransform;

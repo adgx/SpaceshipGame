@@ -4,6 +4,7 @@
 #include "utils/utils.h"
 #include "material.h"
 #include "camera.h"
+#include "ui.h"
 
 #include <vector>
 
@@ -20,9 +21,9 @@ namespace SpaceEngine
 
     struct UIRenderObject
     {
-        Mesh* mesh = nullptr;
-        UIMaterial* material = nullptr;
-        Matrix4 modelMatrix = Math::identityMatrix4();
+        UIMesh* pUIMesh = nullptr;
+        UIMaterial* pMaterial = nullptr;
+        Rect* pRect = nullptr;
     };
 
     class Renderer

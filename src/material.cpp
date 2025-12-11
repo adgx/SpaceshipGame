@@ -85,6 +85,20 @@ namespace SpaceEngine
                 else {SPACE_ENGINE_WARN("Material: {}, Name uniform texture:{} no texture", this->name, name);}
             }
         }
+
+        if(subroutines.size())
+        {
+            //load info
+            //should you use the dirty flag
+            for(const auto& [name, subroutineInfo] : subroutines)
+            {
+                if(subroutineInfo.active)
+                {
+                    pShader->setSubroutinesUniform(name.c_str(), subroutineInfo.type);
+                }
+            }
+            pShader->bindSubroutines();
+        }
     }
 
     ShaderProgram* BaseMaterial::getShader()
@@ -154,6 +168,18 @@ namespace SpaceEngine
         }
         SPACE_ENGINE_ERROR("Texture: {} not found",  nameTex);
         return 0;
+    }
+
+    //UIButtonMaterial
+    void UIButtonMaterial::setSubroutineBase(bool flag)
+    {
+        subroutines["uiTextureBase"] = {flag, 0};
+        subroutines["uiTextureHover"] = {!flag, 0};
+    }
+    void UIButtonMaterial::setSubroutineHover(bool flag)
+    {
+        subroutines["uiTextureBase"] = {!flag, 0};
+        subroutines["uiTextureHover"] = {flag, 0};
     }
 
     //MaterialManager

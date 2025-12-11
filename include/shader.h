@@ -41,6 +41,7 @@ namespace SpaceEngine
 
             void bindAttribLocation(GLuint location, const char *name);
             void bindFragDataLocation(GLuint location, const char *name);
+            void bindSubroutines();
 
             void setUniform(const char *name, float x, float y, float z);
             void setUniform(const char *name, const glm::vec2 &v);
@@ -52,6 +53,9 @@ namespace SpaceEngine
             void setUniform(const char *name, int val);
             void setUniform(const char *name, bool val);
             void setUniform(const char *name, GLuint val);
+            
+
+            void setSubroutinesUniform(const char *name, int type);
 
             void findUniformLocations();
             std::vector<std::tuple<const std::string, GLenum>> getPairUniformNameLocation();
@@ -74,8 +78,13 @@ namespace SpaceEngine
                 bool isVSComp = false;
                 bool isFSComp = false;
                 std::unordered_map<std::string, UniformInfo> uniformsInfo;
+                std::unordered_map<std::string, GLuint> vsSubroutinesInfo;
+                std::unordered_map<std::string, GLuint> fsSubroutinesInfo;
+                std::vector<GLuint> vsIdxSubRoutUniform;
+                std::vector<GLuint> fsIdxSubRoutUniform;
 
                 void reflectUniforms();
+                void reflectionSubrroutines(Type shType);
                 inline GLint getUniformLocation(const char *name);
 	            void detachAndDeleteShaderObjects();
                 bool fileExists(const std::string &fileName);

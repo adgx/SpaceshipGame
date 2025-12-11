@@ -21,19 +21,11 @@ namespace SpaceEngine
                 //set matrices
                 if(shader)
                 {
-                    //for(int i = 0; i < renderObj.instances; i++)
-                    //{
-                    //    shader->setUniform("model", renderObj.modelMatrix[i]);
-                    //    shader->setUniform("view", cam.getViewMatrix());
-                    //    shader->setUniform("projection", cam.getProjectionMatrix());
-                    //    //call the draw for the mesh
-                    //    renderObj.mesh->drawSubMesh(idSubMesh);
-                    //}
-                        shader->setUniform("model", renderObj.modelMatrix);
-                        shader->setUniform("view", cam.getViewMatrix());
-                        shader->setUniform("projection", cam.getProjectionMatrix());
-                        //call the draw for the mesh
-                        renderObj.mesh->drawSubMesh(idSubMesh);
+                    shader->setUniform("model", renderObj.modelMatrix);
+                    shader->setUniform("view", cam.getViewMatrix());
+                    shader->setUniform("projection", cam.getProjectionMatrix());
+                    //call the draw for the mesh
+                    renderObj.mesh->drawSubMesh(idSubMesh);
                 }
 
             }
@@ -41,24 +33,25 @@ namespace SpaceEngine
         
     }
 
-    //TODO
     void UIRenderer::render(const std::vector<UIRenderObject>& uiRenderables)
     {
         for (const auto& ui : uiRenderables)
         {
-            if (!ui.mesh || !ui.material) continue;
+            if (!ui.pUIMesh || !ui.pMaterial) continue;
 
-            // UIMaterial::Apply() automatically binds ortho projection
-            //ui.material->Apply();
-
-            // Set model matrix
-            ShaderProgram* shader = ui.material->getShader();
+            ui.pMaterial->bindingPropsToShader();
+            ui.pUIMesh->bindVAO();
+            ShaderProgram* shader = ui.pMaterial->getShader();
+            
             if (shader)
-                shader->setUniform("model", ui.modelMatrix);
-                shader->setUniform("projection", ui.modelMatrix);
-
+            {
+                shader->setUniform("uiPos", ui.pRect->pos);
+                shader->setUniform("size", ui.pRect->size);
+                shader->setUniform("projection", WindowManager::sceenProjMatrix);
+            }
+            
             // Draw UI mesh
-            //ui.mesh->Draw();
+            ui.pUIMesh->draw();
         }
     }
 

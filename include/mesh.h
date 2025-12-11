@@ -78,6 +78,18 @@ namespace SpaceEngine
         friend class MeshManager;
     };
 
+    class UIMesh
+    {
+        public:
+            UIMesh();
+            void draw();
+            void bindVAO();
+            private:
+            void populateBuffers();
+            GLuint VAO = 0;
+            GLuint buffers[2] = {0};
+    };
+
     class MeshManager
     {
         public:
@@ -85,6 +97,7 @@ namespace SpaceEngine
         ~MeshManager() = default;
         void Initialize();
         static Mesh* loadMesh(const std::string& fileName);
+        static UIMesh* getUIMesh();
         //create box 
         //create square
         //create a sphere
@@ -105,7 +118,19 @@ namespace SpaceEngine
             static void loadColors(const aiMaterial* pMaterial, int index);
 
             static Mesh* pTMPMesh;
+            static UIMesh* pUIMesh;
     };
     
-    class UIMesh;
+        
+    class UIMeshRenderer
+    {
+        public:
+            UIMeshRenderer();
+            void bindVAO();
+            int bindMaterial(UIMaterial* pMat);
+            UIMaterial* getMaterial();
+        private:
+            UIMesh* pMesh;
+            UIMaterial* pMat;            
+    };
 };

@@ -6,6 +6,7 @@ namespace SpaceEngine
     void window_maximize_callback(GLFWwindow* window, int maximized);
 
     int WindowManager::height = SPACE_ENGINE_MIN_RES_H, WindowManager::width = SPACE_ENGINE_MIN_RES_W;
+    Matrix4 WindowManager::sceenProjMatrix = glm::ortho(0.0f,(float)WindowManager::width,(float)WindowManager::height,0.0f);
     int WindowManager::xpos = 0, WindowManager::ypos = 0;
     GLFWwindow* WindowManager::window = nullptr;
     bool WindowManager::fullScreenState = false;

@@ -32,6 +32,7 @@ target_include_directories(WindowManager PRIVATE ${CMAKE_SOURCE_DIR}/include/man
 target_link_libraries(WindowManager PUBLIC glfw
     PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
+    PUBLIC Utils
     PRIVATE LogManager)
 set_target_properties(WindowManager PROPERTIES FOLDER "WindowManager")
 #InputManager
