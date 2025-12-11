@@ -4,6 +4,26 @@
 
 namespace SpaceEngine{
 
+    float skyboxVertices[] = {
+        -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f
+    };
+
     BaseCamera* Scene::getActiveCamera()
     {
         return cameras[0];
@@ -93,25 +113,24 @@ namespace SpaceEngine{
         spawnQ.push_back(sr);
     }
 
-        GameObject* Scene::instatiate(const SpawnRequest& sr)
+    GameObject* Scene::instatiate(const SpawnRequest& sr)
+    {
+        GameObject* pCopy =  new GameObject(*sr.prefab);
+        if(pCopy)
         {
-            GameObject* pCopy =  new GameObject(*sr.prefab);
-            if(pCopy)
-            {
-                if(sr.overrideWorldPos)
-                    pCopy->getComponent<Transform>()->setWorldPosition(sr.wPos);
-                if(Collider* pCol = pCopy->getComponent<Collider>(); pCol != nullptr)
-                    pPhyManager->AddCollider(pCol);
-            }
-            else
-            {
-                SPACE_ENGINE_FATAL("Inable to copy and instatiate the GameObject");
-            }
-
-            return pCopy;
-
+            if(sr.overrideWorldPos)
+                pCopy->getComponent<Transform>()->setWorldPosition(sr.wPos);
+            if(Collider* pCol = pCopy->getComponent<Collider>(); pCol != nullptr)
+                pPhyManager->AddCollider(pCol);
+        }
+        else
+        {
+            SPACE_ENGINE_FATAL("Inable to copy and instatiate the GameObject");
         }
 
+        return pCopy;
+
+    }
 
     void Scene::gatherRenderables(std::vector<RenderObject>& worldRenderables, std::vector<UIRenderObject>& uiRenderables)
     {
@@ -151,21 +170,75 @@ namespace SpaceEngine{
         }
     }
 
-    unsigned int Scene::LoadCubemap(std::vector<std::string> faces){
+    void Scene::initSkybox(std::vector<std::string> faces) {
+        // per caricare lo shader
+        skyboxShader = ShaderManager::findShaderProgram("skybox");
+        if (!skyboxShader) {
+            SPACE_ENGINE_ERROR("Skybox shader mancante!");
+            return;
+        }
+
+        // Setup del cubo geometrico (VAO/VBO)
+        glGenVertexArrays(1, &skyboxVAO);
+        glGenBuffers(1, &skyboxVBO);
+        
+        glBindVertexArray(skyboxVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+        
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        
+        cubemapTextureID = LoadCubemap(faces); 
+
+        if(skyboxShader){
+            skyboxShader->use();
+            skyboxShader->setUniform("skybox", 0);
+        }
+    }
+
+    void Scene::drawSkybox(const glm::mat4& view, const glm::mat4& projection) {
+        if (skyboxVAO == 0 || !skyboxShader) return;
+
+        // per disegnare solo il cielo alla massima profondità
+        glDepthFunc(GL_LEQUAL);  
+        
+        skyboxShader->use();
+        
+        // per non fare avvicinare il cielo
+        glm::mat4 viewNoTrans = glm::mat4(glm::mat3(view)); 
+        
+        skyboxShader->setUniform("view", viewNoTrans);
+        skyboxShader->setUniform("projection", projection);
+
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTextureID);
+        
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        
+        glBindVertexArray(0);
+        
+        // Ripristina la profondità normale per il resto del gioco
+        glDepthFunc(GL_LESS); 
+    }
+
+    unsigned int Scene::LoadCubemap(const std::vector<std::string>& faces){
         unsigned int textureID;
         glGenTextures(1, &textureID);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
+        stbi_set_flip_vertically_on_load(false);
+
         int width, height, nrChannels;
         for (unsigned int i = 0; i < faces.size(); i++)
         {
-            unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+            unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 3);
             if (data)
             {
                 // Sommando 'i', accediamo a destra, sinistra, sopra
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
-                            0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-                );
+                            0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
                 stbi_image_free(data);
             }
             else
@@ -180,6 +253,8 @@ namespace SpaceEngine{
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+        stbi_set_flip_vertically_on_load(true);
 
         return textureID;
     }

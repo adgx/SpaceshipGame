@@ -45,16 +45,31 @@ namespace SpaceEngine{
     {
         //initialize main scene
         scene = new Scene(&physicsManager);
-        Player* pPlayer = new Player("TestCube.obj");
-        GameObject* pCube = new GameObject();
+
+        //per skybox
+        std::vector<std::string> faces = {
+            "assets/textures/skybox/right.png", 
+            "assets/textures/skybox/left.png",
+            "assets/textures/skybox/top.png", 
+            "assets/textures/skybox/bottom.png", 
+            "assets/textures/skybox/front.png", 
+            "assets/textures/skybox/back.png"  
+        };
+        scene->initSkybox(faces);
+
+        //crea e inizializza il player
+        PlayerShip* pPlayer = new PlayerShip("TestCube.obj");
+        pPlayer->Init();
+        //GameObject* pCube = new GameObject();
         //make another cube
-        pCube->addComponent(pPlayer->getComponent<Mesh>()); // this avoid to reallocate mesh cube data
-        pCube->addComponent(new Transform());
-        pCube->getComponent<Transform>()->setWorldPosition(Vector3{0.f, 0.f, -3.f});
-        pCube->addComponent(new Collider(pCube));
+        /*pCube->addComponent(pPlayer->getComponent<Mesh>()); // this avoid to reallocate mesh cube data
+        //pCube->addComponent(new Transform());
+        //pCube->getComponent<Transform>()->setWorldPosition(Vector3{0.f, 0.f, -3.f});
+        pCube->addComponent(new Collider(pCube));*/
         //add GameObject to the scene
-        scene->addSceneComponent<Player*>(pPlayer);
-        scene->addSceneComponent<GameObject*>(pCube);
+        scene->requestInstatiate(pPlayer);
+        //scene->addSceneComponent<GameObject*>(pCube);
+
         //TODO: initialize correctly the camera please 
         PerspectiveCamera* pCamera = new PerspectiveCamera();
         pCamera->transf.translateGlobal(Vector3(0.f, 3.f, 3.f));
@@ -74,6 +89,11 @@ namespace SpaceEngine{
         //fixed time step
         float fixed_dt = 1.f/60.f;
         float accumulator = 0.0;
+
+        //var per timer di spawn
+        float asteroidTimer = 0.0f;
+        float enemyTimer = 0.0f;
+
         //Gathers
         std::vector<RenderObject> worldRenderables;
         std::vector<UIRenderObject> uiRenderables;
@@ -129,13 +149,54 @@ namespace SpaceEngine{
 
             //update game objects in the scene
             scene->Update(dt);
+
+            asteroidTimer += dt;
+            enemyTimer += dt;
+            float spawnRadius = 18.0f; //distanza dal centro entro quale possono essere generati gli elementi
+            //da piazzare da una altra parte
+            //spawn asteroidi
+            if(asteroidTimer >= 3.0f)
+            {
+                Asteroid* pAsteroid = new Asteroid("TestCube.obj");
+
+                float angle = (float)(rand() % 360);
+                float rad = angle * 3.14159f / 180.0f;
+                float x = cos(rad) * spawnRadius;
+                float y = sin(rad) * spawnRadius;
+
+                //pAsteroid->Init(); per implementare generazione asteroidi di diverse dimensioni
+                Transform* t = pAsteroid->getComponent<Transform>();
+                if(t) t->setLocalPosition(Vector3(x, y, 0.0f));
+                scene->requestInstatiate(pAsteroid);
+                asteroidTimer = 0.0f;
+            }
  
+            //spawn navicelle nemiche
+            if (enemyTimer >= 5.0f) {
+                EnemyShip* enemy = new EnemyShip("TestCube.obj");
+                
+                // Posizione randomica
+                float angle = (float)(rand() % 360);
+                float rad = angle * 3.14159f / 180.0f;
+                float x = cos(rad) * spawnRadius;
+                float y = sin(rad) * spawnRadius;
+
+                // Inizializza nemico (posizione e tipo)
+                enemy->Init(glm::vec3(x, y, 0.0f), EnemyType::NORMAL, nullptr);
+                
+                scene->requestInstatiate(enemy);
+                enemyTimer = 0.0f;
+            }
+
 
             //collects the renderizable objects in the scene
             scene->gatherRenderables(worldRenderables, uiRenderables);
             //before rendering
-            glClearColor(1.f, 1.f, 1.f, 1.f);
+            glClearColor(0.1f, 0.1f, 0.1f, 1.f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            BaseCamera* cam = scene->getActiveCamera();
+            scene->drawSkybox(cam->getViewMatrix(), cam->getProjectionMatrix());
+            
             renderer->render(worldRenderables, *(scene->getActiveCamera()));
 
             windowManager.PollEvents();

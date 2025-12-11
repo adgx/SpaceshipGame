@@ -693,6 +693,8 @@ namespace SpaceEngine
         createShaderProgram("simpleTex");
         flag = glGetError();
         createShaderProgram("pbr");
+        flag = glGetError();        
+        createShaderProgram("skybox");
         flag = glGetError();
     }
 

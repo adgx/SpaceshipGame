@@ -15,7 +15,7 @@ namespace SpaceEngine
     {
         public:
             Mesh() = default;
-            ~Mesh();
+            ~Mesh() = default;
             void bindVAO();
             int getNumSubMesh();
             int bindMaterialToSubMeshIndex(int index, BaseMaterial* pMat);

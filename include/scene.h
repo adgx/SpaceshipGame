@@ -5,6 +5,7 @@
 #include "gameObject.h"
 #include "collisionDetection.h"
 #include "log.h"
+#include "shader.h"
 #include <vector>
 #include <string>
 #include <queue>
@@ -21,9 +22,11 @@ namespace SpaceEngine
             Scene(PhysicsManager* pPhyManager):pPhyManager(pPhyManager){};
             ~Scene() = default;
 
-            unsigned int LoadCubemap(vector<string> faces);
             void Init();
             void createGameObject();
+
+            void initSkybox(std::vector<std::string> faces); 
+            void drawSkybox(const glm::mat4& view, const glm::mat4& projection);
 
             template<typename T>
             void addSceneComponent(T sceneComponent)
@@ -66,6 +69,13 @@ namespace SpaceEngine
             BaseCamera* getActiveCamera();
             void Update(float dt);
         private:
+            unsigned int skyboxVAO = 0;
+            unsigned int skyboxVBO = 0;
+            unsigned int cubemapTextureID = 0; 
+            ShaderProgram* skyboxShader = nullptr;
+
+            unsigned int LoadCubemap(const std::vector<std::string>& faces);
+
             PhysicsManager* pPhyManager = nullptr;
             void processDestroyQ();
             void processInstantiateQ(float dt);
@@ -84,15 +94,6 @@ namespace SpaceEngine
             std::queue<GameObject*> destroyQ;
             std::list<SpawnRequest> spawnQ;
             //cameras[0] is always the active camera
-            vector<BaseCamera*> cameras; 
-            unsigned int cubemapTexture;
-            vector<string> faces = {            //TODO: sistemare i path con i file giusti
-                "assets/textures/skybox/right.jpg",
-                "assets/textures/skybox/left.jpg",
-                "assets/textures/skybox/top.jpg",
-                "assets/textures/skybox/bottom.jpg",
-                "assets/texture/skybox/front.jpg",
-                "assets/textures/skybox/back.jpg"
-            };
+            vector<BaseCamera*> cameras;
     };
 }
