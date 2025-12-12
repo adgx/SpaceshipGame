@@ -35,7 +35,7 @@ namespace SpaceEngine
         }
         void Skybox::init()
         {
-            
+            auto flag = glGetError();
             // Setup del cubo geometrico (VAO/VBO)
             glGenVertexArrays(1, &VAO);
             glGenBuffers(1, &VBO);
@@ -46,7 +46,6 @@ namespace SpaceEngine
             
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            
             pCubeMapTex = TextureManager::loadCubeMap("skybox"); 
             //this is ok if we handle only skybox
             pCubeMapTex->setBindlessHandle(GL_TEXTURE0); 
@@ -57,6 +56,8 @@ namespace SpaceEngine
                 return;
             }
             
+            pCubeMapTex->bind();
+            pShader->use();
             pShader->setUniform("skybox", 0);
         }
 

@@ -48,7 +48,6 @@ namespace SpaceEngine{
     {
         //initialize main scene
         scene = new Scene(&physicsManager);
-
         //crea e inizializza il player
         PlayerShip* pPlayer = new PlayerShip("TestCube.obj");
         pPlayer->Init();
