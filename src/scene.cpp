@@ -10,6 +10,11 @@ namespace SpaceEngine
         return cameras[0];
     }
 
+void Scene::Init()
+    {
+        pSkybox = new Skybox();
+    }
+
     void Scene::Update(float dt)
     {
         for (auto* obj : gameObjects)
