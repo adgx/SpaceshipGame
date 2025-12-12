@@ -22,7 +22,7 @@ namespace SpaceEngine
             Scene(PhysicsManager* pPhyManager):pPhyManager(pPhyManager)
             {
                 //add a constructor where you can pass the path of skybox
-                pSkybox = new Skybox();
+                pSkybox = nullptr;
             };
             ~Scene() = default;
 

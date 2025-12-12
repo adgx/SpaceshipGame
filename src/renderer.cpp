@@ -6,7 +6,7 @@ namespace SpaceEngine
 {
     void Renderer::render(const std::vector<RenderObject>& renderables, BaseCamera& cam, Skybox* pSkybox)
     {
-        if(pSkybox)
+        /*if(pSkybox)
         {
             glDepthFunc(GL_LEQUAL);
             pSkybox->bindVAO();
@@ -15,7 +15,7 @@ namespace SpaceEngine
             pSkybox->pShader->setUniform("projection", cam.getProjectionMatrix());
             pSkybox->draw();
             glDepthFunc(GL_LESS);
-        }
+        }*/
 
         for(const auto& renderObj : renderables)
         {
@@ -38,10 +38,11 @@ namespace SpaceEngine
                     //call the draw for the mesh
                     renderObj.mesh->drawSubMesh(idSubMesh);
                 }
-
-            }
+            }    
         }
-        
+        if(pSkybox){
+            pSkybox->draw(cam.getViewMatrix(), cam.getProjectionMatrix());
+        }
     }
 
     void UIRenderer::render(const std::vector<UIRenderObject>& uiRenderables)

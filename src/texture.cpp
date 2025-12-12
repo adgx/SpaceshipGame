@@ -27,7 +27,7 @@ namespace SpaceEngine
 
     void Texture::bind()
     {
-        if(bindlessHandle!=-1)
+        if(textureObj!=0)
             bindInternal(bindlessHandle);
         else
         {
@@ -62,15 +62,19 @@ namespace SpaceEngine
         }
 
         Texture* pTex = new Texture(GL_TEXTURE_CUBE_MAP);
+        glGenTextures(1, &pTex->textureObj); // Genera l'ID della texture
+        glBindTexture(GL_TEXTURE_CUBE_MAP, pTex->textureObj); 
+
         SPACE_ENGINE_INFO("Loading cubemap texture");
         constexpr std::array<const char*, N_CUBEMAP_TEX> faces = {
-            "/right.png", 
+            "/right.png",
             "/left.png",
-            "/top.png", 
-            "/bottom.png", 
-            "/front.png", 
-            "/back.png"  
+            "/top.png",
+            "/bottom.png",
+            "/front.png",
+            "/back.png"
         };
+
 
         pTex->path = TEXTURES_PATH+nameDir;
         for(int i = 0; i < N_CUBEMAP_TEX; i++)
@@ -80,9 +84,14 @@ namespace SpaceEngine
             unsigned char *data = stbi_load(fullPath.c_str(), &pTex->imageWidth, &pTex->imageHeight, &pTex->imageBPP, 0);
             if (data)
             {
+                GLenum format = GL_RGB;
+                if (pTex->imageBPP == 4)
+                    format = GL_RGBA;
+                else if (pTex->imageBPP == 1)
+                    format = GL_RED;
                 // Sommando 'i', accediamo a destra, sinistra, sopra
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
-                            0, GL_RGB, pTex->imageWidth, pTex->imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                            0, GL_RGB, pTex->imageWidth, pTex->imageHeight, 0, format, GL_UNSIGNED_BYTE, data);
                 auto flag = glGetError();
                 stbi_image_free(data);
             }

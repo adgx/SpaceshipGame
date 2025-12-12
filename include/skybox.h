@@ -11,7 +11,7 @@ namespace SpaceEngine
             ~Skybox() = default;
 
             void init();
-            void draw();
+            void draw(const glm::mat4& view, const glm::mat4& projection);
             void bindTex();
             void bindVAO();
             ShaderProgram* pShader = nullptr;
