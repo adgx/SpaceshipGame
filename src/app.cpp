@@ -66,6 +66,8 @@ namespace SpaceEngine{
         
         pCamera->transf.lookAt(pPlayer->getComponent<Transform>()->getWorldPosition());
         pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
+
+        pScene->Init();
     }
 
     void App::Run()
