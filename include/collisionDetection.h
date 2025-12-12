@@ -68,6 +68,7 @@ namespace SpaceEngine
                     bbox.r[0], bbox.r[1], bbox.r[2])
             }
 
+
             static int testCollidersLocalSpace(const Collider* a, const Collider* b)
             {
                 // World matrices

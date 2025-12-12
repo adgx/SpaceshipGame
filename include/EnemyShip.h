@@ -29,7 +29,7 @@ namespace SpaceEngine {
 
     class EnemyShip : public GameObject {
     public:
-        EnemyShip(std::string filePathModel);
+        EnemyShip(Scene* pScene, std::string filePathModel);
         virtual ~EnemyShip();
 
         virtual void Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget = nullptr);

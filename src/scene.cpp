@@ -38,7 +38,8 @@ namespace SpaceEngine
 
     void Scene::requestDestroy(GameObject* pGameObj)
     {
-        destroyQ.push(pGameObj);
+        if(!pGameObj->pendingDestroy)
+            destroyQ.push(pGameObj);
     }
 
     void Scene::processDestroyQ()
@@ -47,7 +48,6 @@ namespace SpaceEngine
 
         while(!destroyQ.empty())
         {
-            pPhyManager->RemoveCollider(destroyQ.front()->getComponent<Collider>());
             toDestroy.insert(destroyQ.front());
             destroyQ.pop();
         }
@@ -55,7 +55,13 @@ namespace SpaceEngine
         if(!toDestroy.empty())
             gameObjects.erase(
                 std::remove_if(gameObjects.begin(), gameObjects.end(),
-                    [&](GameObject* pGameObj){ return toDestroy.count(pGameObj) != 0; }),
+                    [&](GameObject* pGameObj)
+                    {
+                        bool flag; 
+                        if( flag = toDestroy.count(pGameObj) != 0; flag)
+                            pPhyManager->RemoveCollider(destroyQ.front()->getComponent<Collider>());
+                        return flag; 
+                    }),
                 gameObjects.end()
             );
     }

@@ -7,7 +7,7 @@ namespace SpaceEngine
     class Player : public GameObject
     { 
         public:
-            Player(std::string fileNameModel);
+            Player(Scene* pScene, std::string fileNameModel);
             void update(float dt) override;
             void fixedUpdate(float fixed_dt) override;
             void onCollisionEnter(Collider* col) override;

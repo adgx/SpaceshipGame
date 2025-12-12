@@ -30,7 +30,7 @@ namespace SpaceEngine
             PhysicsManager physicsManager;
             
             //Objects
-            Scene* scene;
+            Scene* pScene;
             Renderer* renderer;
             UIRenderer* uiRenderer;
             WindowManager windowManager;

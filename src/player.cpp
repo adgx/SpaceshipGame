@@ -4,7 +4,7 @@
 
 namespace SpaceEngine
 {
-    Player::Player(std::string fileNameModel)
+    Player::Player(Scene* pScene, std::string fileNameModel):GameObject(pScene)
     {
         m_pTransform = new Transform();
         m_pMesh = MeshManager::loadMesh(fileNameModel);

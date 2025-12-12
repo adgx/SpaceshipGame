@@ -40,16 +40,16 @@ namespace SpaceEngine{
         physicsManager.Shutdown();
         windowManager.Shutdown();
         logManager.Shutdown();
-        delete scene;
+        delete pScene;
         delete renderer;
     }
     
     void App::Start()
     {
         //initialize main scene
-        scene = new Scene(&physicsManager);
+        pScene = new Scene(&physicsManager);
         //crea e inizializza il player
-        PlayerShip* pPlayer = new PlayerShip("TestCube.obj");
+        PlayerShip* pPlayer = new PlayerShip(pScene, "TestCube.obj");
         pPlayer->Init();
         //GameObject* pCube = new GameObject();
         //make another cube
@@ -58,14 +58,14 @@ namespace SpaceEngine{
         //pCube->getComponent<Transform>()->setWorldPosition(Vector3{0.f, 0.f, -3.f});
         pCube->addComponent(new Collider(pCube));*/
         //add GameObject to the scene
-        scene->addSceneComponent<GameObject*>(pPlayer);
+        pScene->addSceneComponent<GameObject*>(pPlayer);
 
         //TODO: initialize correctly the camera please 
         PerspectiveCamera* pCamera = new PerspectiveCamera();
         pCamera->transf.translateGlobal(Vector3(0.f, 3.f, 3.f));
         
         pCamera->transf.lookAt(pPlayer->getComponent<Transform>()->getWorldPosition());
-        scene->addSceneComponent<PerspectiveCamera*>(pCamera);
+        pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
     }
 
     void App::Run()
@@ -137,57 +137,61 @@ namespace SpaceEngine{
                 token = false;
             }
 
-            //update game objects in the scene
-            scene->Update(dt);
+           
 
             asteroidTimer += dt;
             enemyTimer += dt;
-            float spawnRadius = 18.0f; //distanza dal centro entro quale possono essere generati gli elementi
+            float spawnRadius = 5.0f; //distanza dal centro entro quale possono essere generati gli elementi
             //da piazzare da una altra parte
             //spawn asteroidi
-            if(asteroidTimer >= 3.0f)
+            if(asteroidTimer >= 2.0f)
             {
-                Asteroid* pAsteroid = new Asteroid("TestCube.obj");
-
-                float angle = (float)(rand() % 360);
-                float rad = angle * 3.14159f / 180.0f;
+                Asteroid* pAsteroid = new Asteroid(pScene, "TestCube.obj");
+                float angle = (float)(rand() % 90);
+                float rad = (angle) * 3.14159f / 180.0f;
+                float z = -15.f + cos(rad) * spawnRadius;
+                angle = (float)(rand() % 360);
+                rad = (angle) * 3.14159f / 180.0f;
                 float x = cos(rad) * spawnRadius;
                 float y = sin(rad) * spawnRadius;
 
                 //pAsteroid->Init(); per implementare generazione asteroidi di diverse dimensioni
                 Transform* t = pAsteroid->getComponent<Transform>();
-                if(t) t->setLocalPosition(Vector3(x, y, 0.0f));
-                scene->requestInstatiate(pAsteroid);
+                if(t) t->setWorldPosition(Vector3(x, y, z));
+                pScene->addSceneComponent(pAsteroid);
+                //scene->requestInstatiate(pAsteroid);
                 asteroidTimer = 0.0f;
             }
  
             //spawn navicelle nemiche
-            if (enemyTimer >= 5.0f) {
-                EnemyShip* enemy = new EnemyShip("TestCube.obj");
+            if (enemyTimer >= 3.0f) {
+                EnemyShip* pEnemy = new EnemyShip(pScene, "TestCube.obj");
                 
                 // Posizione randomica
                 float angle = (float)(rand() % 360);
                 float rad = angle * 3.14159f / 180.0f;
                 float x = cos(rad) * spawnRadius;
-                float y = sin(rad) * spawnRadius;
+                float y = 0.f;
+                float z = -12.f;
 
                 // Inizializza nemico (posizione e tipo)
-                enemy->Init(glm::vec3(x, y, 0.0f), EnemyType::NORMAL, nullptr);
-                
-                scene->requestInstatiate(enemy);
+                pEnemy->Init(Vector3(x, y, z), EnemyType::NORMAL, nullptr);
+                pScene->addSceneComponent(pEnemy);
+                //scene->requestInstatiate(enemy);
                 enemyTimer = 0.0f;
             }
 
+            //update game objects in the scene
+            pScene->Update(dt);
 
             //collects the renderizable objects in the scene
-            scene->gatherRenderables(worldRenderables, uiRenderables);
+            pScene->gatherRenderables(worldRenderables, uiRenderables);
             //before rendering
             glClearColor(0.1f, 0.1f, 0.1f, 1.f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            BaseCamera* cam = scene->getActiveCamera();
+            BaseCamera* cam = pScene->getActiveCamera();
             
-            renderer->render(worldRenderables, *(scene->getActiveCamera()), scene->getSkybox());
-
+            renderer->render(worldRenderables, *(pScene->getActiveCamera()), pScene->getSkybox());
             windowManager.PollEvents();
             windowManager.SwapBuffers();
         }

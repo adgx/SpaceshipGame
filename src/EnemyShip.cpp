@@ -5,7 +5,7 @@
 
 namespace SpaceEngine {
 
-    EnemyShip::EnemyShip(std::string filePathModel) : 
+    EnemyShip::EnemyShip(Scene* pScene, std::string filePathModel):GameObject(pScene),
         m_type(EnemyType::NORMAL), m_pTarget(nullptr), m_speed(10.0f),
         m_shootTimer(0.0f), m_shootCooldown(2.0f), m_spawnRangeX(50.0f), m_spawnRangeY(30.0f),
         m_spawnZ(-100.0f), m_despawnZ(20.0f)
@@ -20,8 +20,6 @@ namespace SpaceEngine {
     }
 
     EnemyShip::~EnemyShip() {
-        if(m_pMesh) delete m_pMesh; 
-        if(m_pCollider) delete m_pCollider;       
     }
 
     void EnemyShip::Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget) {
@@ -75,7 +73,7 @@ namespace SpaceEngine {
         performAI(dt);
 
         // se supera la camera si distrugge
-        if (m_pTransform->getLocalPosition().z > m_despawnZ) {
+        if (m_pTransform->getWorldPosition().z > m_despawnZ) {
             destroy();
             SPACE_ENGINE_INFO("Enemy despawned (out of bounds)");
         }
@@ -83,12 +81,12 @@ namespace SpaceEngine {
 
     void EnemyShip::performAI(float dt) {
         // Movimento in avanti
-        glm::vec3 currentPos = m_pTransform->getLocalPosition();
+        Vector3 currentPos = m_pTransform->getWorldPosition();
         currentPos.z += m_speed * dt;
 
         if (m_type == EnemyType::AIMER && m_pTarget) {
             // Esempio Aimer: Si sposta lentamente su X verso il giocatore
-            glm::vec3 targetPos = m_pTarget->getTransform()->getLocalPosition();
+            Vector3 targetPos = m_pTarget->getTransform()->getWorldPosition();
             if (currentPos.x < targetPos.x) currentPos.x += m_speed * 0.5f * dt;
             if (currentPos.x > targetPos.x) currentPos.x -= m_speed * 0.5f * dt;
         }
@@ -97,7 +95,7 @@ namespace SpaceEngine {
             currentPos.x += sin(currentPos.z * 0.5f) * 5.0f * dt; 
         }
 
-        m_pTransform->setLocalPosition(currentPos);
+        m_pTransform->setWorldPosition(currentPos);
     }
 
     /*std::vector<Bullet> EnemyShip::Shoot(glm::vec3 playerPos) {
@@ -149,21 +147,6 @@ namespace SpaceEngine {
 
         return bullets;
     } PER SPARARE*/
-
-    RenderObject EnemyShip::getRenderObject() {
-        RenderObject obj;
-        obj.mesh = m_pMesh;
-
-        glm::mat4 model = glm::mat4(1.0f);
-
-        if (m_pTransform) {
-            // Traslazione
-            model = glm::translate(model, m_pTransform->getLocalPosition());
-        }
-
-        obj.modelMatrix = model;
-        return obj;
-    }
 
     void EnemyShip::onCollisionEnter(Collider* col) {
         SPACE_ENGINE_INFO("Enemy hit something!");

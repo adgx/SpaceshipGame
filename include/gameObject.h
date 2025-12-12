@@ -22,9 +22,10 @@ namespace SpaceEngine
     class GameObject 
     {
         public:
-            GameObject(){};
+            GameObject() = delete;
+            GameObject(Scene* pScene);
             GameObject(const GameObject& other);
-            virtual ~GameObject() = default;
+            virtual ~GameObject();
             int getNumInstances();
             Layers getLayer();
             void destroy(); 
@@ -80,7 +81,7 @@ namespace SpaceEngine
             bool pendingDestroy = false;
         private:
             //Attention
-            Scene* scene = nullptr;
+            Scene* pScene = nullptr;
         protected:
             GameObject(const std::string& filePathModel);
             Transform* m_pTransform;

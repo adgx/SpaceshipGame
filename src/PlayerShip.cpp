@@ -7,7 +7,8 @@
 
 namespace SpaceEngine {
 
-    PlayerShip::PlayerShip(std::string filePathModel){
+    PlayerShip::PlayerShip(Scene* pScene, std::string filePathModel):GameObject(pScene)
+    {
         m_pMesh = MeshManager::loadMesh(filePathModel);
         BaseMaterial* pMat = m_pMesh->getMaterialBySubMeshIndex(0);
         pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
@@ -21,12 +22,11 @@ namespace SpaceEngine {
     }
 
     PlayerShip::~PlayerShip() {
-        if(m_pMesh) delete m_pMesh;
     }
 
     void PlayerShip::Init() {
         if (m_pTransform) {
-            m_pTransform->setLocalPosition(Vector3(0.0f, 0.0f, -10.0f));
+            m_pTransform->setLocalPosition(Vector3(0.0f, 0.0f, -8.0f));
         }
     }
 

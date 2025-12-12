@@ -8,7 +8,7 @@ namespace SpaceEngine {
 
     class PlayerShip : public GameObject {
     public:
-        PlayerShip(std::string filePathModel);
+        PlayerShip(Scene* pScene, std::string filePathModel);
         virtual ~PlayerShip();
 
         void Init();

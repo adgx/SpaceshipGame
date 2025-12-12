@@ -4,14 +4,14 @@
 
 namespace SpaceEngine {
 
-    Asteroid::Asteroid(std::string filePathModel) {
+    Asteroid::Asteroid(Scene* pScene, std::string filePathModel):GameObject(pScene) {
         m_pMesh = MeshManager::loadMesh(filePathModel);
         BaseMaterial* pMat = m_pMesh->getMaterialBySubMeshIndex(0);
         pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
 
-        m_rotationSpeed = 0.0f;
+        m_rotationSpeed = 10.0f;
         m_velocity = 0.0f;
         m_spawnZ = -100.0f;
         m_despawnZ = 20.0f;     // Arriva fino a dietro la camera
@@ -28,7 +28,6 @@ namespace SpaceEngine {
     }
 
     Asteroid::~Asteroid() {
-        if(m_pMesh) delete m_pMesh;
     }
 
     void Asteroid::Init() {
@@ -46,7 +45,7 @@ namespace SpaceEngine {
         float randomY = -m_spawnRangeY + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (m_spawnRangeY * 2)));
 
         if (m_pTransform) {
-            m_pTransform->setLocalPosition(glm::vec3(randomX, randomY, m_spawnZ));
+            m_pTransform->setWorldPosition(glm::vec3(randomX, randomY, m_spawnZ));
             
             float scaleVar = 1.0f + static_cast<float>(rand()) / (RAND_MAX / 1.0f);
             m_pTransform->setLocalScale(glm::vec3(scaleVar));
@@ -57,16 +56,16 @@ namespace SpaceEngine {
         
         // Rotazione casuale
         m_rotationSpeed = 30.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 60.0f));
-        m_rotationAxis = glm::normalize(glm::vec3((float)rand(), (float)rand(), (float)rand()));
+        m_rotationAxis = glm::normalize(Vector3((float)rand(), (float)rand(), (float)rand()));
     }
 
     void Asteroid::update(float dt) {
         if (!m_pTransform) return;
 
         // movimento in avanti (verso il player)
-        glm::vec3 currentPos = m_pTransform->getLocalPosition();
+        Vector3 currentPos = m_pTransform->getWorldPosition();
         currentPos.z += m_velocity * dt;
-        m_pTransform->setLocalPosition(currentPos);
+        m_pTransform->setWorldPosition(currentPos);
 
         // 2. Rotazione su se stesso (effetto visivo)
         m_pTransform->rotateLocal(m_rotationSpeed * dt, m_rotationAxis);
@@ -75,25 +74,6 @@ namespace SpaceEngine {
         if (currentPos.z > m_despawnZ) {
             Spawn(); // Resetta e ricomincia dal fondo
         }
-    }
-
-    RenderObject Asteroid::getRenderObject() {
-        RenderObject renderObj;
-        renderObj.mesh = m_pMesh;
-        glm::mat4 model = glm::mat4(1.0f);
-
-        if (m_pTransform) {
-            model = glm::translate(model, m_pTransform->getLocalPosition());
-
-            glm::mat4 rot_mat = glm::mat4_cast(m_pTransform->getLocalRotation());
-            
-            model = model * rot_mat;
-            
-            model = glm::scale(model, m_pTransform->getLocalScale());
-        }
-
-        renderObj.modelMatrix = model;
-        return renderObj;
     }
 
     void Asteroid::onCollisionEnter(Collider* col) {

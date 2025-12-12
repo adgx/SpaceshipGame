@@ -7,7 +7,7 @@ namespace SpaceEngine
 {
     GameObject::GameObject(const GameObject& other)
     {
-        scene = other.scene;
+        pScene = other.pScene;
         m_pMesh = other.m_pMesh;
         m_layer = other.m_layer;
         m_pTransform = new Transform(*other.m_pTransform);
@@ -22,7 +22,7 @@ namespace SpaceEngine
         if(!pendingDestroy)
         {
             pendingDestroy = true;
-            scene->requestDestroy(this);
+            pScene->requestDestroy(this);
         }
     }
 
@@ -39,5 +39,16 @@ namespace SpaceEngine
     void GameObject::onCollisionEnter(Collider* col)
     {
 
+    }
+
+    GameObject::GameObject(Scene* pScene)
+    {
+        this->pScene = pScene;
+    }
+
+    GameObject::~GameObject()
+    {
+        delete m_pCollider;
+        delete m_pTransform;
     }
 }

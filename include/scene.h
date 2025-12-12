@@ -76,6 +76,7 @@ namespace SpaceEngine
             PhysicsManager* pPhyManager = nullptr;
             void processDestroyQ();
             void processInstantiateQ(float dt);
+            
             struct SpawnRequest
             {
                 float timeRemaining = 0.f;

@@ -12,7 +12,7 @@ namespace SpaceEngine {
 
     class Asteroid : public GameObject {
     public:
-        Asteroid(std::string filePathModel);
+        Asteroid(Scene* pScene, std::string filePathModel);
         virtual ~Asteroid();
 
         void Init();
@@ -28,7 +28,7 @@ namespace SpaceEngine {
         }
 
     private:
-        glm::vec3 m_rotationAxis;
+        Vector3 m_rotationAxis;
         float m_velocity;
         float m_rotationSpeed;
 
