@@ -43,7 +43,6 @@ void Scene::Init()
 
     void Scene::requestDestroy(GameObject* pGameObj)
     {
-        if(!pGameObj->pendingDestroy)
             destroyQ.push(pGameObj);
     }
 
@@ -64,7 +63,7 @@ void Scene::Init()
                     {
                         bool flag; 
                         if( flag = toDestroy.count(pGameObj) != 0; flag)
-                            pPhyManager->RemoveCollider(destroyQ.front()->getComponent<Collider>());
+                            pPhyManager->RemoveCollider(pGameObj->getComponent<Collider>());
                         return flag; 
                     }),
                 gameObjects.end()

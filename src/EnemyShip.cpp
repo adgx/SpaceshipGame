@@ -75,7 +75,7 @@ namespace SpaceEngine {
         // se supera la camera si distrugge
         if (m_pTransform->getWorldPosition().z > m_despawnZ) {
             destroy();
-            SPACE_ENGINE_INFO("Enemy despawned (out of bounds)");
+            //SPACE_ENGINE_INFO("Enemy despawned (out of bounds)");
         }
     }
 
@@ -150,6 +150,7 @@ namespace SpaceEngine {
 
     void EnemyShip::onCollisionEnter(Collider* col) {
         SPACE_ENGINE_INFO("Enemy hit something!");
+        this->destroy();
         // Logica distruzione da settare
     }
 }

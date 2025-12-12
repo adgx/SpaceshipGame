@@ -86,6 +86,9 @@ namespace SpaceEngine{
         float asteroidTimer = 0.0f;
         float enemyTimer = 0.0f;
 
+        //asteroid 
+        int asteroidMax = 0;
+        
         //Gathers
         std::vector<RenderObject> worldRenderables;
         std::vector<UIRenderObject> uiRenderables;
@@ -146,7 +149,7 @@ namespace SpaceEngine{
             float spawnRadius = 5.0f; //distanza dal centro entro quale possono essere generati gli elementi
             //da piazzare da una altra parte
             //spawn asteroidi
-            if(asteroidTimer >= 2.0f)
+            if(asteroidTimer >= 2.0f && asteroidMax <8)
             {
                 Asteroid* pAsteroid = new Asteroid(pScene, "TestCube.obj");
                 float angle = (float)(rand() % 90);
@@ -162,6 +165,7 @@ namespace SpaceEngine{
                 if(t) t->setWorldPosition(Vector3(x, y, z));
                 pScene->addSceneComponent(pAsteroid);
                 //scene->requestInstatiate(pAsteroid);
+                asteroidMax++;
                 asteroidTimer = 0.0f;
             }
  
@@ -189,7 +193,7 @@ namespace SpaceEngine{
             //collects the renderizable objects in the scene
             pScene->gatherRenderables(worldRenderables, uiRenderables);
             //before rendering
-            glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+            glClearColor(1.f, 1.f, 1.f, 1.f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             BaseCamera* cam = pScene->getActiveCamera();
             

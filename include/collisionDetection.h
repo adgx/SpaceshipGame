@@ -204,7 +204,13 @@ namespace SpaceEngine
 
                     int bucket = col->bucket;
 
-                    (col->pPrev != nullptr) ? col->pPrev->pNext = col->pNext : colliderBucket[bucket] = col->pNext;
+                    if (col->pPrev)
+                        col->pPrev->pNext = col->pNext;
+                    else
+                        colliderBucket[bucket] = col->pNext;  
+                                
+                    if (col->pNext)
+                        col->pNext->pPrev = col->pPrev;
                 }
 
                 void CheckObjAgainstGrid(Collider* col, std::unordered_set<CollisionPair, CollisionPairHash>& currCollisions)
