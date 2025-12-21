@@ -26,8 +26,6 @@ struct Light
 };
 
 uniform Light lights[4];
-uniform vec3 lightPositions[4];
-uniform vec3 lightColors[4];
 
 // camera
 uniform vec3 camPos;
