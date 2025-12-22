@@ -53,11 +53,10 @@ namespace SpaceEngine
             void setUniform(const char *name, int val);
             void setUniform(const char *name, bool val);
             void setUniform(const char *name, GLuint val);
+            void setSubroutinesUniform(const char *name, int type);
+            int isPresentUniform(const char *name);
             
 
-            void setSubroutinesUniform(const char *name, int type);
-
-            void findUniformLocations();
             std::vector<std::tuple<const std::string, GLenum>> getPairUniformNameLocation();
             void printActiveUniforms();
             void printActiveUniformBlocks();

@@ -11,8 +11,8 @@ namespace SpaceEngine
             BaseCamera();
             BaseCamera(float nearPlane, float farPlane);
             ~BaseCamera() = default;
-            Matrix4 getViewMatrix();
-            Matrix4 getProjectionMatrix(){ return projection;};
+            Matrix4 getViewMatrix() const;
+            Matrix4 getProjectionMatrix() const { return projection;};
             Transform transf;
         protected:
             Matrix4 projection;

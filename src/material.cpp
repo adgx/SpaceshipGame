@@ -86,6 +86,11 @@ namespace SpaceEngine
             }
         }
 
+        bindSubroutines();
+    }
+
+    void BaseMaterial::bindSubroutines()
+    {
         if(subroutines.size())
         {
             //load info
@@ -169,6 +174,27 @@ namespace SpaceEngine
         SPACE_ENGINE_ERROR("Texture: {} not found",  nameTex);
         return 0;
     }
+
+    //PBR Material
+    void PBRMaterial::bindSubroutines()
+    {
+        if(texs["albedo_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getAlbedoFromTex", 0);
+        else pShader->setSubroutinesUniform("getAlbedoFromVal", 0);
+        if(texs["metalness_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getMetalnessFromTex", 1);
+        else pShader->setSubroutinesUniform("getMetalnessFromVal", 1);
+        if(texs["roughness_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getRoughnessFromTex", 2);
+        else pShader->setSubroutinesUniform("getRoughnessFromVal", 2);
+        if(texs["normal_map_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getNormalsFromTex", 3);
+        else pShader->setSubroutinesUniform("getNormalsFromVal", 3);
+        if(texs["ambient_occlusion_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getAOFromTex", 4);
+        else pShader->setSubroutinesUniform("getAOFromVal", 4);
+    }
+
 
     //UIButtonMaterial
     void UIButtonMaterial::setSubroutineBase(bool flag)

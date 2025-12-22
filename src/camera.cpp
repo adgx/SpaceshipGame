@@ -9,7 +9,7 @@ namespace SpaceEngine
     
     BaseCamera::BaseCamera(float nearPlane, float farPlane) : nearPlane(nearPlane), farPlane(farPlane){}
 
-    Matrix4 BaseCamera::getViewMatrix()
+    Matrix4 BaseCamera::getViewMatrix() const
     {
         return Math::inverse(transf.getWorldMatrix());
     }

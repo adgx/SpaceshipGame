@@ -27,13 +27,21 @@ namespace SpaceEngine
         Rect* pRect = nullptr;
     };
 
+    struct RendererParams
+    {
+        const std::vector<RenderObject>& renderables; 
+        const std::vector<Light*>& lights;
+        const BaseCamera& cam;
+        Skybox* pSkybox = nullptr; 
+    };
+
     class Renderer
     {
         public:
-            void render(const std::vector<RenderObject>& renderables, BaseCamera& cam, Skybox* pSkybox);
+            void render(const RendererParams& rParams);
         private:
             bool debug;
-    };
+    }; 
 
     class UIRenderer
     {

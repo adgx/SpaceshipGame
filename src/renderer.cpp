@@ -1,23 +1,15 @@
 #include "renderer.h"
 #include "shader.h"
 #include "windowManager.h"
+#include <string>
 
 namespace SpaceEngine
 {
-    void Renderer::render(const std::vector<RenderObject>& renderables, BaseCamera& cam, Skybox* pSkybox)
+    
+    void Renderer::render(const RendererParams& rParams)
     {
-        /*if(pSkybox)
-        {
-            glDepthFunc(GL_LEQUAL);
-            pSkybox->bindVAO();
-            pSkybox->pShader->use();
-            pSkybox->pShader->setUniform("view", Matrix4(Matrix3(cam.getViewMatrix())));
-            pSkybox->pShader->setUniform("projection", cam.getProjectionMatrix());
-            pSkybox->draw();
-            glDepthFunc(GL_LESS);
-        }*/
 
-        for(const auto& renderObj : renderables)
+        for(const auto& renderObj : rParams.renderables)
         {
             if(!renderObj.mesh ) continue;
             
@@ -33,15 +25,43 @@ namespace SpaceEngine
                 if(shader)
                 {
                     shader->setUniform("model", renderObj.modelMatrix);
-                    shader->setUniform("view", cam.getViewMatrix());
-                    shader->setUniform("projection", cam.getProjectionMatrix());
+                    shader->setUniform("view", rParams.cam.getViewMatrix());
+                    shader->setUniform("projection", rParams.cam.getProjectionMatrix());
+                    //lights bind
+                    if(shader->isPresentUniform("lights") && rParams.lights.size())
+                    {
+                        for(int i = 0; i < rParams.lights.size(); i++)
+                        {
+                            std::string strLight = "lights[" + std::to_string(i) + "].pos"; 
+                            shader->setUniform(strLight.c_str(), rParams.lights[i]->pos);
+                            strLight = "lights[" + std::to_string(i) + "].color"; 
+                            shader->setUniform(strLight.c_str(), rParams.lights[i]->color);
+                        }
+                    }
+
+                    //subroutines 
+
                     //call the draw for the mesh
                     renderObj.mesh->drawSubMesh(idSubMesh);
                 }
             }    
         }
-        if(pSkybox){
-            pSkybox->draw(cam.getViewMatrix(), cam.getProjectionMatrix());
+        if(rParams.pSkybox){
+            ShaderProgram* pShaderSkybox = rParams.pSkybox->pShader;
+            glm::mat4 viewNoTransl = glm::mat4(glm::mat3(rParams.cam.getViewMatrix()));
+
+            pShaderSkybox->setUniform("view", viewNoTransl);
+            pShaderSkybox->setUniform("projection", rParams.cam.getProjectionMatrix());
+            pShaderSkybox->setUniform("skybox", 0);
+            // disegna la skybox come se fosse lontanissima
+            glDepthFunc(GL_LEQUAL);
+            glDisable(GL_CULL_FACE);
+
+            rParams.pSkybox->bindTex();
+            rParams.pSkybox->bindVAO();
+            rParams.pSkybox->draw();
+            glEnable(GL_CULL_FACE);
+            glDepthFunc(GL_LESS);
         }
     }
 

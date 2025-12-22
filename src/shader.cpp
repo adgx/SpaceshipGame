@@ -420,6 +420,7 @@ namespace SpaceEngine
 
     void ShaderProgram::reflectionSubrroutines(Type shType)
     {
+        //num of subroutines functions
         GLint numSubRoutines;
         glGetProgramStageiv(handle, shType,
                     GL_ACTIVE_SUBROUTINES,
@@ -432,13 +433,17 @@ namespace SpaceEngine
 
         
         SPACE_ENGINE_DEBUG("Subroutines are found");
+        //nameSubroutineFunc - location
         std::unordered_map<std::string, GLuint> subroutinesInfo;
+        //get the max n chars
         GLint len;
             glGetProgramStageiv(handle, shType,
                                    GL_ACTIVE_SUBROUTINE_MAX_LENGTH,
                                    &len);
         char* name = new char[len];
         auto flag = glGetError();
+        
+        //fill the map 
         for (int i = 0; i < numSubRoutines; ++i) 
         {
             
@@ -456,6 +461,7 @@ namespace SpaceEngine
         
         delete[] name;
         
+        //get the number of subroutines uniform
         if(shType == Type::VERTEX)
         {
             GLint numLocs;
@@ -544,6 +550,16 @@ namespace SpaceEngine
         }
         delete[] name;
         delete[] uniName;
+    }
+
+    int ShaderProgram::isPresentUniform(const char *name)
+    {
+	    if (uniformsInfo.find(name) == uniformsInfo.end()) 
+        {
+	    	return 0;
+	    }
+
+        return 1;
     }
     
     void ShaderProgram::printActiveAttribs() {

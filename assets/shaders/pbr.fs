@@ -115,7 +115,7 @@ float getAOFromVal()
     return ambient_occlusion_val;
 }
 
-subroutine( sRoughness )
+subroutine( sAO )
 float getAOFromTex()
 {
     return texture(ambient_occlusion_tex, TexCoords).r;

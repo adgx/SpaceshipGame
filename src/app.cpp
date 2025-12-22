@@ -51,12 +51,6 @@ namespace SpaceEngine{
         //crea e inizializza il player
         PlayerShip* pPlayer = new PlayerShip(pScene, "TestCube.obj");
         pPlayer->Init();
-        //GameObject* pCube = new GameObject();
-        //make another cube
-        /*pCube->addComponent(pPlayer->getComponent<Mesh>()); // this avoid to reallocate mesh cube data
-        //pCube->addComponent(new Transform());
-        //pCube->getComponent<Transform>()->setWorldPosition(Vector3{0.f, 0.f, -3.f});
-        pCube->addComponent(new Collider(pCube));*/
         //add GameObject to the scene
         pScene->addSceneComponent<GameObject*>(pPlayer);
 
@@ -67,6 +61,15 @@ namespace SpaceEngine{
         pCamera->transf.lookAt(pPlayer->getComponent<Transform>()->getWorldPosition());
         pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
 
+        //Initialize lights
+        Light* pLight = new Light(Vector3{-10.f, 10.f, 0.f}, Vector3{0.5f, 0.5f, 0.5f}); //left-top
+        pScene->addSceneComponent<Light*>(pLight);
+        pLight = new Light(Vector3{10.f, 10.f, 0.f}, Vector3{0.5f, 0.5f, 0.5f}); //right-top
+        pScene->addSceneComponent<Light*>(pLight);
+        pLight = new Light(Vector3{10.f, -10.f, 0.f}, Vector3{0.5f, 0.5f, 0.5f}); //right-bottom
+        pScene->addSceneComponent<Light*>(pLight);
+        Light* pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{0.5f, 0.5f, 0.5f}); //left-bottom
+        pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
         pScene->Init();
     }
 
@@ -195,9 +198,12 @@ namespace SpaceEngine{
             //before rendering
             glClearColor(1.f, 1.f, 1.f, 1.f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            BaseCamera* cam = pScene->getActiveCamera();
+            //gather scene object to rendering the scene
+            BaseCamera* pCam = pScene->getActiveCamera();
+            std::vector<Light*>* pLights = pScene->getLights();
+            RendererParams rParams{worldRenderables, *(pLights), *(pCam), pScene->getSkybox()};
             
-            renderer->render(worldRenderables, *(pScene->getActiveCamera()), pScene->getSkybox());
+            renderer->render(rParams);
             windowManager.PollEvents();
             windowManager.SwapBuffers();
         }

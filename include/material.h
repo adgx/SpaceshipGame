@@ -86,6 +86,7 @@ namespace SpaceEngine
                 {}
                 std::unordered_map<std::string, Texture*> texs;
                 unsigned int settedTexs = 0;
+                virtual void bindSubroutines(); 
             friend class MaterialManager;
     };
 
@@ -112,6 +113,8 @@ namespace SpaceEngine
                     {"ambient_occlusion_val", float{1.f}}
                 };
             }
+            
+            void bindSubroutines() override;
         friend class MaterialManager;
     };
 

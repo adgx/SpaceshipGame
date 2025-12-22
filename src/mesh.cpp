@@ -256,6 +256,7 @@ namespace SpaceEngine
                 SPACE_ENGINE_FATAL("Shader pbr not compiled")
                 exit(-1);
             }
+
             pTMPMesh->materials[i]= std::move(pbrMat);
             loadTextures(dir, pMaterial, pScene, i);
             loadColors(pMaterial, i);
@@ -267,11 +268,11 @@ namespace SpaceEngine
 
     void MeshManager::loadTextures(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int index)
     {
-        loadDiffuseTexture(dir, pMaterial, pScene, index);
-        loadSpecularTexture(dir, pMaterial, pScene, index);
-
+        loadDiffuseTexture(dir, pMaterial, pScene, index); // diffuse and albedo are the same
+        //loadSpecularTexture(dir, pMaterial, pScene, index);
+        loadNormalsTexture(dir, pMaterial, pScene, index);
         // PBR
-        loadAlbedoTexture(dir, pMaterial, pScene, index);
+        //loadAlbedoTexture(dir, pMaterial, pScene, index);
         loadMetalnessTexture(dir, pMaterial, pScene, index);
         loadRoughnessTexture(dir, pMaterial, pScene, index);
     }
@@ -290,13 +291,13 @@ namespace SpaceEngine
                     SPACE_ENGINE_DEBUG("Embeddeded diffuse texture type '{}'\n", paiTexture->achFormatHint);
                     int buffer_size = paiTexture->mWidth;
                     bool IsSRGB = true;
-                    pTMPMesh->materials[materialIndex]->addTexture("diffuse_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("albedo_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
                 } 
                 else 
                 {
                     std::string fullPath = Utils::getFullPath(dir, path);
                     bool IsSRGB = true;
-                    pTMPMesh->materials[materialIndex]->addTexture("diffuse_tex", TextureManager::load(fullPath, IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("albedo_tex", TextureManager::load(fullPath, IsSRGB));
                     SPACE_ENGINE_INFO("Loaded diffuse texture '{}' at indexMaterial {}", fullPath.c_str(), materialIndex);
                 }
             }
@@ -332,10 +333,10 @@ namespace SpaceEngine
 
     void MeshManager::loadAlbedoTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
     {
-        if (pMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0) {
+        if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
             aiString path;
 
-            if (pMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
                 const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
 
                 if (paiTexture) {
@@ -409,6 +410,65 @@ namespace SpaceEngine
                     bool IsSRGB = false;
                     pTMPMesh->materials[materialIndex]->addTexture("roughness_tex", TextureManager::load(fullPath, IsSRGB));
                     SPACE_ENGINE_INFO("Loaded roughness texture '{}' at index {}", fullPath.c_str(), materialIndex);
+                }
+            }
+        }
+    }
+
+    //aiTextureType_NORMALS
+    void MeshManager::loadNormalsTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
+    {
+        int NumTextures = pMaterial->GetTextureCount(aiTextureType_NORMALS);
+
+        if (NumTextures > 0) {
+            SPACE_ENGINE_DEBUG("Num Normals textures {}", NumTextures);
+
+            aiString path;
+
+            if (pMaterial->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+                const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
+
+                if (paiTexture) {
+                    SPACE_ENGINE_DEBUG("Embeddeded normals texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex]->addTexture("normal_map_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex]->addTexture("normal_map_tex", TextureManager::load(fullPath, IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded normals texture '{}' at index {}", fullPath.c_str(), materialIndex);
+                }
+            }
+        }
+    }
+
+    void MeshManager::loadAmbientOcclusionTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
+    {
+        int NumTextures = pMaterial->GetTextureCount(aiTextureType_AMBIENT);
+
+        if (NumTextures > 0) {
+            SPACE_ENGINE_DEBUG("Num Ambient Occlusion textures {}", NumTextures);
+
+            aiString path;
+
+            if (pMaterial->GetTexture(aiTextureType_AMBIENT, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+                const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
+
+                if (paiTexture) {
+                    SPACE_ENGINE_DEBUG("Embeddeded Ambient Occlusion texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex]->addTexture("ambient_occlusion_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex]->addTexture("ambient_occlusion_tex", TextureManager::load(fullPath, IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded Ambient Occlusion texture '{}' at index {}", fullPath.c_str(), materialIndex);
                 }
             }
         }

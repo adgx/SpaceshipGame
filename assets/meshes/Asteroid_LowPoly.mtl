@@ -1,2 +1,19 @@
 # Blender 4.5.3 LTS MTL File: 'Asteroid_LowPoly.blend'
 # www.blender.org
+
+newmtl Asteroid_GR_Mat
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+Pm 0.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_ka Asteroid_AO.png
+map_Kd Asteroid_Albedo.png
+map_Pr Asteroid_Roughness.png
+map_Bump -bm 1.000000 Asteroid_Normals.png
