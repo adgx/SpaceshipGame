@@ -33,9 +33,7 @@ namespace SpaceEngine
             template<typename T>
             void addSceneComponent(T sceneComponent)
             {
-                if constexpr (std::is_pointer_v<T>) {
-                    using PureT = std::remove_pointer_t<T>;
-                } 
+                using PureT = std::remove_pointer_t<T>;
 
                 if(sceneComponent == nullptr)
                 {
@@ -99,7 +97,7 @@ namespace SpaceEngine
             vector<GameObject*> gameObjects;
             std::queue<GameObject*> destroyQ;
             std::list<SpawnRequest> spawnQ;
-            std::vector<Light> lights;
+            std::vector<Light*> lights;
             //cameras[0] is always the active camera
             vector<BaseCamera*> cameras;
             Skybox* pSkybox = nullptr;

@@ -486,30 +486,28 @@ namespace SpaceEngine
 
         if (pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor) == AI_SUCCESS) {
             SPACE_ENGINE_INFO("Loaded ambient color [{} {} {}]", ambientColor.r, ambientColor.g, ambientColor.b);
-            std::get<Vector4>(pTMPMesh->materials[index]->props["base_color_val"]).r = ambientColor.r;
-            std::get<Vector4>(pTMPMesh->materials[index]->props["base_color_val"]).g = ambientColor.g;
-            std::get<Vector4>(pTMPMesh->materials[index]->props["base_color_val"]).b = ambientColor.b;
+            std::get<float>(pTMPMesh->materials[index]->props["ambient_occlusion_val"]) = ambientColor.r;
         } else {
-            std::get<Vector4>(pTMPMesh->materials[index]->props["base_color_val"]) = allOnes;
+            std::get<float>(pTMPMesh->materials[index]->props["base_color_val"]) = 1.f;
         }
 
-        aiColor3D diffuseColor(0.0f, 0.0f, 0.0f);
+        aiColor3D albedoColor(1.0f, 1.0f, 1.0f);
 
-        if (pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
-            SPACE_ENGINE_INFO("Loaded diffuse color [{} {} {}]", diffuseColor.r, diffuseColor.g, diffuseColor.b);
-            std::get<Vector3>(pTMPMesh->materials[index]->props["diffuse_color_val"]).r = diffuseColor.r;
-            std::get<Vector3>(pTMPMesh->materials[index]->props["diffuse_color_val"]).g = diffuseColor.g;
-            std::get<Vector3>(pTMPMesh->materials[index]->props["diffuse_color_val"]).b = diffuseColor.b;
+        if (pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, albedoColor) == AI_SUCCESS) {
+            SPACE_ENGINE_INFO("Loaded diffuse color [{} {} {}]", albedoColor.r, albedoColor.g, albedoColor.b);
+            std::get<Vector4>(pTMPMesh->materials[index]->props["albedo_color_val"]).r = albedoColor.r;
+            std::get<Vector4>(pTMPMesh->materials[index]->props["albedo_color_val"]).g = albedoColor.g;
+            std::get<Vector4>(pTMPMesh->materials[index]->props["albedo_color_val"]).b = albedoColor.b;
         }
-
-        aiColor3D specularColor(0.0f, 0.0f, 0.0f);
-
-        if (pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor) == AI_SUCCESS) {
-            SPACE_ENGINE_INFO("Loaded specular color [{} {} {}]\n", specularColor.r, specularColor.g, specularColor.b);
-            std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).r = specularColor.r;
-            std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).g = specularColor.g;
-            std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).b = specularColor.b;
-        }
+        //todo: metalness and roughness
+        //aiColor3D specularColor(0.0f, 0.0f, 0.0f);
+//
+        //if (pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor) == AI_SUCCESS) {
+        //    SPACE_ENGINE_INFO("Loaded specular color [{} {} {}]\n", specularColor.r, specularColor.g, specularColor.b);
+        //    std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).r = specularColor.r;
+        //    std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).g = specularColor.g;
+        //    std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).b = specularColor.b;
+        //}
     }
 
     void Mesh::populateBuffers()

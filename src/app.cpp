@@ -68,7 +68,7 @@ namespace SpaceEngine{
         pScene->addSceneComponent<Light*>(pLight);
         pLight = new Light(Vector3{10.f, -10.f, 0.f}, Vector3{0.5f, 0.5f, 0.5f}); //right-bottom
         pScene->addSceneComponent<Light*>(pLight);
-        Light* pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{0.5f, 0.5f, 0.5f}); //left-bottom
+        pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{0.5f, 0.5f, 0.5f}); //left-bottom
         pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
         pScene->Init();
     }
@@ -154,7 +154,7 @@ namespace SpaceEngine{
             //spawn asteroidi
             if(asteroidTimer >= 2.0f && asteroidMax <8)
             {
-                Asteroid* pAsteroid = new Asteroid(pScene, "TestCube.obj");
+                Asteroid* pAsteroid = new Asteroid(pScene, "Asteroid_LowPoly.obj");
                 float angle = (float)(rand() % 90);
                 float rad = (angle) * 3.14159f / 180.0f;
                 float z = -15.f + cos(rad) * spawnRadius;

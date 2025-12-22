@@ -166,7 +166,7 @@ namespace SpaceEngine
         }
     }
 
-    std::vector<Light>* Scene::getLights()
+    std::vector<Light*>* Scene::getLights()
     {
         return &lights;
     }

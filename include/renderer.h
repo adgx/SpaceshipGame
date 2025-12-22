@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "skybox.h"
 #include "ui.h"
+#include "light.h"
 
 #include <vector>
 

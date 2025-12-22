@@ -87,7 +87,7 @@ float getRoughnessFromTex()
 subroutine( sNormals )
 vec3 getNormalsFromVal()
 {
-    normalize(Normal);
+    return normalize(Normal);
 }
 
 subroutine( sNormals )
@@ -150,7 +150,7 @@ float geometrySchlickGGX(float NdotV, float roughness)
 float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
     float NdotV = max(dot(N, V), 0.0);
-    float NdotV = max(dot(N, L), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
     float ggx1 = geometrySchlickGGX(NdotL, roughness);
     float ggx2 = geometrySchlickGGX(NdotV, roughness);
 
@@ -180,7 +180,7 @@ void main()
     for(int i = 0; i < 4; i++)
     {
         // calculate per-light radiance
-        vec3 L = normalize(lightPositions[i] - WorldPos);
+        vec3 L = normalize(lights[i].pos - WorldPos);
         vec3 H = normalize(V + L);
 
         //float distance = length(lights[i].pos - WorldPos);
