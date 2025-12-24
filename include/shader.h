@@ -53,11 +53,10 @@ namespace SpaceEngine
             void setUniform(const char *name, int val);
             void setUniform(const char *name, bool val);
             void setUniform(const char *name, GLuint val);
+            void setSubroutinesUniform(const char *name, const std::string& type);
+            int isPresentUniform(const char *name);
             
 
-            void setSubroutinesUniform(const char *name, int type);
-
-            void findUniformLocations();
             std::vector<std::tuple<const std::string, GLenum>> getPairUniformNameLocation();
             void printActiveUniforms();
             void printActiveUniformBlocks();
@@ -78,6 +77,7 @@ namespace SpaceEngine
                 bool isVSComp = false;
                 bool isFSComp = false;
                 std::unordered_map<std::string, UniformInfo> uniformsInfo;
+                std::unordered_map<Type, std::unordered_map<std::string, GLint>> subroutineUniformsInfo;
                 std::unordered_map<std::string, GLuint> vsSubroutinesInfo;
                 std::unordered_map<std::string, GLuint> fsSubroutinesInfo;
                 std::vector<GLuint> vsIdxSubRoutUniform;

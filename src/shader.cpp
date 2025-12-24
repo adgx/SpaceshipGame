@@ -420,6 +420,7 @@ namespace SpaceEngine
 
     void ShaderProgram::reflectionSubrroutines(Type shType)
     {
+        //num of subroutines functions
         GLint numSubRoutines;
         glGetProgramStageiv(handle, shType,
                     GL_ACTIVE_SUBROUTINES,
@@ -432,13 +433,17 @@ namespace SpaceEngine
 
         
         SPACE_ENGINE_DEBUG("Subroutines are found");
+        //nameSubroutineFunc - location
         std::unordered_map<std::string, GLuint> subroutinesInfo;
+        //get the max n chars
         GLint len;
             glGetProgramStageiv(handle, shType,
                                    GL_ACTIVE_SUBROUTINE_MAX_LENGTH,
                                    &len);
         char* name = new char[len];
         auto flag = glGetError();
+        
+        //fill the map 
         for (int i = 0; i < numSubRoutines; ++i) 
         {
             
@@ -451,18 +456,42 @@ namespace SpaceEngine
                                        &written,
                                        name);
             flag = glGetError();
+            SPACE_ENGINE_DEBUG("ActiveSubroutine: {} Loc: {}", name, i);
             subroutinesInfo[name] = i;
         }
         
         delete[] name;
         
+        //get the max n chars to identify the subroutine uniform
+        glGetProgramStageiv(handle, shType,
+                            GL_ACTIVE_SUBROUTINE_UNIFORM_MAX_LENGTH,
+                            &len);
+        name = new char[len];
+        flag = glGetError();
+
+        //get the number of subroutines uniform
         if(shType == Type::VERTEX)
         {
+            //make this a function
             GLint numLocs;
             glGetProgramStageiv(handle, Type::VERTEX,
                     GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS,
                     &numLocs);
             auto flag = glGetError();
+            
+            for(int i = 0; i < numLocs; i++)
+            {
+                GLsizei written;
+                glGetActiveSubroutineUniformName(handle,
+  	                                            shType,
+  	                                            i,
+  	                                            len,
+  	                                            &written,
+  	                                            name);
+            SPACE_ENGINE_DEBUG("ActiveSubroutineUniform: {} Loc: {}", name, i);
+            subroutineUniformsInfo[shType][name] = i;
+
+            }
             vsIdxSubRoutUniform.resize(numLocs);
             vsSubroutinesInfo = subroutinesInfo;
         }
@@ -473,19 +502,39 @@ namespace SpaceEngine
                     GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS,
                     &numLocs);
             auto flag = glGetError();
+            for(int i = 0; i < numLocs; i++)
+            {
+                GLsizei written;
+                glGetActiveSubroutineUniformName(handle,
+  	                                            shType,
+  	                                            i,
+  	                                            len,
+  	                                            &written,
+  	                                            name);
+                SPACE_ENGINE_DEBUG("ActiveSubroutineUniform: {} Loc: {}", name, i);
+                subroutineUniformsInfo[shType][name] = i;
+            }
             fsIdxSubRoutUniform.resize(numLocs);
             fsSubroutinesInfo = subroutinesInfo;
         }
+        delete[] name;
     }
 
-    void ShaderProgram::setSubroutinesUniform(const char *name, int type)
+    void ShaderProgram::setSubroutinesUniform(const char *name, const std::string& type)
     {
         //search on vs
         auto pos = vsSubroutinesInfo.find(name);
 
 	    if (pos != vsSubroutinesInfo.end()) 
         {
-	    	vsIdxSubRoutUniform[static_cast<int>(type)] = pos->second;
+            auto uniform = subroutineUniformsInfo[Type::VERTEX].find(type);
+            if(uniform != subroutineUniformsInfo[Type::VERTEX].end())
+	    	    vsIdxSubRoutUniform[subroutineUniformsInfo[Type::VERTEX][type]] = pos->second;
+            else 
+            {
+                SPACE_ENGINE_FATAL("Not found the active subroutine uniform associated to the active subroutine");
+                exit(-1);
+            }
             return;
 	    }
         
@@ -494,18 +543,30 @@ namespace SpaceEngine
 
 	    if (pos != fsSubroutinesInfo.end()) 
         {
-	    	fsIdxSubRoutUniform[static_cast<int>(type)] = pos->second;
+	    	auto uniform = subroutineUniformsInfo[Type::FRAGMENT].find(type);
+            if(uniform != subroutineUniformsInfo[Type::FRAGMENT].end())
+	    	    fsIdxSubRoutUniform[subroutineUniformsInfo[Type::FRAGMENT][type]] = pos->second;
+            else 
+            {
+                SPACE_ENGINE_FATAL("Not found the active subroutine uniform associated to the active subroutine");
+                exit(-1);
+            }
             return;
 	    }
-        SPACE_ENGINE_ERROR("Set subroutines faild");
     }
 
     void ShaderProgram::bindSubroutines()
     {
-        if(vsIdxSubRoutUniform.size() > 0)
-            glUniformSubroutinesuiv(GL_VERTEX_SHADER, static_cast<GLsizei>(vsIdxSubRoutUniform.size()), &vsIdxSubRoutUniform[0]);
+        auto glError = glGetError();
+        if(vsIdxSubRoutUniform.size() > 0){
+            glUniformSubroutinesuiv(GL_VERTEX_SHADER, static_cast<GLsizei>(vsIdxSubRoutUniform.size()), vsIdxSubRoutUniform.data());
+            glError = glGetError();
+        }
         if(fsIdxSubRoutUniform.size() > 0)
-            glUniformSubroutinesuiv(GL_VERTEX_SHADER, static_cast<GLsizei>(fsIdxSubRoutUniform.size()), &fsIdxSubRoutUniform[0]);
+        {
+            glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, static_cast<GLsizei>(fsIdxSubRoutUniform.size()), fsIdxSubRoutUniform.data());
+            glError = glGetError();
+        }
     }
 
     
@@ -544,6 +605,16 @@ namespace SpaceEngine
         }
         delete[] name;
         delete[] uniName;
+    }
+
+    int ShaderProgram::isPresentUniform(const char *name)
+    {
+	    if (uniformsInfo.find(name) == uniformsInfo.end()) 
+        {
+	    	return 0;
+	    }
+
+        return 1;
     }
     
     void ShaderProgram::printActiveAttribs() {

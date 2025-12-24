@@ -63,6 +63,7 @@ namespace SpaceEngine
 
         //SPACE_ENGINE_DEBUG("Binding properties material to shader");
         std::vector<std::tuple<const std::string, GLenum>> uniformsShader = pShader->getPairUniformNameLocation();
+        auto glError = glGetError();
         
         for(const auto& [name, type] : uniformsShader)
         {
@@ -73,6 +74,8 @@ namespace SpaceEngine
                     if(compareTypeGL(val, type))
                     {
                         pShader->setUniform(name.c_str(), val);
+                        glError = glGetError();
+
                     }
                 }, props[name]);
             }
@@ -80,12 +83,19 @@ namespace SpaceEngine
             {
                 if(texs[name])
                 {
-                    pShader->setUniform(name.c_str(), texs[name]->getBindlessHandle());
+                    texs[name]->bind();
+                    pShader->setUniform(name.c_str(), texs[name]->getTexUnitIndex());
+                    glError = glGetError();
                 }
                 else {SPACE_ENGINE_WARN("Material: {}, Name uniform texture:{} no texture", this->name, name);}
             }
         }
+        glError = glGetError();
+        bindSubroutines();
+    }
 
+    void BaseMaterial::bindSubroutines()
+    {
         if(subroutines.size())
         {
             //load info
@@ -112,7 +122,7 @@ namespace SpaceEngine
         if(pos == texs.end() || (pos != texs.end() && texs[nameTex] == nullptr))
         {
             SPACE_ENGINE_INFO("Material: {}, added Texture: {}", name, nameTex);
-            pTex->setBindlessHandle(static_cast<unsigned int>(GL_TEXTURE0+settedTexs));
+            pTex->setTexUnitHandle(static_cast<unsigned int>(GL_TEXTURE0+settedTexs));
             pTex->bind();
             settedTexs++;
             texs[nameTex] = pTex;
@@ -121,7 +131,7 @@ namespace SpaceEngine
         else
         {
             SPACE_ENGINE_WARN("Material: {}, overwrite Texture: {}", name, nameTex);
-            pTex->setBindlessHandle(pos->second->getBindlessHandle());
+            pTex->setTexUnitHandle(pos->second->getTexUnitIndex());
             texs[nameTex] = pTex;
             return 2;
         }
@@ -169,6 +179,30 @@ namespace SpaceEngine
         SPACE_ENGINE_ERROR("Texture: {} not found",  nameTex);
         return 0;
     }
+
+    //PBR Material
+    void PBRMaterial::bindSubroutines()
+    {
+        if(texs["albedo_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getAlbedoFromTex", "albedoMode");
+        else pShader->setSubroutinesUniform("getAlbedoFromVal", "albedoMode");
+        if(texs["metalness_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getMetalnessFromTex", "metalnessMode");
+        else pShader->setSubroutinesUniform("getMetalnessFromVal", "metalnessMode");
+        if(texs["roughness_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getRoughnessFromTex", "roughnessMode");
+        else pShader->setSubroutinesUniform("getRoughnessFromVal", "roughnessMode");
+        if(texs["normal_map_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getNormalsFromTex", "normalsMode");
+        else pShader->setSubroutinesUniform("getNormalsFromVal", "normalsMode");
+        if(texs["ambient_occlusion_tex"] != nullptr)
+            pShader->setSubroutinesUniform("getAOFromTex", "AOMode");
+        else pShader->setSubroutinesUniform("getAOFromVal", "AOMode");
+
+        pShader->bindSubroutines();
+        auto glError = glGetError();
+    }
+
 
     //UIButtonMaterial
     void UIButtonMaterial::setSubroutineBase(bool flag)

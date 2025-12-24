@@ -10,7 +10,7 @@ namespace SpaceEngine
         return cameras[0];
     }
 
-void Scene::Init()
+    void Scene::Init()
     {
         pSkybox = new Skybox();
     }
@@ -224,5 +224,10 @@ void Scene::Init()
                 uiRenderables.push_back(uro);
             }
         }
+    }
+
+    std::vector<Light*>* Scene::getLights()
+    {
+        return &lights;
     }
 }

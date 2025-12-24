@@ -74,7 +74,7 @@ namespace SpaceEngine
             struct subroutineInfo
             {
                 bool active = false;
-                int type = -1;
+                std::string type;
             };
             std::unordered_map<std::string, subroutineInfo> subroutines;
             ShaderProgram* pShader = nullptr;
@@ -86,6 +86,7 @@ namespace SpaceEngine
                 {}
                 std::unordered_map<std::string, Texture*> texs;
                 unsigned int settedTexs = 0;
+                virtual void bindSubroutines(); 
             friend class MaterialManager;
     };
 
@@ -99,8 +100,6 @@ namespace SpaceEngine
                     {"albedo_tex", nullptr},
                     {"metalness_tex", nullptr},
                     {"roughness_tex", nullptr},
-                    {"specular_tex", nullptr},
-                    {"diffuse_tex", nullptr},
                     {"normal_map_tex", nullptr},
                     {"ambient_occlusion_tex", nullptr}
                 };
@@ -108,15 +107,14 @@ namespace SpaceEngine
                 props = 
                 {
                     
-                    {"ambient_color_val", Vector4{0.f, 0.f, 0.f, 1.f}},
-                    {"diffuse_color_val", Vector3{0.f, 0.f, 0.f}},
-                    {"specular_color_val", Vector3{0.f, 0.f, 0.f}},
-                    {"base_color_val", Vector4{0.f, 0.f, 0.f, 1.f}},
+                    {"albedo_color_val", Vector4{0.f, 0.f, 0.f, 1.f}},
                     {"metalness_val", float{0.f}},
                     {"roughness_val", float{0.f}},
-                    {"emissive_color_val", Vector3{0.f, 0.f, 0.f}}
+                    {"ambient_occlusion_val", float{1.f}}
                 };
             }
+            
+            void bindSubroutines() override;
         friend class MaterialManager;
     };
 
@@ -150,8 +148,8 @@ namespace SpaceEngine
             {
                 subroutines = 
                 {
-                    {"uiTextureBase", {true, 0}},
-                    {"uiTextureHover", {false, 0}}
+                    {"uiTextureBase", {true, "uiTextureMode"}},
+                    {"uiTextureHover", {false, "uiTextureMode"}}
                 };
             }
         friend class MaterialManager;

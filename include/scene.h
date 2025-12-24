@@ -4,6 +4,7 @@
 #include "camera.h"
 #include "gameObject.h"
 #include "collisionDetection.h"
+#include "light.h"
 #include "log.h"
 #include "shader.h"
 #include "Asteroid.h"
@@ -58,7 +59,11 @@ namespace SpaceEngine
                     cameras.push_back(sceneComponent);
                     return;
                 }
-            
+                else if constexpr (std::is_base_of<Light, PureT>::value)
+                {
+                    lights.push_back(sceneComponent);
+                    return;
+                }
                 SPACE_ENGINE_ERROR("Component not valid!");
             }
 
@@ -70,6 +75,7 @@ namespace SpaceEngine
             void requestInstatiate(GameObject* pGameObj, Vector3 wPos);
             void requestInstatiate(GameObject* pGameObj, float time, Vector3 wPos);
             BaseCamera* getActiveCamera();
+            std::vector<Light*>* getLights(); 
             Skybox* getSkybox();
             void Update(float dt);
         private:
@@ -93,6 +99,7 @@ namespace SpaceEngine
             vector<GameObject*> gameObjects;
             std::queue<GameObject*> destroyQ;
             std::list<SpawnRequest> spawnQ;
+            std::vector<Light*> lights;
             //cameras[0] is always the active camera
             vector<BaseCamera*> cameras;
             Skybox* pSkybox = nullptr;

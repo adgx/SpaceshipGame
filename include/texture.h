@@ -11,7 +11,7 @@ namespace SpaceEngine
     {
         public:
             void bind(GLenum textureUnit);
-            void bind();
+            void bind() const;
             
             void getImageSize(int& imageWidth, int& imageHeight)
             {
@@ -20,17 +20,18 @@ namespace SpaceEngine
             }
 
             GLuint getTexture() const { return textureObj;}
-            GLuint getBindlessHandle() const { return bindlessHandle;}
-            void setBindlessHandle(GLuint texUnit) { bindlessHandle = texUnit;}
+            GLuint getTexUnitHandle() const { return texUnit;}
+            int getTexUnitIndex() const {return static_cast<int>(texUnit - GL_TEXTURE0);}
+            void setTexUnitHandle(GLuint texUnit) { this->texUnit = texUnit;}
 
             private:
                 Texture(GLenum textureTarget, const std::string& path);
                 Texture(GLenum textureTarget); 
-                void bindInternal(GLenum textureUnit);
+                void bindInternal(GLenum textureUnit) const;
                 
                 std::string fileName;
                 std::string path;
-                GLuint bindlessHandle = -1;
+                GLuint texUnit = GL_TEXTURE0;
                 int imageWidth = 0;
                 int imageHeight = 0;
                 int imageBPP = 0;

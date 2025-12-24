@@ -127,6 +127,7 @@ namespace SpaceEngine
             std::string fullPath(MESHES_PATH + fileName);
             const aiScene* pScene = importer.ReadFile(fullPath.c_str(), ASSIMP_LOAD_FLAGS);
             pTMPMesh->name = name;
+            auto glError = glGetError();
 
             if(pScene)
             {
@@ -136,9 +137,10 @@ namespace SpaceEngine
                     exit(-1);
                 }
             }
-
+            else {SPACE_ENGINE_FATAL("Impossible to load the model");}
+            
             meshMap[name] = pMesh;
-
+            
         }
         return pTMPMesh;
     }
@@ -256,6 +258,7 @@ namespace SpaceEngine
                 SPACE_ENGINE_FATAL("Shader pbr not compiled")
                 exit(-1);
             }
+
             pTMPMesh->materials[i]= std::move(pbrMat);
             loadTextures(dir, pMaterial, pScene, i);
             loadColors(pMaterial, i);
@@ -267,13 +270,22 @@ namespace SpaceEngine
 
     void MeshManager::loadTextures(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int index)
     {
-        loadDiffuseTexture(dir, pMaterial, pScene, index);
-        loadSpecularTexture(dir, pMaterial, pScene, index);
+        auto glError = glGetError();
+        loadDiffuseTexture(dir, pMaterial, pScene, index); // diffuse and albedo are the same
+        glError = glGetError();
+        //loadSpecularTexture(dir, pMaterial, pScene, index);
+        loadNormalsTexture(dir, pMaterial, pScene, index);
+        glError = glGetError();
 
         // PBR
-        loadAlbedoTexture(dir, pMaterial, pScene, index);
+        //loadAlbedoTexture(dir, pMaterial, pScene, index);
         loadMetalnessTexture(dir, pMaterial, pScene, index);
+        glError = glGetError();
         loadRoughnessTexture(dir, pMaterial, pScene, index);
+        glError = glGetError();
+        loadAmbientOcclusionTexture(dir, pMaterial, pScene, index);
+        glError = glGetError();
+
     }
 
 
@@ -290,13 +302,13 @@ namespace SpaceEngine
                     SPACE_ENGINE_DEBUG("Embeddeded diffuse texture type '{}'\n", paiTexture->achFormatHint);
                     int buffer_size = paiTexture->mWidth;
                     bool IsSRGB = true;
-                    pTMPMesh->materials[materialIndex]->addTexture("diffuse_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("albedo_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
                 } 
                 else 
                 {
                     std::string fullPath = Utils::getFullPath(dir, path);
                     bool IsSRGB = true;
-                    pTMPMesh->materials[materialIndex]->addTexture("diffuse_tex", TextureManager::load(fullPath, IsSRGB));
+                    pTMPMesh->materials[materialIndex]->addTexture("albedo_tex", TextureManager::load(fullPath, IsSRGB));
                     SPACE_ENGINE_INFO("Loaded diffuse texture '{}' at indexMaterial {}", fullPath.c_str(), materialIndex);
                 }
             }
@@ -332,10 +344,10 @@ namespace SpaceEngine
 
     void MeshManager::loadAlbedoTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
     {
-        if (pMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0) {
+        if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
             aiString path;
 
-            if (pMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
                 const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
 
                 if (paiTexture) {
@@ -414,6 +426,65 @@ namespace SpaceEngine
         }
     }
 
+    //aiTextureType_NORMALS
+    void MeshManager::loadNormalsTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
+    {
+        int NumTextures = pMaterial->GetTextureCount(aiTextureType_NORMALS);
+
+        if (NumTextures > 0) {
+            SPACE_ENGINE_DEBUG("Num Normals textures {}", NumTextures);
+
+            aiString path;
+
+            if (pMaterial->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+                const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
+
+                if (paiTexture) {
+                    SPACE_ENGINE_DEBUG("Embeddeded normals texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex]->addTexture("normal_map_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex]->addTexture("normal_map_tex", TextureManager::load(fullPath, IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded normals texture '{}' at index {}", fullPath.c_str(), materialIndex);
+                }
+            }
+        }
+    }
+
+    void MeshManager::loadAmbientOcclusionTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex)
+    {
+        int NumTextures = pMaterial->GetTextureCount(aiTextureType_AMBIENT);
+
+        if (NumTextures > 0) {
+            SPACE_ENGINE_DEBUG("Num Ambient Occlusion textures {}", NumTextures);
+
+            aiString path;
+
+            if (pMaterial->GetTexture(aiTextureType_AMBIENT, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+                const aiTexture* paiTexture = pScene->GetEmbeddedTexture(path.C_Str());
+
+                if (paiTexture) {
+                    SPACE_ENGINE_DEBUG("Embeddeded Ambient Occlusion texture type '{}'\n", paiTexture->achFormatHint);
+                    int buffer_size = paiTexture->mWidth;
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex]->addTexture("ambient_occlusion_tex", TextureManager::load(Utils::getFileNameFormPath(path.C_Str()), buffer_size, paiTexture->pcData, IsSRGB));
+                } 
+                else 
+                {
+                    std::string fullPath = Utils::getFullPath(dir, path);
+                    bool IsSRGB = false;
+                    pTMPMesh->materials[materialIndex]->addTexture("ambient_occlusion_tex", TextureManager::load(fullPath, IsSRGB));
+                    SPACE_ENGINE_INFO("Loaded Ambient Occlusion texture '{}' at index {}", fullPath.c_str(), materialIndex);
+                }
+            }
+        }
+    }
+
     void MeshManager::loadColors(const aiMaterial* pMaterial, int index)
     {
         aiColor4D ambientColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -426,30 +497,28 @@ namespace SpaceEngine
 
         if (pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor) == AI_SUCCESS) {
             SPACE_ENGINE_INFO("Loaded ambient color [{} {} {}]", ambientColor.r, ambientColor.g, ambientColor.b);
-            std::get<Vector4>(pTMPMesh->materials[index]->props["base_color_val"]).r = ambientColor.r;
-            std::get<Vector4>(pTMPMesh->materials[index]->props["base_color_val"]).g = ambientColor.g;
-            std::get<Vector4>(pTMPMesh->materials[index]->props["base_color_val"]).b = ambientColor.b;
+            std::get<float>(pTMPMesh->materials[index]->props["ambient_occlusion_val"]) = ambientColor.r;
         } else {
-            std::get<Vector4>(pTMPMesh->materials[index]->props["base_color_val"]) = allOnes;
+            std::get<float>(pTMPMesh->materials[index]->props["base_color_val"]) = 1.f;
         }
 
-        aiColor3D diffuseColor(0.0f, 0.0f, 0.0f);
+        aiColor3D albedoColor(1.0f, 1.0f, 1.0f);
 
-        if (pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
-            SPACE_ENGINE_INFO("Loaded diffuse color [{} {} {}]", diffuseColor.r, diffuseColor.g, diffuseColor.b);
-            std::get<Vector3>(pTMPMesh->materials[index]->props["diffuse_color_val"]).r = diffuseColor.r;
-            std::get<Vector3>(pTMPMesh->materials[index]->props["diffuse_color_val"]).g = diffuseColor.g;
-            std::get<Vector3>(pTMPMesh->materials[index]->props["diffuse_color_val"]).b = diffuseColor.b;
+        if (pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, albedoColor) == AI_SUCCESS) {
+            SPACE_ENGINE_INFO("Loaded diffuse color [{} {} {}]", albedoColor.r, albedoColor.g, albedoColor.b);
+            std::get<Vector4>(pTMPMesh->materials[index]->props["albedo_color_val"]).r = albedoColor.r;
+            std::get<Vector4>(pTMPMesh->materials[index]->props["albedo_color_val"]).g = albedoColor.g;
+            std::get<Vector4>(pTMPMesh->materials[index]->props["albedo_color_val"]).b = albedoColor.b;
         }
-
-        aiColor3D specularColor(0.0f, 0.0f, 0.0f);
-
-        if (pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor) == AI_SUCCESS) {
-            SPACE_ENGINE_INFO("Loaded specular color [{} {} {}]\n", specularColor.r, specularColor.g, specularColor.b);
-            std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).r = specularColor.r;
-            std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).g = specularColor.g;
-            std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).b = specularColor.b;
-        }
+        //todo: metalness and roughness
+        //aiColor3D specularColor(0.0f, 0.0f, 0.0f);
+//
+        //if (pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor) == AI_SUCCESS) {
+        //    SPACE_ENGINE_INFO("Loaded specular color [{} {} {}]\n", specularColor.r, specularColor.g, specularColor.b);
+        //    std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).r = specularColor.r;
+        //    std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).g = specularColor.g;
+        //    std::get<Vector3>(pTMPMesh->materials[index]->props["specular_color_val"]).b = specularColor.b;
+        //}
     }
 
     void Mesh::populateBuffers()

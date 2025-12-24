@@ -118,6 +118,8 @@ namespace SpaceEngine
             static void loadAlbedoTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex);
             static void loadMetalnessTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex);
             static void loadColors(const aiMaterial* pMaterial, int index);
+            static void loadNormalsTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex);
+            static void loadAmbientOcclusionTexture(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int materialIndex);
 
             static Mesh* pTMPMesh;
             static std::unordered_map<std::string, Mesh*> meshMap;

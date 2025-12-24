@@ -27,7 +27,17 @@ namespace SpaceEngine
             return res;
         }
 
-        inline Matrix4 inverse(Matrix4 m)
+        inline Matrix3 transpose(Matrix3 m) 
+        {
+            return glm::transpose(m);
+        }
+
+        inline Matrix3 inverse(Matrix3 m) 
+        {
+            return glm::inverse(m);
+        }
+
+        inline Matrix4 inverse(Matrix4 m) 
         {
             return glm::inverse(m);
         }
