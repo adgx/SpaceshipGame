@@ -16,7 +16,7 @@ namespace SpaceEngine {
         m_pCollider = new Collider(this);
 
         m_speed = 15.0f;               
-        m_limitX = 5.0f;              
+        m_limitX = 7.0f;              
         m_limitY = 3.5f;               
         m_shootCooldown = 0.0f;        
     }

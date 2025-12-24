@@ -2,8 +2,6 @@
 #include "log.h"
 #include "camera.h"
 #include "player.h"
-#include "enemyShip.h"
-#include "asteroid.h"
 #include "playerShip.h"
 #include <vector>
 
@@ -81,13 +79,6 @@ namespace SpaceEngine{
         //fixed time step
         float fixed_dt = 1.f/60.f;
         float accumulator = 0.0;
-
-        //var per timer di spawn
-        float asteroidTimer = 0.0f;
-        float enemyTimer = 0.0f;
-
-        //asteroid 
-        int asteroidMax = 0;
         
         //Gathers
         std::vector<RenderObject> worldRenderables;
@@ -107,7 +98,6 @@ namespace SpaceEngine{
                 physicsManager.Step(fixed_dt);
                 accumulator -= fixed_dt;
             }
-
 
             //refresh the input 
             inputManager.Update();
@@ -140,51 +130,6 @@ namespace SpaceEngine{
             if(Keyboard::keyUp(SPACE_ENGINE_KEY_BUTTON_ESCAPE))
             {
                 token = false;
-            }
-
-           
-
-            asteroidTimer += dt;
-            enemyTimer += dt;
-            float spawnRadius = 5.0f; //distanza dal centro entro quale possono essere generati gli elementi
-            //da piazzare da una altra parte
-            //spawn asteroidi
-            if(asteroidTimer >= 2.0f && asteroidMax <8)
-            {
-                Asteroid* pAsteroid = new Asteroid(pScene, "TestCube.obj");
-                float angle = (float)(rand() % 90);
-                float rad = (angle) * 3.14159f / 180.0f;
-                float z = -15.f + cos(rad) * spawnRadius;
-                angle = (float)(rand() % 360);
-                rad = (angle) * 3.14159f / 180.0f;
-                float x = cos(rad) * spawnRadius;
-                float y = sin(rad) * spawnRadius;
-
-                //pAsteroid->Init(); per implementare generazione asteroidi di diverse dimensioni
-                Transform* t = pAsteroid->getComponent<Transform>();
-                if(t) t->setWorldPosition(Vector3(x, y, z));
-                pScene->addSceneComponent(pAsteroid);
-                //scene->requestInstatiate(pAsteroid);
-                asteroidMax++;
-                asteroidTimer = 0.0f;
-            }
- 
-            //spawn navicelle nemiche
-            if (enemyTimer >= 3.0f) {
-                EnemyShip* pEnemy = new EnemyShip(pScene, "TestCube.obj");
-                
-                // Posizione randomica
-                float angle = (float)(rand() % 360);
-                float rad = angle * 3.14159f / 180.0f;
-                float x = cos(rad) * spawnRadius;
-                float y = 0.f;
-                float z = -12.f;
-
-                // Inizializza nemico (posizione e tipo)
-                pEnemy->Init(Vector3(x, y, z), EnemyType::NORMAL, nullptr);
-                pScene->addSceneComponent(pEnemy);
-                //scene->requestInstatiate(enemy);
-                enemyTimer = 0.0f;
             }
 
             //update game objects in the scene

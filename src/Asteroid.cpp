@@ -72,7 +72,7 @@ namespace SpaceEngine {
 
         // 3. Controllo Uscita Schermo (Riciclo)
         if (currentPos.z > m_despawnZ) {
-            Spawn(); // Resetta e ricomincia dal fondo
+            destroy();
         }
     }
 

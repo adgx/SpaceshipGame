@@ -20,10 +20,70 @@ void Scene::Init()
         for (auto* obj : gameObjects)
             obj->update(dt);
 
+        handleSpawning(dt);
         // cleanup gameobjects phase
         processInstantiateQ(dt);
         processDestroyQ();
         
+    }
+
+    float Scene::randomRange(float min, float max) {
+        return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+    }
+    void Scene::handleSpawning(float dt)
+    {
+        m_asteroidTimer += dt;
+        m_enemyTimer += dt;
+
+        // --- SPAWN ASTEROIDI ---
+        if (m_asteroidTimer >= m_asteroidInterval)
+        {
+            // Reset
+            m_asteroidTimer = 0.0f;
+
+            //imposta un margine per evitare spawn troppo ai bordi
+            float objectMargin = 3.0f; 
+
+            // Calcola i limiti di spawn
+            float safeX = m_gameAreaX - objectMargin;
+            float safeY = m_gameAreaY - objectMargin;
+
+            // Genera posizione random
+            float x = randomRange(-safeX, safeX);
+            float y = randomRange(-safeY, safeY);
+            float z = m_spawnZ;
+
+            Asteroid* pAsteroid = new Asteroid(this, "TestCube.obj");
+            
+            pAsteroid->Init(); 
+            pAsteroid->getTransform()->setWorldPosition(Vector3(x, y, z));
+            
+            // per avere asteroidi di diverse dimensioni
+            float randomScale = randomRange(1.0f, 2.5f);
+            pAsteroid->getTransform()->setLocalScale(Vector3(randomScale));
+
+            addSceneComponent(pAsteroid);
+        }
+
+        // --- SPAWN NEMICI ---
+        if (m_enemyTimer >= m_enemyInterval)
+        {
+            m_enemyTimer = 0.0f;
+
+            float objectMargin = 2.0f; 
+            float safeX = m_gameAreaX - objectMargin;
+            float safeY = m_gameAreaY - objectMargin; 
+
+            float x = randomRange(-safeX, safeX);
+            float y = randomRange(-safeY, safeY);
+            float z = m_spawnZ;
+
+            EnemyShip* pEnemy = new EnemyShip(this, "TestCube.obj");
+            
+            pEnemy->Init(Vector3(x, y, z), EnemyType::NORMAL, nullptr); // FIXME: Target null per ora
+
+            requestInstatiate(pEnemy); 
+        }
     }
 
     void Scene::processInstantiateQ(float dt)

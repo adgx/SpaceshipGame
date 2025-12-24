@@ -6,6 +6,8 @@
 #include "collisionDetection.h"
 #include "log.h"
 #include "shader.h"
+#include "Asteroid.h"
+#include "EnemyShip.h"
 #include <vector>
 #include <string>
 #include <queue>
@@ -94,5 +96,19 @@ namespace SpaceEngine
             //cameras[0] is always the active camera
             vector<BaseCamera*> cameras;
             Skybox* pSkybox = nullptr;
+
+            //GESTIONE SPAWN
+            float m_asteroidTimer = 0.0f;
+            float m_enemyTimer = 0.0f;
+            // Intervalli di spawn
+            float m_asteroidInterval = 3.0f; 
+            float m_enemyInterval = 7.0f;
+            // Limiti dell'area di gioco dove possono spawnare
+            float m_spawnZ = -100.0f; // Lontano dalla camera
+            float m_gameAreaX = 50.0f; // Larghezza totale area spawn
+            float m_gameAreaY = 30.0f; // Altezza totale area spawn
+
+            void handleSpawning(float dt);
+            float randomRange(float min, float max);
     };
 }
