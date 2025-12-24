@@ -74,7 +74,7 @@ namespace SpaceEngine
             struct subroutineInfo
             {
                 bool active = false;
-                int type = -1;
+                std::string type;
             };
             std::unordered_map<std::string, subroutineInfo> subroutines;
             ShaderProgram* pShader = nullptr;
@@ -148,8 +148,8 @@ namespace SpaceEngine
             {
                 subroutines = 
                 {
-                    {"uiTextureBase", {true, 0}},
-                    {"uiTextureHover", {false, 0}}
+                    {"uiTextureBase", {true, "uiTextureMode"}},
+                    {"uiTextureHover", {false, "uiTextureMode"}}
                 };
             }
         friend class MaterialManager;

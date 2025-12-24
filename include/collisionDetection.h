@@ -117,7 +117,7 @@ namespace SpaceEngine
     class PhysicsManager
     {
         private:
-            static const int HGRID_MAX_LEVELS = 2;
+            static const int HGRID_MAX_LEVELS = 4;
             static const int NUM_BUCKETS = 1024;
             static const int MIN_CELL_SIZE = 16;
             //this allows to create a margin for the cell where is palced the object

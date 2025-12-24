@@ -25,17 +25,17 @@ namespace SpaceEngine
         bindInternal(textureUnit);
     }
 
-    void Texture::bind()
+    void Texture::bind() const
     {
         if(textureObj!=0)
-            bindInternal(bindlessHandle);
+            bindInternal(texUnit);
         else
         {
             SPACE_ENGINE_ERROR("Error to binding the texture: {}", fileName);
         }
     }
 
-    void Texture::bindInternal(GLenum textureUnit)
+    void Texture::bindInternal(GLenum textureUnit) const
     {
         glActiveTexture(textureUnit);
         glBindTexture(textureTarget, textureObj);

@@ -48,9 +48,12 @@ namespace SpaceEngine{
     {
         //initialize main scene
         pScene = new Scene(&physicsManager);
+        pScene->Init();
         //crea e inizializza il player
         PlayerShip* pPlayer = new PlayerShip(pScene, "TestCube.obj");
         pPlayer->Init();
+        auto glError = glGetError();
+        
         //add GameObject to the scene
         pScene->addSceneComponent<GameObject*>(pPlayer);
 
@@ -70,7 +73,7 @@ namespace SpaceEngine{
         pScene->addSceneComponent<Light*>(pLight);
         pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{0.5f, 0.5f, 0.5f}); //left-bottom
         pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
-        pScene->Init();
+        glError = glGetError();
     }
 
     void App::Run()
@@ -171,7 +174,7 @@ namespace SpaceEngine{
                 asteroidMax++;
                 asteroidTimer = 0.0f;
             }
- 
+            auto glError = glGetError();
             //spawn navicelle nemiche
             if (enemyTimer >= 3.0f) {
                 EnemyShip* pEnemy = new EnemyShip(pScene, "TestCube.obj");
@@ -203,7 +206,10 @@ namespace SpaceEngine{
             std::vector<Light*>* pLights = pScene->getLights();
             RendererParams rParams{worldRenderables, *(pLights), *(pCam), pScene->getSkybox()};
             
+            glError = glGetError();
             renderer->render(rParams);
+            glError = glGetError();
+            
             windowManager.PollEvents();
             windowManager.SwapBuffers();
         }

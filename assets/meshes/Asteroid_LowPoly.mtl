@@ -11,8 +11,6 @@ Pm 0.000000
 Ps 0.000000
 Pc 0.000000
 Pcr 0.030000
-aniso 0.000000
-anisor 0.000000
 map_ka Asteroid_AO.png
 map_Kd Asteroid_Albedo.png
 map_Pr Asteroid_Roughness.png

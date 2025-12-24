@@ -127,6 +127,7 @@ namespace SpaceEngine
             std::string fullPath(MESHES_PATH + fileName);
             const aiScene* pScene = importer.ReadFile(fullPath.c_str(), ASSIMP_LOAD_FLAGS);
             pTMPMesh->name = name;
+            auto glError = glGetError();
 
             if(pScene)
             {
@@ -136,9 +137,10 @@ namespace SpaceEngine
                     exit(-1);
                 }
             }
-
+            else {SPACE_ENGINE_FATAL("Impossible to load the model");}
+            
             meshMap[name] = pMesh;
-
+            
         }
         return pTMPMesh;
     }
@@ -268,13 +270,19 @@ namespace SpaceEngine
 
     void MeshManager::loadTextures(const std::string& dir, const aiMaterial* pMaterial, const aiScene* pScene, int index)
     {
+        auto glError = glGetError();
         loadDiffuseTexture(dir, pMaterial, pScene, index); // diffuse and albedo are the same
+        glError = glGetError();
         //loadSpecularTexture(dir, pMaterial, pScene, index);
         loadNormalsTexture(dir, pMaterial, pScene, index);
+        glError = glGetError();
+
         // PBR
         //loadAlbedoTexture(dir, pMaterial, pScene, index);
         loadMetalnessTexture(dir, pMaterial, pScene, index);
+        glError = glGetError();
         loadRoughnessTexture(dir, pMaterial, pScene, index);
+        glError = glGetError();
     }
 
 
