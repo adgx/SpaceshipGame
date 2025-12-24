@@ -14,4 +14,4 @@ Pcr 0.030000
 map_ka Asteroid_AO.png
 map_Kd Asteroid_Albedo.png
 map_Pr Asteroid_Roughness.png
-map_Bump -bm 1.000000 Asteroid_Normals.png
+norm Asteroid_Normals.png

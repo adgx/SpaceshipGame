@@ -283,6 +283,9 @@ namespace SpaceEngine
         glError = glGetError();
         loadRoughnessTexture(dir, pMaterial, pScene, index);
         glError = glGetError();
+        loadAmbientOcclusionTexture(dir, pMaterial, pScene, index);
+        glError = glGetError();
+
     }
 
 
