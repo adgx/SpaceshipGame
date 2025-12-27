@@ -9,6 +9,7 @@
 #include "shader.h"
 #include "Asteroid.h"
 #include "EnemyShip.h"
+#include "managers/windowManager.h"
 #include <vector>
 #include <string>
 #include <queue>
@@ -112,8 +113,8 @@ namespace SpaceEngine
             float m_enemyInterval = 7.0f;
             // Limiti dell'area di gioco dove possono spawnare
             float m_spawnZ = -100.0f; // Lontano dalla camera
-            float m_gameAreaX = 50.0f; // Larghezza totale area spawn
-            float m_gameAreaY = 30.0f; // Altezza totale area spawn
+            float m_gameAreaX = WindowManager::width;
+            float m_gameAreaY = WindowManager::height;
 
             void handleSpawning(float dt);
             float randomRange(float min, float max);

@@ -11,8 +11,14 @@ namespace SpaceEngine {
         m_spawnZ(-100.0f), m_despawnZ(20.0f)
     {
         m_pMesh = MeshManager::loadMesh(filePathModel);
-        BaseMaterial* pMat = m_pMesh->getMaterialBySubMeshIndex(0);
-        pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
+        if (m_pMesh) {
+            BaseMaterial* pMat = m_pMesh->getMaterialBySubMeshIndex(0);
+            if(pMat) {
+                pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
+            }
+        } else {
+            SPACE_ENGINE_ERROR("CRASH EVITATO: Impossibile caricare mesh {}", filePathModel);
+        }
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
 
@@ -29,7 +35,9 @@ namespace SpaceEngine {
         if (m_pTransform) {
             m_pTransform->setLocalPosition(spawnPos);
             // Ruota di 180 gradi su Y se il modello guarda verso -Z ma arriva da -Z verso +Z
-            m_pTransform->setLocalRotation(glm::vec3(0, 180.0f, 0)); 
+            //m_pTransform->setLocalRotation(Vector3(0, 180.0f, 0)); 
+
+            m_pTransform->setLocalScale(Vector3(10.0f));
         }
 
         // Setup statistiche in base al tipo

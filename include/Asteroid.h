@@ -15,7 +15,7 @@ namespace SpaceEngine {
         Asteroid(Scene* pScene, std::string filePathModel);
         virtual ~Asteroid();
 
-        void Init();
+        void Init(Vector3 startPos);
         
         virtual void update(float dt) override;
         virtual void onCollisionEnter(Collider* col) override;

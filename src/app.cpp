@@ -55,6 +55,7 @@ namespace SpaceEngine{
         //add GameObject to the scene
         pScene->addSceneComponent<GameObject*>(pPlayer);
 
+
         //TODO: initialize correctly the camera please 
         PerspectiveCamera* pCamera = new PerspectiveCamera();
         pCamera->transf.translateGlobal(Vector3(0.f, 3.f, 3.f));
@@ -70,7 +71,6 @@ namespace SpaceEngine{
         pLight = new Light(Vector3{10.f, -10.f, 0.f}, Vector3{1.f, 1.f, 1.f}); //right-bottom
         pScene->addSceneComponent<Light*>(pLight);
         pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{1.f, 1.f, 1.f}); //left-bottom
-        pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
         glError = glGetError();
     }
 
@@ -95,18 +95,24 @@ namespace SpaceEngine{
         {
             currentTime = static_cast<float>(glfwGetTime()); 
             float dt = currentTime - lastTime;
-            lastTime = static_cast<float>(glfwGetTime());
+            lastTime = currentTime;
            
+            if (dt > 0.05f) dt = 0.05f;
             //collision/physic system
             accumulator += dt;
+            //SPACE_ENGINE_INFO("Accumulator: {}, dt: {}", accumulator, dt);
             while(accumulator >= fixed_dt)
             {
+                //SPACE_ENGINE_INFO("Physics Step Start");
                 physicsManager.Step(fixed_dt);
+                //SPACE_ENGINE_INFO("Physics Step End");
                 accumulator -= fixed_dt;
             }
 
+            //SPACE_ENGINE_INFO("Scene Update Start");
             //refresh the input 
             inputManager.Update();
+            //SPACE_ENGINE_INFO("Scene Update End");
 
             //mouse debug
             #if 0
@@ -138,8 +144,10 @@ namespace SpaceEngine{
                 token = false;
             }
 
+            //SPACE_ENGINE_INFO("Scene Update Start");
             //update game objects in the scene
             pScene->Update(dt);
+            //SPACE_ENGINE_INFO("Scene Update End");
 
             //collects the renderizable objects in the scene
             pScene->gatherRenderables(worldRenderables, uiRenderables);
@@ -151,8 +159,10 @@ namespace SpaceEngine{
             std::vector<Light*>* pLights = pScene->getLights();
             RendererParams rParams{worldRenderables, *(pLights), *(pCam), pScene->getSkybox()};
             
-            glError = glGetError();
+            auto glError = glGetError();
+            //SPACE_ENGINE_INFO("Renderer Start");
             renderer->render(rParams);
+            //SPACE_ENGINE_INFO("Renderer End");
             glError = glGetError();
             
             windowManager.PollEvents();

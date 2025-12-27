@@ -41,21 +41,17 @@ namespace SpaceEngine
             // Reset
             m_asteroidTimer = 0.0f;
 
-            //imposta un margine per evitare spawn troppo ai bordi
-            float objectMargin = 3.0f; 
+            float viewWidth = 12.0f;  
+            float viewHeight = 8.0f; 
 
-            // Calcola i limiti di spawn
-            float safeX = m_gameAreaX - objectMargin;
-            float safeY = m_gameAreaY - objectMargin;
-
-            // Genera posizione random
-            float x = randomRange(-safeX, safeX);
-            float y = randomRange(-safeY, safeY);
-            float z = m_spawnZ;
-
+            // Generiamo X e Y dentro lo schermo del player
+            float x = randomRange(-viewWidth, viewWidth);
+            float y = randomRange(-viewHeight, viewHeight);
+            float z = m_spawnZ;       
+           
             Asteroid* pAsteroid = new Asteroid(this, "TestCube.obj");
             
-            pAsteroid->Init(); 
+            pAsteroid->Init(Vector3(x, y, z)); 
             pAsteroid->getTransform()->setWorldPosition(Vector3(x, y, z));
             
             // per avere asteroidi di diverse dimensioni
@@ -68,21 +64,18 @@ namespace SpaceEngine
         // --- SPAWN NEMICI ---
         if (m_enemyTimer >= m_enemyInterval)
         {
+            SPACE_ENGINE_INFO("Tentativo di spawn nemico! Timer reset.");
             m_enemyTimer = 0.0f;
 
-            float objectMargin = 2.0f; 
-            float safeX = m_gameAreaX - objectMargin;
-            float safeY = m_gameAreaY - objectMargin; 
-
-            float x = randomRange(-safeX, safeX);
-            float y = randomRange(-safeY, safeY);
+            float x = randomRange(-20.0f, 20.0f);
+            float y = randomRange(-12.0f, 12.0f);
             float z = m_spawnZ;
 
             EnemyShip* pEnemy = new EnemyShip(this, "TestCube.obj");
             
             pEnemy->Init(Vector3(x, y, z), EnemyType::NORMAL, nullptr); // FIXME: Target null per ora
 
-            requestInstatiate(pEnemy); 
+            addSceneComponent(pEnemy);
         }
     }
 
@@ -121,9 +114,13 @@ namespace SpaceEngine
                 std::remove_if(gameObjects.begin(), gameObjects.end(),
                     [&](GameObject* pGameObj)
                     {
-                        bool flag; 
-                        if( flag = toDestroy.count(pGameObj) != 0; flag)
-                            pPhyManager->RemoveCollider(pGameObj->getComponent<Collider>());
+                        bool flag = toDestroy.count(pGameObj) != 0;
+                        if(flag){
+                            if (auto col = pGameObj->getComponent<Collider>())
+                                pPhyManager->RemoveCollider(col);
+                            
+                            delete pGameObj; 
+                        }
                         return flag; 
                     }),
                 gameObjects.end()
@@ -132,14 +129,14 @@ namespace SpaceEngine
 
     void Scene::requestInstatiate(GameObject* pGameObj)
     {
-        SpawnRequest sr;
+        SpawnRequest sr = {};
         sr.prefab = pGameObj;
         spawnQ.push_back(sr);
     }
 
     void Scene::requestInstatiate(GameObject* pGameObj, float time)
     {
-        SpawnRequest sr;
+        SpawnRequest sr = {};
         sr.prefab = pGameObj;
         sr.timeRemaining = time;
         spawnQ.push_back(sr);
@@ -147,7 +144,7 @@ namespace SpaceEngine
 
     void Scene::requestInstatiate(GameObject* pGameObj, Vector3 wPos)
     {
-        SpawnRequest sr;
+        SpawnRequest sr = {};
         sr.prefab = pGameObj;
         sr.overrideWorldPos = true;
         sr.wPos = wPos;
@@ -156,7 +153,7 @@ namespace SpaceEngine
     
     void Scene::requestInstatiate(GameObject* pGameObj, float time, Vector3 wPos)
     {
-        SpawnRequest sr;
+        SpawnRequest sr = {};
         sr.prefab = pGameObj;
         sr.overrideWorldPos = true;
         sr.wPos = wPos;
@@ -166,12 +163,12 @@ namespace SpaceEngine
 
     GameObject* Scene::instatiate(const SpawnRequest& sr)
     {
-        GameObject* pCopy =  new GameObject(*sr.prefab);
-        if(pCopy)
+        GameObject* pObj = sr.prefab;
+        if(pObj)
         {
             if(sr.overrideWorldPos)
-                pCopy->getComponent<Transform>()->setWorldPosition(sr.wPos);
-            if(Collider* pCol = pCopy->getComponent<Collider>(); pCol != nullptr)
+                pObj->getComponent<Transform>()->setWorldPosition(sr.wPos);
+            if(Collider* pCol = pObj->getComponent<Collider>(); pCol != nullptr)
                 pPhyManager->AddCollider(pCol);
         }
         else
@@ -179,7 +176,7 @@ namespace SpaceEngine
             SPACE_ENGINE_FATAL("Inable to copy and instatiate the GameObject");
         }
 
-        return pCopy;
+        return pObj;
 
     }
 
