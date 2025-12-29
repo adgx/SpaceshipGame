@@ -83,8 +83,9 @@ namespace SpaceEngine
         }
         return materials[subMeshes[index].materialIndex];
     }
-
-    //MeshManager
+    //------------------------------------------//
+    //--------------MeshManager-----------------//
+    //------------------------------------------//
     Mesh* MeshManager::pTMPMesh = nullptr;
     UIMesh* MeshManager::pUIMesh = nullptr;
     std::unordered_map<std::string, Mesh*> MeshManager::meshMap;
@@ -521,6 +522,10 @@ namespace SpaceEngine
         //}
     }
 
+    //------------------------------------------//
+    //-------------------Mesh-------------------//
+    //------------------------------------------//
+
     void Mesh::populateBuffers()
     {
         glBindBuffer(GL_ARRAY_BUFFER, buffers[VERTEX_BUFFER]);
@@ -555,154 +560,6 @@ namespace SpaceEngine
         glBindVertexArray(0);
     }
 
-    /*
-    void Mesh::render()
-    {
-        if (isPBR) {
-            setupRenderMaterialsPBR();
-        }
-
-        glBindVertexArray(VAO);
-
-        for (unsigned int meshIndex = 0 ; meshIndex < meshes.size() ; meshIndex++) {
-            unsigned int materialIndex = meshes[meshIndex].materialIndex;
-            assert(materialIndex < materials.size());
-
-            glDrawElementsBaseVertex(GL_TRIANGLES,
-                                     meshes[meshIndex].numIndices,
-                                     GL_UNSIGNED_INT,
-                                     (void*)(sizeof(unsigned int) * meshes[meshIndex].baseIndex),
-                                     meshes[meshIndex].baseVertex);
-        }
-
-        // Make sure the VAO is not changed from the outside
-        glBindVertexArray(0);
-    }
-
-    void Mesh::setupRenderMaterialsPBR()
-    {
-        int PBRMaterialIndex = 0;
-
-        if (materials[PBRMaterialIndex].PBRmaterial.pAlbedo) {
-            materials[PBRMaterialIndex].PBRmaterial.pAlbedo->bind(ALBEDO_TEXTURE_UNIT);
-        }
-
-        if (materials[PBRMaterialIndex].PBRmaterial.pRoughness) {
-            materials[PBRMaterialIndex].PBRmaterial.pRoughness->bind(ROUGHNESS_TEXTURE_UNIT);
-        }
-
-        if (materials[PBRMaterialIndex].PBRmaterial.pMetallic) {
-            materials[PBRMaterialIndex].PBRmaterial.pMetallic->bind(METALLIC_TEXTURE_UNIT);
-        }
-
-        if (materials[PBRMaterialIndex].PBRmaterial.pNormalMap) {
-            materials[PBRMaterialIndex].PBRmaterial.pNormalMap->bind(NORMAL_TEXTURE_UNIT);
-        }
-
-    }
-
-    
-    void Mesh::render(unsigned int drawIndex, unsigned int primID)
-    {
-        glBindVertexArray(VAO);
-
-        unsigned int materialIndex = meshes[drawIndex].materialIndex;
-        assert(materialIndex < materials.size());
-
-        if (materials[materialIndex].pTextures[TEXTURE_TYPE::BASE]) {
-            materials[materialIndex].pTextures[TEXTURE_TYPE::BASE]->bind(COLOR_TEXTURE_UNIT);
-        }
-
-        if (materials[materialIndex].pTextures[TEXTURE_TYPE::SPECULAR]) {
-            materials[materialIndex].pTextures[TEXTURE_TYPE::SPECULAR]->bind(SPECULAR_EXPONENT_UNIT);
-        }
-
-        glDrawElementsBaseVertex(GL_TRIANGLES,
-                                 3,
-                                 GL_UNSIGNED_INT,
-                                 (void*)(sizeof(unsigned int) * (meshes[drawIndex].baseIndex + primID * 3)),
-                                 meshes[drawIndex].baseVertex);
-
-        // Make sure the VAO is not changed from the outside
-        glBindVertexArray(0);
-    }
-
-
-
-    // Used only by instancing
-    void Mesh::render(unsigned int numInstannes, const Matrix4* WVPMats, const Matrix4* worldMats)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[WVP_MAT_BUFFER]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Matrix4) * numInstannes, WVPMats, GL_DYNAMIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[WORLD_MAT_BUFFER]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Matrix4) * numInstannes, worldMats, GL_DYNAMIC_DRAW);
-
-        glBindVertexArray(VAO);
-
-        for (unsigned int i = 0 ; i < meshes.size() ; i++) {
-            const unsigned int materialIndex = meshes[i].materialIndex;
-
-            assert(materialIndex < materials.size());
-
-            if (materials[materialIndex].pTextures[TEXTURE_TYPE::BASE]) {
-                materials[materialIndex].pTextures[TEXTURE_TYPE::BASE]->bind(COLOR_TEXTURE_UNIT);
-            }
-
-            if (materials[materialIndex].pTextures[TEXTURE_TYPE::SPECULAR]) {
-                materials[materialIndex].pTextures[TEXTURE_TYPE::SPECULAR]->bind(SPECULAR_EXPONENT_UNIT);
-            }
-
-            glDrawElementsInstancedBaseVertex(GL_TRIANGLES,
-                                              meshes[i].numIndices,
-                                              GL_UNSIGNED_INT,
-                                              (void*)(sizeof(unsigned int) * meshes[i].baseIndex),
-                                              numInstannes,
-                                              meshes[i].baseVertex);
-        }
-
-        // Make sure the VAO is not changed from the outside
-        glBindVertexArray(0);
-    }
-*/
-/*
-    const BaseMaterial& Mesh::getMaterial()
-    {
-        for (unsigned int i = 0 ; i < materials.size() ; i++) {
-            if (materials[i].ambientColor != Vector4(0.0f)) {
-                return materials[i];
-            }
-        }
-
-        if (materials.size() == 0) {
-            SPACE_ENGINE_ERROR("No materials");
-            exit(0);
-        }
-
-        return materials[0];
-    }
-*/
-/*
-    void Mesh::getLeadingVertex(uint32_t drawIndex, uint32_t primID, Vector3& vertex)
-    {
-        uint32_t meshIndex = drawIndex; // Each mesh is rendered in its own draw call
-
-        assert(meshIndex < pScene->mNumMeshes);
-        const aiMesh* paiMesh = pScene->mMeshes[meshIndex];
-
-        assert(primID < paiMesh->mNumFaces);
-        const aiFace& Face = paiMesh->mFaces[primID];
-
-        uint32_t LeadingIndex = Face.mIndices[0];
-
-        assert(LeadingIndex < paiMesh->mNumVertices);
-        const aiVector3D& Pos = paiMesh->mVertices[LeadingIndex];
-        vertex.x = Pos.x;
-        vertex.y = Pos.y;
-        vertex.z = Pos.z;
-    }
-*/
-
     const static int N_VERTEX_QUAD = 12;
     const static int N_TEXTURE_CORD_QUAD = 8;
     const static int N_INDICES_QUAD = 6;
@@ -720,6 +577,10 @@ namespace SpaceEngine
         0, 1, 2, 
         2, 1, 3
     };
+
+    //------------------------------------------//
+    //-----------------UIMesh-------------------//
+    //------------------------------------------//
 
     UIMesh::UIMesh()
     {
@@ -763,6 +624,10 @@ namespace SpaceEngine
         glBindVertexArray(VAO);
     }
 
+    //------------------------------------------//
+    //--------------UIMeshRenderer--------------//
+    //------------------------------------------//
+
     UIMeshRenderer::UIMeshRenderer()
     {
         pMesh = MeshManager::getUIMesh();
@@ -784,5 +649,10 @@ namespace SpaceEngine
     UIMaterial* UIMeshRenderer::getMaterial()
     {
         return pMat;
+    }
+
+    inline void UIMeshRenderer::bindVAO()
+    {
+        pMesh->bindVAO();
     }
 }

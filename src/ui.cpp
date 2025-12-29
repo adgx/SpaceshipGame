@@ -4,11 +4,41 @@
 
 namespace SpaceEngine
 {
-
+    //---------------------------------//
+    //-------------UIBase--------------//
+    //---------------------------------//
     UIBase::UIBase()
     {
         pUIMeshRend = new UIMeshRenderer();
         pUITransf = new UITransform();
+    }
+
+    UIBase::UIBase(UIMaterial* pUIMaterial):UIBase()
+    {
+        pUIMeshRend = new UIMeshRenderer();
+        pUIMeshRend->bindMaterial(pUIMaterial);
+        pUITransf = new UITransform();
+        Texture* pTex = pUIMaterial->getTexture("ui_tex");
+        int w = 0;
+        int h = 0;
+        pTex->getImageSize(w, h);
+        pUITransf->setWidth(w);
+        pUITransf->setHeight(h);
+
+    }
+
+    UIBase::UIBase(Vector2 posAncor, UIMaterial* pUIMaterial)
+    {
+        pUIMeshRend = new UIMeshRenderer();
+        pUIMeshRend->bindMaterial(pUIMaterial);
+        pUITransf = new UITransform();
+        pUITransf->setAnchor(posAncor);
+        Texture* pTex = pUIMaterial->getTexture("ui_tex");
+        int w = 0;
+        int h = 0;
+        pTex->getImageSize(w, h);
+        pUITransf->setWidth(w);
+        pUITransf->setHeight(h);
     }
 
     UIBase::~UIBase()
@@ -17,7 +47,9 @@ namespace SpaceEngine
         delete pUITransf;
     }
 
-    //UITrasform 
+    //---------------------------------//
+    //-----------UITrasform------------//
+    //---------------------------------//
     static int resWidth = 0; 
     static int resHeight = 0;
     Rect UITransform::getRect()
@@ -84,7 +116,14 @@ namespace SpaceEngine
         return static_cast<int>(anchor.y * WindowManager::height);
     }
 
-    //Button
+    //---------------------------------//
+    //-------------Button--------------//
+    //---------------------------------//
+    Button::Button(Vector2 anchor, UIButtonMaterial* pMat):UIBase(anchor, pMat)
+    {
+        pUITransf->setAnchor(anchor);
+    }
+
     Button::Button(Vector2 anchor, Vector2 size)
     {
         pUITransf->setAnchor(anchor);
@@ -111,7 +150,9 @@ namespace SpaceEngine
         wasHovered = hovered;
     }
 
-    //Background
+    //---------------------------------//
+    //-----------Background------------//
+    //---------------------------------//
     Background::Background()
     {
         pUITransf->setAnchor(Vector2{0.f, 0.f});

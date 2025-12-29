@@ -5,6 +5,10 @@
 namespace SpaceEngine
 {
 
+    //-----------------------------------------//
+    //---------------Scene---------------------//
+    //-----------------------------------------//
+    
     BaseCamera* Scene::getActiveCamera() const
     {
         if(cameras.size() != 0 )
@@ -159,19 +163,37 @@ namespace SpaceEngine
     }
 
     //-----------------------------------------// 
-    //               SpaceScene                //
+    //---------------SpaceScene----------------//
     //-----------------------------------------// 
+    SpaceScene::SpaceScene(PhysicsManager* pPhyManager):
+    Scene(pPhyManager)
+    {
+        UIMaterial* iconMat = MaterialManager::createMaterial<UIMaterial>("HealthIcon");
+        Texture* pTex = TextureManager::load(TEXTURES_PATH"HUD/Health.png");
+        iconMat->addTexture("ui_tex", pTex);
+        UIBase* healthIcon1 = new UIBase({0.067, 0.083}, iconMat);
+        //added 0.035
+        UIBase* healthIcon2 = new UIBase({0.102, 0.083}, iconMat);
+        UIBase* healthIcon3 = new UIBase({0.137, 0.083}, iconMat);
+        //TODO::make vector pointer of UIBase?
+        addSceneComponent(healthIcon1);
+        addSceneComponent(healthIcon2);
+        addSceneComponent(healthIcon3);
+        healthIcons.push(healthIcon1);
+        healthIcons.push(healthIcon2);
+        healthIcons.push(healthIcon3);
+    }
 
     void SpaceScene::UpdateScene(float dt)
     {
         SpaceScene::handleSpawning(dt);
     }
 
-
     float SpaceScene::randomRange(float min, float max) 
     {
         return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
     }
+
     void SpaceScene::handleSpawning(float dt)
     {
         m_asteroidTimer += dt;
@@ -225,6 +247,27 @@ namespace SpaceEngine
             pEnemy->Init(Vector3(x, y, z), EnemyType::NORMAL, nullptr); // FIXME: Target null per ora
 
             requestInstantiate(pEnemy); 
+        }
+    }
+
+    void SpaceScene::removeHealthIcon()
+    {
+        if(healthIcons.empty())
+        {
+            SPACE_ENGINE_ERROR("Icons Stack is empty: you cannot remove icon");
+            return;
+        }
+
+        UIBase* pIcon2rm = healthIcons.top(); 
+        healthIcons.pop();
+
+        for(auto it = vecUI.begin(); it != vecUI.end(); it++)
+        {
+            if(pIcon2rm == *it)
+            {
+                vecUI.erase(it);
+                break;
+            }
         }
     }
 

@@ -67,6 +67,8 @@ namespace SpaceEngine
             int addProperty(const std::string& nameProp, PropertyValue val);
             int removeProperty(const std::string& nameProp);
             int removeTexture(const std::string& nameTex);
+            Texture* getTexture(std::string nameTex);
+            
             std::string name;
             std::unordered_map<std::string, PropertyValue> props;
             //name subroutine/ bool is active

@@ -36,7 +36,11 @@ namespace SpaceEngine
                 return false;
         }
     }
-    //BaseMaterial
+
+    //-------------------------------------//
+    //------------BaseMaterial-------------//
+    //-------------------------------------//
+
     BaseMaterial::BaseMaterial(std::string name)
     {
         this->name = name;
@@ -179,8 +183,22 @@ namespace SpaceEngine
         SPACE_ENGINE_ERROR("Texture: {} not found",  nameTex);
         return 0;
     }
+    
+    Texture* BaseMaterial::getTexture(std::string nameTex)
+    {
+        if(texs.find(nameTex) != texs.end())
+        {
+            return texs[nameTex];
+        }
 
-    //PBR Material
+        SPACE_ENGINE_ERROR("Material: Texture not found");
+        return nullptr;
+    }
+
+    //-------------------------------------//
+    //------------PBR Material-------------//
+    //-------------------------------------//
+
     void PBRMaterial::bindSubroutines()
     {
         if(texs["albedo_tex"] != nullptr)
@@ -204,7 +222,10 @@ namespace SpaceEngine
     }
 
 
-    //UIButtonMaterial
+    //-------------------------------------//
+    //----------UIButtonMaterial-----------//
+    //-------------------------------------//
+
     void UIButtonMaterial::setSubroutineBase(bool flag)
     {
         subroutines["uiTextureBase"] = {flag, 0};
@@ -216,7 +237,10 @@ namespace SpaceEngine
         subroutines["uiTextureHover"] = {flag, 0};
     }
 
-    //MaterialManager
+    //-------------------------------------//
+    //----------MaterialManager------------//
+    //-------------------------------------//
+    
     std::unordered_map<std::string, BaseMaterial*> MaterialManager::materialsMap;
     
     void MaterialManager::Initialize()

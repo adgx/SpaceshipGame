@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <queue>
+#include <stack>
 
 using namespace std;
 
@@ -39,7 +40,6 @@ namespace SpaceEngine
             }
 
             void Init();
-            void createGameObject();
             void setActive(bool flag);
             bool isActive() const;
             void setNameScene(const std::string& name);
@@ -76,6 +76,10 @@ namespace SpaceEngine
                 {
                     lights.push_back(sceneComponent);
                     return;
+                }
+                else if constexpr (std::is_base_of<UIBase, PureT>::value)
+                {
+                    vecUI.push_back(sceneComponent);
                 }
                 SPACE_ENGINE_ERROR("Component not valid!");
             }
@@ -155,17 +159,21 @@ namespace SpaceEngine
             //scene property
             std::string name;
             bool active = true;
-            void handleSpawning(float dt);
-            float randomRange(float min, float max);
+        protected:
+            std::vector<UIBase*> vecUI;
     };
 
     class SpaceScene : public Scene
     {
-        private:
+        public:
+            SpaceScene(PhysicsManager* pPhyManager);
+            ~SpaceScene() = default;
+            private:
             void UpdateScene(float dt) override;
             float randomRange(float min, float max); 
             void handleSpawning(float dt);
-
+            void removeHealthIcon();
+            
             //GESTIONE SPAWN
             float m_asteroidTimer = 0.0f;
             float m_enemyTimer = 0.0f;
@@ -176,6 +184,7 @@ namespace SpaceEngine
             float m_spawnZ = -100.0f; // Lontano dalla camera
             float m_gameAreaX = 50.0f; // Larghezza totale area spawn
             float m_gameAreaY = 30.0f; // Altezza totale area spawn
+            std::stack<UIBase*> healthIcons;
     };
 
     class DeathScene : public Scene

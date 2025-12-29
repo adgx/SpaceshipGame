@@ -3,77 +3,49 @@
 #include "windowManager.h"
 #include "log.h"
 
-
-// Helper to load an image file and create an OpenGL texture. Returns 0 on failure.
-static unsigned int loadTextureFromFile(const char* path) {
-    int width = 0, height = 0, channels = 4;
-    unsigned char* data = stbi_load(path, &width, &height, &channels, 0);
-    if (!data) {
-        SPACE_ENGINE_ERROR("Failed to load texture: {}", path);
-        return 0;
-    }        
-    GLenum format = GL_RGB;
-    unsigned int tex = 0;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
-    //glTexParameteri(GL_TEXTURE_2D, ...); // Set texture parameters as needed
-
-    stbi_image_free(data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    return tex;
-}
-
 namespace SpaceEngine{
 
-    TitleScreen::TitleScreen(){
+    TitleScreen::TitleScreen(PhysicsManager* pPhyManager):Scene(pPhyManager)
+    {
+        Init();
         SPACE_ENGINE_DEBUG("Title Screen opening...");
     }
 
     TitleScreen::~TitleScreen(){
-        if (texStart)      glDeleteTextures(1, &texStart);
-        if (texOptions)    glDeleteTextures(1, &texOptions);
-        if (texLeaderboard)glDeleteTextures(1, &texLeaderboard);
-        if (texExit)       glDeleteTextures(1, &texExit);
-        if (texLogo)       glDeleteTextures(1, &texLogo);
         SPACE_ENGINE_DEBUG("Going from Title Screen to another scene...");
     }
 
     void TitleScreen::Init(){
         SPACE_ENGINE_DEBUG("Loading textures...");
 
-        texStart      = loadTextureFromFile("assets/textures/Startbtn.png");
-        texOptions    = loadTextureFromFile("assets/textures/Optionsbtn.png");
-        texLeaderboard= loadTextureFromFile("assets/textures/Leaderboardbtn.png");
-        texExit       = loadTextureFromFile("assets/textures/Exitbtn.png");
-        texLogo       = loadTextureFromFile("assets/textures/Logo.png");
+        UIButtonMaterial* pStartMat = MaterialManager::createMaterial<UIButtonMaterial>("StartButton");
+        UIButtonMaterial* pExitMat = MaterialManager::createMaterial<UIButtonMaterial>("ExitButton");
+        Texture* pTexStart = TextureManager::load(TEXTURES_PATH"buttons/NewGame.png");
+        Texture* pTexExit = TextureManager::load(TEXTURES_PATH"buttons/Exit.png");
+        //now We don't have the texture for the hover case
+        pStartMat->addTexture("ui_tex", pTexStart);
+        pStartMat->addTexture("ui_hover_tex", pTexStart);
+        pExitMat->addTexture("ui_tex", pTexExit);
+        pExitMat->addTexture("ui_hover_tex", pTexExit);
+        //Creation of the UI button
+        //x:153 y:330 | res x:1440 y:1024 | space between 0.04
+        Button* pStart = new Button({0.11, 0.32}, pStartMat); 
+        Button* pExit = new Button({0.11, 0.36}, pExitMat);
+        addSceneComponent(pStart);
+        addSceneComponent(pExit);
+        //TODO: do it after
+        //Texture* ptexOptions    = TextureManager::load(TEXTURES_PATH"buttons/.png");
+        //Texture* ptexLeaderboard= TextureManager::load(TEXTURES_PATH"buttons/.png");
+        //Texture* ptexLogo       = TextureManager::load(TEXTURES_PATH"buttons/.png");
 
-        float btnW = 200.0f; //TODO: cambiare in base alla dimensione dei bottoni
-        float btnH = 50.0f;
-
-        float logoW = 400.0f; //TODO: cambiare in base alla dimensione del logo
-        float logoH = 100.0f;
-
-        m_buttons.clear();
-
-        float posX = (800.0f - btnW) / 2.0f;
-                                            //TODO: cambiare 800 con la larghezza della finestra
-        logoX = (800.0f - logoW) / 2.0f;
-        logoY = 50.0f;
-
-        m_buttons.push_back({ posX, 200.0f, btnW, btnH, texStart,      TitleResult::PLAY,        false });
-        m_buttons.push_back({ posX, 270.0f, btnW, btnH, texOptions,    TitleResult::OPTIONS,     false });
-        m_buttons.push_back({ posX, 340.0f, btnW, btnH, texLeaderboard,TitleResult::LEADERBOARD, false });
-        m_buttons.push_back({ posX, 410.0f, btnW, btnH, texExit,       TitleResult::EXIT,        false });
-        SPACE_ENGINE_INFO("Bottoni caricati: {}", m_buttons.size())
+        //m_buttons.push_back({ posX, 200.0f, btnW, btnH, texStart,      TitleResult::PLAY,        false });
+        //m_buttons.push_back({ posX, 270.0f, btnW, btnH, texOptions,    TitleResult::OPTIONS,     false });
+        //m_buttons.push_back({ posX, 340.0f, btnW, btnH, texLeaderboard,TitleResult::LEADERBOARD, false });
+        //m_buttons.push_back({ posX, 410.0f, btnW, btnH, texExit,       TitleResult::EXIT,        false });
+        //SPACE_ENGINE_INFO("Bottoni caricati: {}", m_buttons.size())
     }
 
-    void TitleScreen::Render(){
-        SPACE_ENGINE_DEBUG("Rendering elements...");
-        //TODO
-    }
-
+    /*
     TitleResult TitleScreen::getInput(){
         SPACE_ENGINE_DEBUG("Managing input from user");
         int mx = Mouse::x; 
@@ -116,6 +88,6 @@ namespace SpaceEngine{
             btn.isHovered = false;
         }
         return TitleResult::NONE;
-    }  
-}
+    }
+    */
 }

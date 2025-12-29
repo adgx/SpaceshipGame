@@ -103,6 +103,8 @@ namespace SpaceEngine
     {
         public:
             UIBase();
+            UIBase(UIMaterial* pUIMaterial);
+            UIBase(Vector2 posAncor, UIMaterial* pUIMaterial);
             ~UIBase();
             UIMeshRenderer* pUIMeshRend = nullptr;
             UITransform* pUITransf = nullptr;    
@@ -118,6 +120,7 @@ namespace SpaceEngine
     {
         public:
             Button(Vector2 anchor, Vector2 size);
+            Button(Vector2 anchor, UIButtonMaterial* pMat);
             ~Button() = default;
             void update(float mx,float my, bool pressed);
             std::function<void()> onClick;

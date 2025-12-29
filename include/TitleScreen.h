@@ -25,22 +25,19 @@ namespace SpaceEngine{
     class TitleScreen : public Scene
     {
     public:
-        TitleScreen();
+        TitleScreen(PhysicsManager* pPhyManager);
         ~TitleScreen();
 
-        void Init();
-        void Render();
         TitleResult getInput();
-
+        
     private:
+        void Init();
         bool StartNewGame(); //bool per avere conferma che la funzione sia stata lanciata correttamente
         bool OpenOptions();
         bool OpenLeaderboard();
         bool ExitGame();
-        float logoX, logoY;
-        float logoW, logoH; //TODO: da settare in Init in base alla dimensione della texture
-        unsigned int texStart, texOptions, texLeaderboard, texExit, texLogo;
         
-        std::vector<MenuButton> m_buttons;
+        //unsigned int texStart, texOptions, texLeaderboard, texExit, texLogo;
+        //std::vector<MenuButton> m_buttons;
     };
 }
