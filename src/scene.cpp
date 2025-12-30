@@ -175,10 +175,11 @@ namespace SpaceEngine
         //added 0.035
         UIBase* healthIcon2 = new UIBase({0.102, 0.083}, iconMat);
         UIBase* healthIcon3 = new UIBase({0.137, 0.083}, iconMat);
-        //TODO::make vector pointer of UIBase?
-        addSceneComponent(healthIcon1);
-        addSceneComponent(healthIcon2);
-        addSceneComponent(healthIcon3);
+        UILayout* pUILayout = new UILayout();
+        addSceneComponent(pUILayout);
+        pUILayout->addUIElement(healthIcon1);
+        pUILayout->addUIElement(healthIcon2);
+        pUILayout->addUIElement(healthIcon3);
         healthIcons.push(healthIcon1);
         healthIcons.push(healthIcon2);
         healthIcons.push(healthIcon3);
@@ -261,13 +262,10 @@ namespace SpaceEngine
         UIBase* pIcon2rm = healthIcons.top(); 
         healthIcons.pop();
 
-        for(auto it = vecUI.begin(); it != vecUI.end(); it++)
+        for(UILayout* pLayout : m_vecUILayouts)
         {
-            if(pIcon2rm == *it)
-            {
-                vecUI.erase(it);
-                break;
-            }
+            if(pLayout->removeUIElement(pIcon2rm))
+                return;
         }
     }
 

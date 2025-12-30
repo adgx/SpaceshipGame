@@ -158,4 +158,103 @@ namespace SpaceEngine
         pUITransf->setAnchor(Vector2{0.f, 0.f});
         pUITransf->setSize(Vector2{1.f, 1.f});
     }
+
+    //---------------------------------//
+    //-----------UINavigator-----------//
+    //---------------------------------//
+    UINavMoveDownCommand* UINavigator::m_pMoveDownCmd = nullptr;
+    UINavMoveUpCommand* UINavigator::m_pMoveUpCmd = nullptr;
+    UINavOnClickCommand* UINavigator::m_pOnClickCmd = nullptr;
+    int UINavigator::count = 0;
+
+    UINavigator::UINavigator(InputHandler& inputHandler)
+    {
+        assert(count < 0);
+
+        if(!count)
+        {
+            m_pMoveDownCmd = new UINavMoveDownCommand();
+            m_pMoveUpCmd = new UINavMoveUpCommand();
+            m_pOnClickCmd = new UINavOnClickCommand();
+        }
+
+        //Down command for joystick and keyboard
+        inputHandler.bindCommand(EAppState::RUN, 
+            this, 
+            {SPACE_ENGINE_JK_BUTTON_DOWN, 
+                EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
+                m_pMoveDownCmd});
+        inputHandler.bindCommand(EAppState::RUN, 
+            this, 
+            {SPACE_ENGINE_KEY_BUTTON_S, 
+                EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
+                m_pMoveDownCmd});
+        //UP command for joystick and keyboard
+        inputHandler.bindCommand(EAppState::RUN, 
+            this, 
+            {SPACE_ENGINE_JK_BUTTON_UP, 
+                EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
+                m_pMoveUpCmd});
+        inputHandler.bindCommand(EAppState::RUN, 
+            this, 
+            {SPACE_ENGINE_KEY_BUTTON_W, 
+                EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
+                m_pMoveUpCmd});
+
+        //Click command for joystick and keyboard
+        inputHandler.bindCommand(EAppState::RUN, 
+            this, 
+            {SPACE_ENGINE_JK_BUTTON_A, 
+                EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
+                m_pMoveUpCmd});
+        inputHandler.bindCommand(EAppState::RUN, 
+            this, 
+            {SPACE_ENGINE_KEY_BUTTON_ENTER, 
+                EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
+                m_pMoveUpCmd});
+        count++;
+    }
+
+    UINavigator::~UINavigator()
+    {
+        assert(count > 0);
+
+        count--;
+        if(!count)
+        {
+            delete m_pMoveDownCmd;
+            delete m_pMoveUpCmd;
+            delete m_pOnClickCmd;
+        }
+
+        //TODO::Remove the entry on the InputHandler
+    }
+
+    void UINavigator::addButton(Button* button)
+    {
+        m_vecButtons.push_back(button);
+    }
+
+    void UINavigator::move(int delta)
+    {
+        m_focused = (m_focused + delta + m_vecButtons.size()) % m_vecButtons.size();
+    }
+
+    void UINavigator::launchOnClick()
+    {
+        assert(m_focused >= 0 && m_focused < m_vecButtons.size());
+        m_vecButtons[m_focused]->onClick();
+        SPACE_ENGINE_DEBUG("Launch OnClick");
+    }
+    
+    void UINavigator::update()
+    {
+        for(Button* pbutton : m_vecButtons)
+        {
+            //Check that is hover
+        }
+    }
+
+
+
 }

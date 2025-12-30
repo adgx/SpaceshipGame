@@ -28,7 +28,7 @@ namespace SpaceEngine{
         pExitMat->addTexture("ui_tex", pTexExit);
         pExitMat->addTexture("ui_hover_tex", pTexExit);
         //Creation of the UI button
-        //x:153 y:330 | res x:1440 y:1024 | space between 0.04
+        //x:153 y:330 | res x:1440 y:1024 | space between buttons 0.04
         Button* pStart = new Button({0.11, 0.32}, pStartMat); 
         Button* pExit = new Button({0.11, 0.36}, pExitMat);
         addSceneComponent(pStart);

@@ -15,14 +15,6 @@
 namespace SpaceEngine
 {
 
-    enum class EAppState
-    {
-        START,
-        PAUSE,
-        RUN,
-        CLOSE,
-        COUNT
-    };
 
     class App
     {

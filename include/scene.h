@@ -77,9 +77,9 @@ namespace SpaceEngine
                     lights.push_back(sceneComponent);
                     return;
                 }
-                else if constexpr (std::is_base_of<UIBase, PureT>::value)
+                else if constexpr (std::is_base_of<UILayout, PureT>::value)
                 {
-                    vecUI.push_back(sceneComponent);
+                    m_vecUILayouts.push_back(sceneComponent);
                 }
                 SPACE_ENGINE_ERROR("Component not valid!");
             }
@@ -160,7 +160,7 @@ namespace SpaceEngine
             std::string name;
             bool active = true;
         protected:
-            std::vector<UIBase*> vecUI;
+            std::vector<UILayout*> m_vecUILayouts;
     };
 
     class SpaceScene : public Scene
@@ -168,11 +168,12 @@ namespace SpaceEngine
         public:
             SpaceScene(PhysicsManager* pPhyManager);
             ~SpaceScene() = default;
+            void removeHealthIcon();
+            
             private:
             void UpdateScene(float dt) override;
             float randomRange(float min, float max); 
             void handleSpawning(float dt);
-            void removeHealthIcon();
             
             //GESTIONE SPAWN
             float m_asteroidTimer = 0.0f;

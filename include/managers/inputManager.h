@@ -89,7 +89,14 @@ enum
 
 namespace SpaceEngine
 {
-    enum class EAppState;
+    enum class EAppState
+    {
+        START,
+        PAUSE,
+        RUN,
+        CLOSE,
+        COUNT
+    };
 
     enum class EInputType
     {

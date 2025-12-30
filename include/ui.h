@@ -3,6 +3,7 @@
 #include "transform.h"
 #include "utils/utils.h"
 #include "managers/windowManager.h"
+#include "managers/inputManager.h"
 
 
 namespace SpaceEngine
@@ -118,7 +119,7 @@ namespace SpaceEngine
 
     class Button : public UIBase
     {
-        public:
+        public: 
             Button(Vector2 anchor, Vector2 size);
             Button(Vector2 anchor, UIButtonMaterial* pMat);
             ~Button() = default;
@@ -129,5 +130,120 @@ namespace SpaceEngine
             bool wasHovered=false;
             bool wasPressed=false;
         
+    };
+
+    class UINavMoveDownCommand;
+    class UINavMoveUpCommand;
+    class UINavOnClickCommand;
+
+    class UINavigator
+    {
+        friend UINavMoveDownCommand;
+        friend UINavMoveUpCommand;
+        friend UINavOnClickCommand;
+        public:
+            UINavigator(InputHandler& inputHandler);
+            ~UINavigator();
+            void addButton(Button* button);
+            void update();
+        private:
+            void move(int delta);
+            void launchOnClick();
+            int m_focused = 0;
+            std::vector<Button*> m_vecButtons;
+            //Make them static in future
+            static UINavMoveDownCommand* m_pMoveDownCmd;
+            static UINavMoveUpCommand* m_pMoveUpCmd;
+            static UINavOnClickCommand* m_pOnClickCmd;
+            static int count;
+    };
+
+    class UINavMoveDownCommand : public Command
+    {
+        public:
+            virtual void execute(void* actor) override
+            {
+                UINavigator* nav = static_cast<UINavigator*>(actor);
+                nav->move(1);
+            }
+    };
+
+    class UINavMoveUpCommand : public Command
+    {
+        public:
+            virtual void execute(void* actor) override
+            {
+                UINavigator* nav = static_cast<UINavigator*>(actor);
+                nav->move(-1);
+            }
+    };
+
+    class UINavOnClickCommand : public Command
+    {
+        public:
+            virtual void execute(void* actor) override
+            {
+                UINavigator* nav = static_cast<UINavigator*>(actor);
+                nav->launchOnClick();
+            }
+    };
+
+    class UILayout
+    {
+        public:
+            UILayout() = default;
+            template<typename T>
+            void addComponent()
+            {
+                if constexpr (std::is_base_of_v<UINavigator, T>)
+                {
+                    if(!m_pNavigator)
+                    {
+                        //It needs to know the Input Handler
+                        m_pNavigator = new UINavigator();
+                    }
+
+                    else{SPACE_ENGINE_ERROR("You can add only a one UINavigator per UILayout");}
+                }
+            }
+
+            template<typename T>
+            void addUIElement(T pUIElement)
+            {
+                using PureT = std::remove_pointer_t<T>;
+
+                if(pUIElement == nullptr)
+                {
+                    SPACE_ENGINE_ERROR("The passed component is null");
+                    return;
+                }
+                if constexpr (std::is_base_of<Button, PureT>::value)
+                {
+                    if(!m_pNavigator)
+                    {
+                        //InputHandler
+                        m_pNavigator = new UINavigator();
+                    }
+
+                    m_pNavigator->addButton(pUIElement);
+                    
+                    return;
+                }
+                else if constexpr (std::is_base_of<Background, PureT>::value)
+                {
+                    m_vecUIElements.push_back(pUIElement);
+                    return;
+                }
+                else if constexpr (std::is_base_of<UIBase, PureT>::value)
+                {
+                    m_vecUIElements.push_back(pUIElement);
+                }
+                SPACE_ENGINE_ERROR("UIElement not valid!");
+            }
+
+            int removeUIElement(const UIBase* pUIBase);
+        private:
+            std::vector<UIBase*> m_vecUIElements;
+            UINavigator* m_pNavigator = nullptr;
     };
 }
