@@ -8,6 +8,7 @@
 namespace SpaceEngine
 {
     EAppState state = EAppState::START;
+    InputHandler* App::inputHandler = nullptr;
     
     App::App()
     {
@@ -23,6 +24,7 @@ namespace SpaceEngine
         
         //Objects
         renderer = new Renderer();
+        uiRenderer = new UIRenderer();
         SPACE_ENGINE_INFO("Initilization app done");
         //scene 
         SPACE_ENGINE_DEBUG("Start the initialization the scene");
@@ -59,46 +61,6 @@ namespace SpaceEngine
         PlayerShip* pPlayer = new PlayerShip(pScene, "TestCube.obj");
         pPlayer->Init();
         auto glError = glGetError();
-        //--------------------------------------------------------
-        //-------------------set the InputHandler-----------------
-        //--------------------------------------------------------
-        //Command init
-        MoveUpCommand* playerMoveUp = new MoveUpCommand();
-        MoveDownCommand* playerMoveDown = new MoveDownCommand();
-        MoveLeftCommand* playerMoveLeft = new MoveLeftCommand();
-        MoveRightCommand* playerMoveRight = new MoveRightCommand();
-        //up-joystick  
-        inputHandler->bindCommand(EAppState::RUN, pPlayer, {SPACE_ENGINE_JK_BUTTON_UP, 
-            EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
-            playerMoveUp});
-        //up-keyboard
-        inputHandler->bindCommand(EAppState::RUN, pPlayer, {SPACE_ENGINE_KEY_BUTTON_W, 
-            EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
-            playerMoveUp});
-        //down-joystick  
-        inputHandler->bindCommand(EAppState::RUN, pPlayer, {SPACE_ENGINE_JK_BUTTON_DOWN, 
-            EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
-            playerMoveDown});
-        //down-keyboard
-        inputHandler->bindCommand(EAppState::RUN, pPlayer, {SPACE_ENGINE_KEY_BUTTON_S, 
-            EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
-            playerMoveDown});
-        //left-joystick  
-        inputHandler->bindCommand(EAppState::RUN, pPlayer, {SPACE_ENGINE_JK_BUTTON_LEFT, 
-            EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
-            playerMoveLeft});
-        //left-keyboard
-        inputHandler->bindCommand(EAppState::RUN, pPlayer, {SPACE_ENGINE_KEY_BUTTON_A, 
-            EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
-            playerMoveLeft});
-        //right-joystick  
-        inputHandler->bindCommand(EAppState::RUN, pPlayer, {SPACE_ENGINE_JK_BUTTON_RIGHT, 
-            EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
-            playerMoveRight});
-        //right-keyboard
-        inputHandler->bindCommand(EAppState::RUN, pPlayer, {SPACE_ENGINE_KEY_BUTTON_D, 
-            EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
-            playerMoveRight});
         //add GameObject to the scene
         pScene->addSceneComponent<GameObject*>(pPlayer);
 
@@ -141,6 +103,11 @@ namespace SpaceEngine
             token = false;
         }
 
+    }
+
+    InputHandler& App::GetInputHandler()
+    {
+        return *inputHandler;
     }
 
 
@@ -186,15 +153,14 @@ namespace SpaceEngine
             //collects the renderizable objects in the scene
             sceneManager.GatherRenderables(worldRenderables, uiRenderables);
             //gather scene object to rendering the scene
-            //BaseCamera* pCam = sceneManager.GetActiveCamera();
-            //std::vector<Light*>* pLights = sceneManager.GetLights();
             RendererParams rParams{worldRenderables, 
                 *(sceneManager.GetLights()), 
                 sceneManager.GetActiveCamera(), 
-                pScene->getSkybox()};
+                sceneManager.GetSkybox()};
             
             auto glError = glGetError();
             renderer->render(rParams);
+            uiRenderer->render(uiRenderables);
             glError = glGetError();
 
             sceneManager.LateUpdate();

@@ -134,6 +134,7 @@ namespace SpaceEngine
             void bindVAO();
             int bindMaterial(UIMaterial* pMat);
             UIMaterial* getMaterial();
+            UIMesh* getUIMesh();
         private:
             UIMesh* pMesh;
             UIMaterial* pMat;            

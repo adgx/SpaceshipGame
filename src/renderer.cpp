@@ -93,6 +93,7 @@ namespace SpaceEngine
             ui.pMaterial->bindingPropsToShader();
             ui.pUIMesh->bindVAO();
             ShaderProgram* shader = ui.pMaterial->getShader();
+            shader->use();
             
             if (shader)
             {

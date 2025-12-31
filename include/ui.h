@@ -4,6 +4,7 @@
 #include "utils/utils.h"
 #include "managers/windowManager.h"
 #include "managers/inputManager.h"
+#include "renderer.h"
 
 
 namespace SpaceEngine
@@ -84,7 +85,7 @@ namespace SpaceEngine
             Vector2 getAnchor();
             int getX();
             int getY();
-            Rect getRect();
+            Rect* getRect();
             UITransform() = default;
             ~UITransform() = default;
 
@@ -146,8 +147,9 @@ namespace SpaceEngine
         friend UINavOnPressCommand;
 
         public:
-            UINavigator(InputHandler& inputHandler);
+            UINavigator();
             ~UINavigator();
+            std::vector<UIRenderObject> gatherUIRenderables();
             void addButton(Button* button);
             void update();
         private:
@@ -215,7 +217,6 @@ namespace SpaceEngine
                 {
                     if(!m_pNavigator)
                     {
-                        //It needs to know the Input Handler
                         m_pNavigator = new UINavigator();
                     }
 
@@ -237,7 +238,6 @@ namespace SpaceEngine
                 {
                     if(!m_pNavigator)
                     {
-                        //InputHandler
                         m_pNavigator = new UINavigator();
                     }
 
@@ -258,6 +258,8 @@ namespace SpaceEngine
             }
 
             int removeUIElement(const UIBase* pUIBase);
+            std::vector<UIRenderObject> gatherUIRenderables();
+
         private:
             std::vector<UIBase*> m_vecUIElements;
             UINavigator* m_pNavigator = nullptr;

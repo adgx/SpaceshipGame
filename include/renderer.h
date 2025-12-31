@@ -46,6 +46,7 @@ namespace SpaceEngine
 
     class UIRenderer
     {
-        void render(const std::vector<UIRenderObject>& uiRenderables);
+        public:
+            void render(const std::vector<UIRenderObject>& uiRenderables);
     };
 }

@@ -20,7 +20,9 @@
 namespace SpaceEngine
 {
     
-
+    //---------------------------------------------//
+    //-------------------Mesh----------------------//
+    //---------------------------------------------//
     void Mesh::clear()
     {
         if(buffers[0] != 0)
@@ -66,6 +68,9 @@ namespace SpaceEngine
         return 1;
     }
 
+    //---------------------------------------------//
+    //---------------BaseMaterial------------------//
+    //---------------------------------------------//
     BaseMaterial* Mesh::getMaterialBySubMeshIndex(int index)
     {
         if(index >= subMeshes.size())
@@ -83,6 +88,7 @@ namespace SpaceEngine
         }
         return materials[subMeshes[index].materialIndex];
     }
+
     //------------------------------------------//
     //--------------MeshManager-----------------//
     //------------------------------------------//
@@ -655,4 +661,10 @@ namespace SpaceEngine
     {
         pMesh->bindVAO();
     }
+
+    UIMesh* UIMeshRenderer::getUIMesh()
+    {
+        return pMesh;
+    }
+
 }

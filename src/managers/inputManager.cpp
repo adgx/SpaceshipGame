@@ -51,9 +51,15 @@ namespace SpaceEngine
 
         m_bindings[state][obj].push_back(inputBind);
 
-
         return 1;
     }
+
+    void InputHandler::clearBindingsFor(void* owner)
+    {
+        for (auto& [state, owners] : m_bindings)
+            owners.erase(owner);
+    }
+
 
         
     //Mouse
@@ -374,7 +380,7 @@ namespace SpaceEngine
             SPACE_ENGINE_DEBUG("buttonsLast: {}, buttons:{}", Mouse::buttonsLast[buttonID], Mouse::buttons[buttonID]);
             Mouse::buttonsLast[buttonID] = Mouse::buttons[buttonID];
 
-            if(action == GLFW_PRESS)
+            if(action == GLFW_PRESS || action == GLFW_REPEAT)
             {
                 Mouse::buttons[buttonID] = true;
                 SPACE_ENGINE_DEBUG("Mouse button pressed");
@@ -399,7 +405,7 @@ namespace SpaceEngine
         {
             Keyboard::keysLast[key] = Keyboard::keys[key];
 
-            if(action == GLFW_PRESS)
+            if(action == GLFW_PRESS || action == GLFW_REPEAT)
             {
                 
                 Keyboard::keys[key] = true;

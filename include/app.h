@@ -20,6 +20,7 @@ namespace SpaceEngine
     {
         public:
             App();
+            static InputHandler& GetInputHandler();
             ~App();
             void Run();
         private:
@@ -38,6 +39,6 @@ namespace SpaceEngine
             Renderer* renderer;
             UIRenderer* uiRenderer;
             WindowManager windowManager;
-            InputHandler* inputHandler;
+            static InputHandler* inputHandler;
     };
 };

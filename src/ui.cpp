@@ -1,6 +1,8 @@
-#include "ui.h"
 #include <algorithm>
+
+#include "ui.h"
 #include "log.h"
+#include "app.h"
 
 namespace SpaceEngine
 {
@@ -52,7 +54,7 @@ namespace SpaceEngine
     //---------------------------------//
     static int resWidth = 0; 
     static int resHeight = 0;
-    Rect UITransform::getRect()
+    Rect* UITransform::getRect()
     {
         if(resWidth !=WindowManager::width || resHeight != WindowManager::height)
         {
@@ -73,7 +75,7 @@ namespace SpaceEngine
             dirty = false;
         }
 
-        return rectCached;
+        return &rectCached;
     }
 
     void UITransform::setAnchor(Vector2 anchor)
@@ -134,7 +136,7 @@ namespace SpaceEngine
     }
     bool Button::update(int mx, int my)
     {
-        hovered = Rect::pointInRect(pUITransf->getRect(), 
+        hovered = Rect::pointInRect(*(pUITransf->getRect()), 
                                         static_cast<float>(mx),
                                         static_cast<float>(my));
         if(hovered)
@@ -174,7 +176,7 @@ namespace SpaceEngine
     UINavOnClickCommand* UINavigator::m_pOnClickCmd = nullptr;
     int UINavigator::count = 0;
 
-    UINavigator::UINavigator(InputHandler& inputHandler)
+    UINavigator::UINavigator()
     {
         assert(count < 0);
 
@@ -186,6 +188,7 @@ namespace SpaceEngine
             m_pOnPressCmd = new UINavOnPressCommand();
         }
 
+        InputHandler& inputHandler = App::GetInputHandler();
         //Down command for joystick and keyboard
         inputHandler.bindCommand(EAppState::RUN, 
             this, 
@@ -197,6 +200,7 @@ namespace SpaceEngine
             {SPACE_ENGINE_KEY_BUTTON_S, 
                 EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
                 m_pMoveDownCmd});
+        
         //UP command for joystick and keyboard
         inputHandler.bindCommand(EAppState::RUN, 
             this, 
@@ -237,6 +241,8 @@ namespace SpaceEngine
         }
 
         //TODO::Remove the entry on the InputHandler
+        InputHandler& inputHandler = App::GetInputHandler();
+        inputHandler.clearBindingsFor(this);
     }
 
     void UINavigator::addButton(Button* button)
@@ -280,6 +286,22 @@ namespace SpaceEngine
         }
     }
 
+    std::vector<UIRenderObject> UINavigator::gatherUIRenderables()
+    {
+        std::vector<UIRenderObject> uiRendObj;
+
+        for(Button* button : m_vecButtons)
+        {
+            UIRenderObject uiRObj;
+            uiRObj.pMaterial = button->pUIMeshRend->getMaterial();
+            uiRObj.pRect = button->pUITransf->getRect();
+            uiRObj.pUIMesh = button->pUIMeshRend->getUIMesh();
+            uiRendObj.push_back(uiRObj);
+        }
+
+        return uiRendObj;
+    }
+
     //-------------------------------------//
     //---------------UILayout--------------//
     //-------------------------------------//
@@ -293,6 +315,31 @@ namespace SpaceEngine
         }
         
         SPACE_ENGINE_ERROR("UILayout::removeUIElement: UIElement not found");
+    }
+
+    std::vector<UIRenderObject> UILayout::gatherUIRenderables()
+    {
+        std::vector<UIRenderObject> vecUIRenderObj;
+        
+        for(UIBase* uiElement : m_vecUIElements)
+        {
+            UIRenderObject uiRObj;
+            uiRObj.pMaterial = uiElement->pUIMeshRend->getMaterial();
+            uiRObj.pRect = uiElement->pUITransf->getRect();
+            uiRObj.pUIMesh = uiElement->pUIMeshRend->getUIMesh();
+            vecUIRenderObj.push_back(uiRObj);
+        }
+
+        std::vector<UIRenderObject> vecUIRendObjNav;
+        vecUIRendObjNav = m_pNavigator->gatherUIRenderables();
+
+        vecUIRenderObj.insert(
+            vecUIRenderObj.end(),
+            std::move_iterator(vecUIRendObjNav.begin()),
+            std::move_iterator(vecUIRendObjNav.end())
+        );
+
+        return vecUIRenderObj;
     }
 
 }

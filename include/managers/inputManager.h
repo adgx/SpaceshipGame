@@ -124,6 +124,7 @@ namespace SpaceEngine
         public:
             void handleInput();
             int bindCommand(EAppState state, void* obj, const InputBinding& inputBind);
+            void clearBindingsFor(void* owner);
         private:
         std::unordered_map<EAppState, std::unordered_map<void*, std::vector<InputBinding>>> m_bindings;
     };

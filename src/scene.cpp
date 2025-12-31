@@ -28,7 +28,6 @@ namespace SpaceEngine
             obj->update(dt);
 
         UpdateScene(dt);
-        //handleSpawning(dt);
         // cleanup gameobjects phase
         processInstantiateQ(dt);
         processDestroyQ();
@@ -114,24 +113,23 @@ namespace SpaceEngine
                 {
                     RenderObject renderObj;
                     renderObj.mesh = mesh;
-                    //renderObj.instances = gameObj->getNumInstances();
-                    //std::vector<Transform*>* vecTrasf = gameObj->getComponent<std::vector<Transform*>>();
                     Transform* trasf = gameObj->getComponent<Transform>();
-                    //for(int j = 0; j < renderObj.instances; j++)
-                    //  renderObj.modelMatrix.push_back((*vecTrasf)[j]->getWorldMatrix());
-                    //renderObj.modelMatrix.push_back(trasf->getWorldMatrix());
                     renderObj.modelMatrix = trasf->getWorldMatrix();
                     worldRenderables.push_back(renderObj);
                 }
             }
-            // --- UI objects ---
-            if (UIMesh* ui = gameObj->getComponent<UIMesh>(); ui)
+        }
+        
+        // --- UI objects ---
+        for(UILayout* pLayout : m_vecUILayouts)
+        {
+            if (std::vector<UIRenderObject> vecUIRendObjs = pLayout->gatherUIRenderables(); vecUIRendObjs.size())
             {
-                UIRenderObject uro;
-                //uro.mesh = ui->mesh;
-                //uro.material = ui->material;
-                //uro.modelMatrix = go->transform.GetMatrix();
-                uiRenderables.push_back(uro);
+                uiRenderables.insert(
+                    uiRenderables.end(),
+                    std::move_iterator(vecUIRendObjs.begin()),
+                    std::move_iterator(vecUIRendObjs.end())
+                );
             }
         }
     }

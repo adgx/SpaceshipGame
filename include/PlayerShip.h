@@ -9,7 +9,14 @@
 namespace SpaceEngine {
 
 
-    class PlayerShip : public GameObject {
+    class MoveUpCommand;
+    class MoveDownCommand;
+    class MoveLeftCommand;
+    class MoveRightCommand;
+    class FireCommand;
+    
+    class PlayerShip : public GameObject 
+    {
     public:
         PlayerShip(Scene* pScene, std::string filePathModel);
         virtual ~PlayerShip();
@@ -32,11 +39,17 @@ namespace SpaceEngine {
         Bullet* m_pBullet = nullptr;
         float m_speed;
         float m_dt = 0.f;
+        int m_health = 3;
         // Limiti di movimento
         float m_limitX;
         float m_limitY;
-
         float m_shootCooldown;
+
+        MoveUpCommand* m_playerMoveUp;
+        MoveDownCommand* m_playerMoveDown;
+        MoveLeftCommand* m_playerMoveLeft;
+        MoveRightCommand* m_playerMoveRight;
+        FireCommand* m_playerFire;
     };
 
     class MoveUpCommand : public Command
