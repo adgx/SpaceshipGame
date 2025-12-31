@@ -85,7 +85,7 @@ namespace SpaceEngine
         {
             pendingScene = m_pendingUnloadQ.front();
             m_pendingUnloadQ.pop();
-            m_vecScenes.erase(std::remove_if(m_vecScenes.begin(),
+            m_vecScenes.erase(std::remove(m_vecScenes.begin(),
                 m_vecScenes.end(), 
                 pendingScene), m_vecScenes.end());
         }
@@ -117,6 +117,7 @@ namespace SpaceEngine
         }
 
         SPACE_ENGINE_DEBUG("No active camera is found");
+        return nullptr;
     }
 
     std::vector<Light*>* SceneManager::GetLights()
@@ -131,6 +132,7 @@ namespace SpaceEngine
         }
 
         SPACE_ENGINE_DEBUG("No lights are found");
+        return nullptr;
     }
 
     Skybox* SceneManager::GetSkybox()
@@ -145,6 +147,7 @@ namespace SpaceEngine
         }
 
         SPACE_ENGINE_DEBUG("No skybox is found");
+        return nullptr;
     }
 
 
