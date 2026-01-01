@@ -160,6 +160,7 @@ namespace SpaceEngine
             
             GL_CHECK_ERRORS(); 
             renderer->render(rParams);
+            GL_CHECK_ERRORS();
             uiRenderer->render(uiRenderables);
             GL_CHECK_ERRORS();
 

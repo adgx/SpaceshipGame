@@ -7,7 +7,10 @@ namespace SpaceEngine
     void window_resize_callback(GLFWwindow* window, int width, int height);
 
     int WindowManager::height = SPACE_ENGINE_MIN_RES_H, WindowManager::width = SPACE_ENGINE_MIN_RES_W;
-    Matrix4 WindowManager::sceenProjMatrix = glm::ortho(0.0f,(float)WindowManager::width,(float)WindowManager::height,0.0f);
+    Matrix4 WindowManager::sceenProjMatrix = glm::ortho(0.0f,
+        static_cast<float>(WindowManager::width),
+        static_cast<float>(WindowManager::height),
+        0.0f);
     int WindowManager::xpos = 0, WindowManager::ypos = 0;
     GLFWwindow* WindowManager::window = nullptr;
     bool WindowManager::fullScreenState = false;
@@ -91,7 +94,7 @@ namespace SpaceEngine
         //set the OpenGL depth buffer
         glEnable(GL_DEPTH_TEST);
         //set the OpenGL framebuffer
-
+        glEnable(GL_BLEND);
         SPACE_ENGINE_INFO("WindowManager - GLFW setup done");
         return true;
     }

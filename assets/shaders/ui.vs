@@ -13,5 +13,5 @@ void main()
 {
     TexCoords = aTexCoords;
     vec2 p = uiPos + aPos * size;
-    gl_Position = projection * vec4(aPos, 0.0, 1.0);
+    gl_Position = projection * vec4(p, 0.0, 1.0);
 }

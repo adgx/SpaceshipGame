@@ -86,27 +86,30 @@ namespace SpaceEngine
 
     void UIRenderer::render(const std::vector<UIRenderObject>& uiRenderables)
     {
+        glDisable(GL_DEPTH_TEST);
         for (const auto& ui : uiRenderables)
         {
             if (!ui.pUIMesh || !ui.pMaterial) continue;
 
-            ui.pMaterial->bindingPropsToShader();
-            ui.pUIMesh->bindVAO();
             ShaderProgram* shader = ui.pMaterial->getShader();
-            shader->use();
-            
+            GL_CHECK_ERRORS();
             if (shader)
             {
+                shader->use();
+                ui.pMaterial->bindingPropsToShader();
                 shader->setUniform("uiPos", ui.pRect->pos);
                 shader->setUniform("size", ui.pRect->size);
                 shader->setUniform("projection", WindowManager::sceenProjMatrix);
             }
-            
+            auto gl_error = glGetError();
             // Draw UI mesh
+            ui.pUIMesh->bindVAO();
             ui.pUIMesh->draw();
             GL_CHECK_ERRORS();
             glUseProgram(0);
         }
+        glEnable(GL_DEPTH_TEST);
+        
     }
 
 };

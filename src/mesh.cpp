@@ -570,7 +570,7 @@ namespace SpaceEngine
     const static int N_TEXTURE_CORD_QUAD = 8;
     const static int N_INDICES_QUAD = 6;
     //data quad vertex coords,  texture coords
-    float UIQuand[] = 
+    float UIQuad[] = 
     {
         //vertex  texture
         0.f, 1.f, 0.f, 1.f,//top-left
@@ -601,7 +601,7 @@ namespace SpaceEngine
         glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);//ok
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);//ok
 
-        glBufferData(GL_ARRAY_BUFFER, sizeof(UIQuand), UIQuand, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(UIQuad), UIQuad, GL_STATIC_DRAW);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(UIindices), UIindices, GL_STATIC_DRAW);
 
         size_t NumFloats = 0;
@@ -620,7 +620,7 @@ namespace SpaceEngine
                        N_INDICES_QUAD,
                        GL_UNSIGNED_INT,
                        0);
-
+        GL_CHECK_ERRORS();
         // Make sure the VAO is not changed from the outside
         glBindVertexArray(0);
     }
