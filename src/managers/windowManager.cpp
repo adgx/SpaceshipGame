@@ -95,6 +95,7 @@ namespace SpaceEngine
         glEnable(GL_DEPTH_TEST);
         //set the OpenGL framebuffer
         glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         SPACE_ENGINE_INFO("WindowManager - GLFW setup done");
         return true;
     }
