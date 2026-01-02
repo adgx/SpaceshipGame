@@ -144,6 +144,12 @@ namespace SpaceEngine
         {
             SPACE_ENGINE_DEBUG("Resize frame buffer w{} h{}", width, height);
             glViewport(0, 0, width, height);
+            WindowManager::height = height;
+            WindowManager::width = width;
+            WindowManager::sceenProjMatrix = glm::ortho(0.0f,
+                static_cast<float>(width),
+                static_cast<float>(height),
+                0.0f);
         }
     }
 
@@ -159,6 +165,12 @@ namespace SpaceEngine
                 const GLFWvidmode* mode = glfwGetVideoMode(WindowManager::monitor);
                 glfwSetWindowMonitor(window, WindowManager::monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
                 glViewport(0, 0, mode->width, mode->height);
+                WindowManager::height = mode->height;
+                WindowManager::width = mode->width;
+                WindowManager::sceenProjMatrix = glm::ortho(0.0f,
+                    static_cast<float>(mode->width),
+                    static_cast<float>(mode->height),
+                    0.0f);
         }
 
     }

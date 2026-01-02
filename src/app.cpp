@@ -48,7 +48,6 @@ namespace SpaceEngine
         physicsManager.Shutdown();
         windowManager.Shutdown();
         logManager.Shutdown();
-        delete pScene;
         delete renderer;
     }
     

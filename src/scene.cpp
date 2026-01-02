@@ -24,6 +24,11 @@ namespace SpaceEngine
 
     void Scene::Update(float dt)
     {
+        for(UILayout* pUILayout : m_vecUILayouts)
+        {
+            pUILayout->update();
+        }
+        
         for (auto* obj : gameObjects)
             obj->update(dt);
 

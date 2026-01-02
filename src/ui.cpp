@@ -149,6 +149,7 @@ namespace SpaceEngine
         if(!pMat->pShader)
             pMat->pShader = ShaderManager::findShaderProgram("uiButton");
     }
+
     bool Button::update(int mx, int my)
     {
         hovered = Rect::pointInRect(*(pUITransf->getRect()), 

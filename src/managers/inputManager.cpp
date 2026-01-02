@@ -376,13 +376,13 @@ namespace SpaceEngine
         if(buttonID >= SPACE_ENGINE_MOUSE_BUTTON_FIRST &&
             buttonID <= SPACE_ENGINE_MOUSE_BUTTON_LAST)
         {
-            SPACE_ENGINE_DEBUG("buttonsLast: {}, buttons:{}", Mouse::buttonsLast[buttonID], Mouse::buttons[buttonID]);
+            //SPACE_ENGINE_DEBUG("buttonsLast: {}, buttons:{}", Mouse::buttonsLast[buttonID], Mouse::buttons[buttonID]);
             Mouse::buttonsLast[buttonID] = Mouse::buttons[buttonID];
 
             if(action == GLFW_PRESS || action == GLFW_REPEAT)
             {
                 Mouse::buttons[buttonID] = true;
-                SPACE_ENGINE_DEBUG("Mouse button pressed");
+                //SPACE_ENGINE_DEBUG("Mouse button pressed");
             }
             else if(action == GLFW_RELEASE)
             {

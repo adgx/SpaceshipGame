@@ -78,6 +78,8 @@ namespace SpaceEngine
                 bool active = false;
                 std::string type;
             };
+
+            //subroutines["nameSubroutine, nameSubroutineUniform"]
             std::unordered_map<std::string, subroutineInfo> subroutines;
             ShaderProgram* pShader = nullptr;
             protected:

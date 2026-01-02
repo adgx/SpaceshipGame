@@ -26,6 +26,7 @@ namespace SpaceEngine
 
         static bool pointInRect(const Rect& r, float x, float y)
         {
+            SPACE_ENGINE_DEBUG("Coordinates: x{} y{}", x, y);
             return x >= r.pos.x && x <= r.pos.x + r.size.x &&
                     y >= r.pos.y && y <= r.pos.y + r.size.y;
         }
@@ -266,6 +267,13 @@ namespace SpaceEngine
             }
 
             int removeUIElement(const UIBase* pUIBase);
+            inline void update()
+            {
+                if(m_pNavigator)
+                {
+                    m_pNavigator->update();
+                }
+            }
             std::vector<UIRenderObject> gatherUIRenderables();
 
         private:

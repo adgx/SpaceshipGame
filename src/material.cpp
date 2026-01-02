@@ -228,13 +228,13 @@ namespace SpaceEngine
 
     void UIButtonMaterial::setSubroutineBase(bool flag)
     {
-        subroutines["uiTextureBase"] = {flag, 0};
-        subroutines["uiTextureHover"] = {!flag, 0};
+        subroutines["uiTextureBase"] = {flag, "uiTextureMode"};
+        subroutines["uiTextureHover"] = {!flag, "uiTextureMode"};
     }
     void UIButtonMaterial::setSubroutineHover(bool flag)
     {
-        subroutines["uiTextureBase"] = {!flag, 0};
-        subroutines["uiTextureHover"] = {flag, 0};
+        subroutines["uiTextureBase"] = {!flag, "uiTextureMode"};
+        subroutines["uiTextureHover"] = {flag, "uiTextureMode"};
     }
 
     //-------------------------------------//

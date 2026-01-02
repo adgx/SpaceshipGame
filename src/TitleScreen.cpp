@@ -40,17 +40,17 @@ namespace SpaceEngine{
         Texture* pTexExit = TextureManager::load(TEXTURES_PATH"buttons/Exit.png");
         //now We don't have the texture for the hover case
         pStartMat->addTexture("ui_tex", pTexStart);
-        pStartMat->addTexture("ui_hover_tex", pTexStart);
         pExitMat->addTexture("ui_tex", pTexExit);
         pExitMat->addTexture("ui_hover_tex", pTexExit);
         //Creation of the UI button
-        //x:153 y:330 | res x:1440 y:1024 | space between buttons 0.04
-        Button* pStart = new Button({0.11, 0.32}, 
+        //pos: x:153 y:330 | res x:1440 y:1024 | space between buttons 0.04
+        Button* pStart = new Button({0.11, 0}, 
             pStartMat, 
             [this]() {return StartNewGame();}
         ); 
+        //pos: x:153 y:464
         Button* pExit = new Button(
-            {0.11, 0.36}, 
+            {0.11, 0.453}, 
             pExitMat, 
             [this]() {return ExitGame();}
         );
@@ -63,7 +63,7 @@ namespace SpaceEngine{
         SPACE_ENGINE_INFO("StartNewGame");
         //for debugging
         //We assuming that SpaceScene is early loaded but set not active by the app
-        if(SceneManager::ActiveScene("SpaceScene", true));//Maybe is better to use another approach
+        if(SceneManager::ActiveScene("SpaceScene", true))//Maybe is better to use another approach
         {
             SceneManager::SwitchScene("SpaceScene");//Maybe is better to use another approach
             return true;

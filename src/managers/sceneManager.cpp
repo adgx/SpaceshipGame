@@ -117,7 +117,7 @@ namespace SpaceEngine
             }
         }
 
-        SPACE_ENGINE_DEBUG("No active camera is found");
+        //SPACE_ENGINE_DEBUG("No active camera is found");
         return nullptr;
     }
 
@@ -132,7 +132,7 @@ namespace SpaceEngine
             }
         }
 
-        SPACE_ENGINE_DEBUG("No lights are found");
+        //SPACE_ENGINE_DEBUG("No lights are found");
         return nullptr;
     }
 
@@ -147,7 +147,7 @@ namespace SpaceEngine
             }
         }
 
-        SPACE_ENGINE_DEBUG("No skybox is found");
+        //SPACE_ENGINE_DEBUG("No skybox is found");
         return nullptr;
     }
 
@@ -161,7 +161,7 @@ namespace SpaceEngine
                 return 1;
             }
         }
-        
+
         SPACE_ENGINE_ERROR("Scene: {} not found", nameScene);
         return 0;
     }
