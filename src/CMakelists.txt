@@ -14,10 +14,12 @@ add_library(App STATIC app.cpp
                     gameobject.cpp 
                     player.cpp 
                     collisionDetection.cpp 
-                    skybox.cpp)
+                    skybox.cpp
+                    bullet.cpp)
 
 target_include_directories(App PRIVATE ${CMAKE_SOURCE_DIR}/include/
-                            PRIVATE ${CMAKE_SOURCE_DIR}/include/managers)
+                            PRIVATE ${CMAKE_SOURCE_DIR}/include/managers
+                            ${openal_SOUCRCE_DIR}/include)
 
 target_link_libraries(App PRIVATE WindowManager
     PUBLIC glad_gl_core_33
@@ -25,6 +27,7 @@ target_link_libraries(App PRIVATE WindowManager
     PRIVATE OpenGL::GL
     PRIVATE LogManager
     PRIVATE InputManager
+    PUBLIC AudioManager
     PUBLIC ShaderProgram
     PUBLIC Mesh)
 

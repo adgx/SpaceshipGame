@@ -4,6 +4,7 @@
 #include "player.h"
 #include "playerShip.h"
 #include <vector>
+#include "audioManager.h"
 
 namespace SpaceEngine{
     //static functions
@@ -19,6 +20,17 @@ namespace SpaceEngine{
         shaderManager.Initialize();
         materialManager.Initialize();
         textureManager.Initialize();
+        audioManager.Initialize();
+
+        audioManager.LoadSound("menu_music", "assets/audio/menu.wav");
+        audioManager.LoadSound("bg_music", "assets/audio/music_space.wav");
+        audioManager.LoadSound("shoot_player", "assets/audio/laser_player.wav");
+        audioManager.LoadSound("shoot_enemy", "assets/audio/laser_enemy.wav");
+        audioManager.LoadSound("enemy_explosion", "assets/audio/enemyexplosion.wav");
+        audioManager.LoadSound("asteroid_explosion", "assets/audio/asteroid_explosion.wav");
+        audioManager.LoadSound("game_over", "assets/audio/game_over.wav");
+
+        audioManager.PlayMusic("bg_music", true);
         //Objects
         renderer = new Renderer();
         SPACE_ENGINE_INFO("Initilization app done");
@@ -38,6 +50,7 @@ namespace SpaceEngine{
         physicsManager.Shutdown();
         windowManager.Shutdown();
         logManager.Shutdown();
+        audioManager.Shutdown();
         delete pScene;
         delete renderer;
     }
@@ -46,6 +59,7 @@ namespace SpaceEngine{
     {
         //initialize main scene
         pScene = new Scene(&physicsManager);
+        pScene->setAudioManager(&audioManager);
         pScene->Init();
         //crea e inizializza il player
         PlayerShip* pPlayer = new PlayerShip(pScene, "TestCube.obj");

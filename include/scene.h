@@ -10,6 +10,7 @@
 #include "Asteroid.h"
 #include "EnemyShip.h"
 #include "managers/windowManager.h"
+#include "managers/audioManager.h"
 #include <vector>
 #include <string>
 #include <queue>
@@ -32,6 +33,9 @@ namespace SpaceEngine
 
             void Init();
             void createGameObject();
+
+            void setAudioManager(AudioManager* am) { pAudioManager = am; }
+            AudioManager* getAudioManager() { return pAudioManager; }
 
             template<typename T>
             void addSceneComponent(T sceneComponent)
@@ -85,6 +89,8 @@ namespace SpaceEngine
             PhysicsManager* pPhyManager = nullptr;
             void processDestroyQ();
             void processInstantiateQ(float dt);
+
+            AudioManager* pAudioManager = nullptr;
             
             struct SpawnRequest
             {
