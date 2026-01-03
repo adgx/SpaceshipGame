@@ -91,7 +91,7 @@ namespace SpaceEngine
                     pShader->setUniform(name.c_str(), texs[name]->getTexUnitIndex());
                     glError = glGetError();
                 }
-                else {SPACE_ENGINE_WARN("Material: {}, Name uniform texture:{} no texture", this->name, name);}
+                //else {SPACE_ENGINE_WARN("Material: {}, Name uniform texture:{} no texture", this->name, name);}
             }
         }
         glError = glGetError();

@@ -27,7 +27,6 @@ namespace SpaceEngine
             GameObject(Scene* pScene);
             GameObject(const GameObject& other);
             virtual ~GameObject();
-            int getNumInstances();
             ELayers getLayer();
             void destroy(); 
             virtual void update(float dt);

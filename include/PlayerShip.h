@@ -97,6 +97,7 @@ namespace SpaceEngine {
         public:
             virtual void execute(void* actor) override
             {
+                
                 PlayerShip* ship = static_cast<PlayerShip*>(actor);
                 ship->Fire();
             }

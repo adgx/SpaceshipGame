@@ -157,7 +157,7 @@ namespace SpaceEngine {
 
     void PlayerShip::Fire()
     {
-        if(!pScene)
+        if(pScene)
         {
             pScene->requestInstantiate(m_pBullet);
         }
