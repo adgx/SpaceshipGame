@@ -18,23 +18,21 @@ namespace SpaceEngine
 
     UIBase::UIBase(UIMaterial* pUIMaterial):UIBase()
     {
-        pUIMeshRend = new UIMeshRenderer();
         pUIMeshRend->bindMaterial(pUIMaterial);
         
         if(!pUIMaterial->pShader)
             pUIMaterial->pShader = ShaderManager::findShaderProgram("ui");
         
-        pUITransf = new UITransform();
         Texture* pTex = pUIMaterial->getTexture("ui_tex");
         int w = 0;
         int h = 0;
         pTex->getImageSize(w, h);
-        pUITransf->setWidth(w);
-        pUITransf->setHeight(h);
-
+        pUITransf->setWidth(static_cast<float>(w));
+        pUITransf->setHeight(static_cast<float>(h));
+        pUITransf->setPos({0.f, 0.f});
     }
 
-    UIBase::UIBase(Vector2 posAncor, UIMaterial* pUIMaterial)
+    UIBase::UIBase(Vector2 posAncor, Vector2 pos, UIMaterial* pUIMaterial)
     {
         pUIMeshRend = new UIMeshRenderer();
         pUIMeshRend->bindMaterial(pUIMaterial);
@@ -43,13 +41,14 @@ namespace SpaceEngine
             pUIMaterial->pShader = ShaderManager::findShaderProgram("ui");
         
         pUITransf = new UITransform();
-        pUITransf->setAnchor(posAncor);
         Texture* pTex = pUIMaterial->getTexture("ui_tex");
         int w = 0;
         int h = 0;
+        pUITransf->setAnchor(posAncor);
         pTex->getImageSize(w, h);
-        pUITransf->setWidth(w);
-        pUITransf->setHeight(h);
+        pUITransf->setWidth(static_cast<float>(w));
+        pUITransf->setHeight(static_cast<float>(h));
+        pUITransf->setPos(pos);
     }
 
     UIBase::~UIBase()
@@ -61,26 +60,36 @@ namespace SpaceEngine
     //---------------------------------//
     //-----------UITrasform------------//
     //---------------------------------//
-    int UITransform::resWidth = 0; 
-    int UITransform::resHeight = 0;
+
     Rect* UITransform::getRect()
     {
-        if(resWidth !=WindowManager::width || resHeight != WindowManager::height)
-        {
-            resWidth = WindowManager::width;
-            resHeight = WindowManager::height;
-            dirty = true;
-        }
-
         if((dirty))
         {
-            float w = size.x * WindowManager::width;
-            float h = size.y * WindowManager::height;
-            //x and y are the top left of the quad
-            float x = anchor.x * WindowManager::width;
-            float y = anchor.y * WindowManager::height;
+            if(!fill)
+            {
+                float scaleX = WindowManager::width / static_cast<float>(REF_WIDTH);
+                float scaleY = WindowManager::height / static_cast<float>(REF_HEIGHT);
+                float scale = std::min(scaleX, scaleY);
 
-            rectCached = Rect(x, y, w, h);
+                //offset when change the resolution
+                float offsetX = (WindowManager::width - REF_WIDTH * scale) * 0.5f;
+                float offsetY = (WindowManager::height - REF_HEIGHT * scale) * 0.5f;
+                //anchor valuation
+                float anchorX = anchor.x * REF_WIDTH;
+                float anchorY = anchor.y * REF_HEIGHT;
+                //space postion
+                float x = (anchorX + pos.x) * scale + offsetX;
+                float y = (anchorY + pos.y) * scale + offsetY;
+                //size valuation
+                float w = size.x * scale;
+                float h = size.y * scale;
+                
+                rectCached = Rect(x, y, w, h);
+            }
+            else rectCached = Rect(0.f, 
+                0.f, 
+                static_cast<float>(WindowManager::width), 
+                static_cast<float>(WindowManager::height));
             dirty = false;
         }
 
@@ -130,24 +139,11 @@ namespace SpaceEngine
     //---------------------------------//
     //-------------Button--------------//
     //---------------------------------//
-    Button::Button(Vector2 anchor, UIButtonMaterial* pMat):UIBase(anchor, pMat)
-    {
-        pUITransf->setAnchor(anchor);
-    }
+    Button::Button(Vector2 anchor, Vector2 pos, UIButtonMaterial* pMat):UIBase(anchor, pos, pMat){}
 
-    Button::Button(Vector2 anchor, UIButtonMaterial* pMat, std::function<bool()> func):Button(anchor, pMat)
+    Button::Button(Vector2 anchor, Vector2 pos, UIButtonMaterial* pMat, std::function<bool()> func):Button(anchor, pos, pMat)
     {
         onClick = func; 
-    }
-
-    Button::Button(Vector2 anchor, Vector2 size)
-    {
-        pUITransf->setAnchor(anchor);
-        pUITransf->setSize(size);
-        UIButtonMaterial* pMat = MaterialManager::createMaterial<UIButtonMaterial>(std::to_string(reinterpret_cast<std::uintptr_t>(this)));
-        pUIMeshRend->bindMaterial(pMat);
-        if(!pMat->pShader)
-            pMat->pShader = ShaderManager::findShaderProgram("uiButton");
     }
 
     bool Button::update(int mx, int my)
@@ -174,22 +170,13 @@ namespace SpaceEngine
         return hovered;
     }
 
-
-
-
     //---------------------------------//
     //-----------Background------------//
     //---------------------------------//
-    Background::Background()
-    {
-        pUITransf->setAnchor(Vector2{0.f, 0.f});
-        pUITransf->setSize(Vector2{1.f, 1.f});
-    }
 
     Background::Background(UIMaterial* pUIMaterial):UIBase(pUIMaterial)
     {
-        pUITransf->setAnchor(Vector2{0.f, 0.f});
-        pUITransf->setSize(Vector2{1.f, 1.f});
+        pUITransf->setFill(true);
     }
 
     //---------------------------------//
@@ -333,6 +320,14 @@ namespace SpaceEngine
         return uiRendObj;
     }
 
+    void UINavigator::notifyChangeRes()
+    {
+        for(Button* button : m_vecButtons)
+        {
+            button->pUITransf->setDirty(true);
+        }
+    }
+
     //-------------------------------------//
     //---------------UILayout--------------//
     //-------------------------------------//
@@ -364,7 +359,6 @@ namespace SpaceEngine
 
         if(m_pNavigator)
         {
-
             std::vector<UIRenderObject> vecUIRendObjNav;
             vecUIRendObjNav = m_pNavigator->gatherUIRenderables();
             
@@ -377,5 +371,19 @@ namespace SpaceEngine
             
         return vecUIRenderObj;
     }
+
+    void UILayout::notifyChangeRes()
+    {
+        for(UIBase* pUIElement : m_vecUIElements)
+        {
+            pUIElement->pUITransf->setDirty(true);
+        }
+
+        if(m_pNavigator)
+        {
+            m_pNavigator->notifyChangeRes();
+        }
+    }
+
 
 }

@@ -1,5 +1,6 @@
 #include "windowManager.h"
 #include "log.h"
+#include "sceneManager.h"
 
 namespace SpaceEngine
 {
@@ -150,6 +151,8 @@ namespace SpaceEngine
                 static_cast<float>(width),
                 static_cast<float>(height),
                 0.0f);
+            Scene* pScene = SceneManager::GetActiveScene();
+            if(pScene)pScene->notifyChangeRes();
         }
     }
 
@@ -171,6 +174,8 @@ namespace SpaceEngine
                     static_cast<float>(mode->width),
                     static_cast<float>(mode->height),
                     0.0f);
+                Scene* pScene = SceneManager::GetActiveScene();
+                if(pScene)pScene->notifyChangeRes();
         }
 
     }

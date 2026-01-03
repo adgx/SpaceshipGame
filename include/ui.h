@@ -12,6 +12,9 @@
 
 namespace SpaceEngine
 {
+    //resolution used in figma
+    constexpr int REF_WIDTH  = 1920;
+    constexpr int REF_HEIGHT = 1080;
     //px screen info
     struct Rect
     {
@@ -32,57 +35,41 @@ namespace SpaceEngine
         }
         //add Vector2
         Vector2 pos = Vector2{0.f, 0.f};
-        Vector2 size = Vector2{1.f, 1.f}; //width, height 
+        Vector2 size = Vector2{0.f, 0.f}; //width, height 
     };
 
     class UITransform
     {
         public:
-            template<typename T>
-            void setWidth(T width)
+            inline void setWidth(float width)
             {
-                static_assert(std::is_same_v<T, int> || std::is_same_v<T, float>,
-                      "T must be int or float");
                 dirty = true;
-                if constexpr (std::is_same_v<T, int>)
-                    size.x = std::clamp(width/static_cast<float>(WindowManager::width), 0.f, 1.f);
-                else if constexpr (std::is_same_v<T, float>)
-                    size.x = std::clamp(width, 0.f, 1.f);
+                size.x = width;
             }
 
-            template<typename T>
-            void setHeight(T height)
+            inline void setHeight(float height)
             {
-                static_assert(std::is_same_v<T, int> || std::is_same_v<T, float>,
-                      "T must be int or float");
                 dirty = true;
-                if constexpr (std::is_same_v<T, int>)
-                    size.y = std::clamp(height/static_cast<float>(WindowManager::height), 0.f, 1.f);
-                else if constexpr (std::is_same_v<T, float>)
-                    size.y = std::clamp(height, 0.f, 1.f);
+                size.y = height;
+            }
+            
+            inline void setPos(Vector2 pos)
+            {
+                dirty = true;
+                this->pos = pos;
             }
 
-            template<typename T>
-            T getWidth()
+            inline void setFill(bool flag)
             {
-                static_assert(std::is_same_v<T, int> || std::is_same_v<T, float>,
-                      "T must be int or float");
-                if constexpr (std::is_same_v<T, int>)
-                    return static_cast<int>(size.x * WindowManager::width);
-                else if constexpr (std::is_same_v<T, float>)
-                    return size.x;
+                dirty = true;
+                fill = flag;
             }
 
-            template<typename T>
-            T getHeight()
-            {
-                static_assert(std::is_same_v<T, int> || std::is_same_v<T, float>,
-                      "T must be int or float");
-                if constexpr (std::is_same_v<T, int>)
-                    return static_cast<int>(size.y * WindowManager::width);
-                else if constexpr (std::is_same_v<T, float>)
-                    return size.y;
-            }
+            inline void setDirty(bool flag) { dirty = flag;}
+            inline Vector2 getPos(){return pos;}
+            inline float getWidth(){return size.x;}
+            inline float getHeight(){return size.y;}
+            inline bool getFill(){return fill;}
 
             void setAnchor(Vector2 anchor);
             void setSize(Vector2 size);
@@ -95,14 +82,13 @@ namespace SpaceEngine
 
         private:
             //UILayout 
-            //relative to screen info-> mapping the screen to the range [0, 1]
-            Vector2 anchor = {0.5f, 0.5f}; // normalized 0..1
-            Vector2 offset = {0, 0};       // pixel offset
-            Vector2 size = {0.2f, 0.1f};   // normalized width/height (0..1)
+            //relative to screen info-> mapping the screen to the range [0, 1] to ref resolution
+            Vector2 anchor = {0.f, 0.f}; // normalized 0..1 
+            Vector2 size = {0.f, 0.f};   // not normalizated 
+            Vector2 pos = {0.f, 0.f};
             Rect rectCached;
             bool dirty = true;
-            static int resWidth; 
-            static int resHeight; 
+            bool fill = false;
     };
 
     class UIBase
@@ -110,7 +96,8 @@ namespace SpaceEngine
         public:
             UIBase();
             UIBase(UIMaterial* pUIMaterial);
-            UIBase(Vector2 posAncor, UIMaterial* pUIMaterial);
+            //posAncor is in the range[0,1], pos is in px
+            UIBase(Vector2 posAncor, Vector2 pos, UIMaterial* pUIMaterial);
             ~UIBase();
             UIMeshRenderer* pUIMeshRend = nullptr;
             UITransform* pUITransf = nullptr;    
@@ -119,7 +106,6 @@ namespace SpaceEngine
     class Background : public UIBase
     {
         public:
-            Background();
             Background(UIMaterial* pUIMaterial);
             ~Background() = default;
     };
@@ -127,9 +113,8 @@ namespace SpaceEngine
     class Button : public UIBase
     {
         public: 
-            Button(Vector2 anchor, Vector2 size);
-            Button(Vector2 anchor, UIButtonMaterial* pMat);
-            Button(Vector2 anchor, UIButtonMaterial* pMat, std::function<bool()> func);
+            Button(Vector2 anchor, Vector2 pos, UIButtonMaterial* pMat);
+            Button(Vector2 anchor, Vector2 pos, UIButtonMaterial* pMat, std::function<bool()> func);
             ~Button() = default;
             bool update(int mx, int my);
             bool isHovered();
@@ -158,6 +143,7 @@ namespace SpaceEngine
             UINavigator();
             ~UINavigator();
             std::vector<UIRenderObject> gatherUIRenderables();
+            void notifyChangeRes();
             void addButton(Button* button);
             void update();
         private:
@@ -266,7 +252,6 @@ namespace SpaceEngine
                 SPACE_ENGINE_ERROR("UIElement not valid!");
             }
 
-            int removeUIElement(const UIBase* pUIBase);
             inline void update()
             {
                 if(m_pNavigator)
@@ -274,8 +259,9 @@ namespace SpaceEngine
                     m_pNavigator->update();
                 }
             }
+            void notifyChangeRes();
+            int removeUIElement(const UIBase* pUIBase);
             std::vector<UIRenderObject> gatherUIRenderables();
-
         private:
             std::vector<UIBase*> m_vecUIElements;
             UINavigator* m_pNavigator = nullptr;

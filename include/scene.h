@@ -46,7 +46,7 @@ namespace SpaceEngine
             inline void setNameScene(const std::string& name){this->name = name;}
             inline std::string getNameScene() const{return name;}
             inline Skybox* getSkybox() const{return pSkybox;}
-
+            void notifyChangeRes();
             template<typename T>
             void addSceneComponent(T sceneComponent)
             {

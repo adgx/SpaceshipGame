@@ -170,6 +170,11 @@ namespace SpaceEngine
         return 0;
     }
 
+    Scene* SceneManager::GetActiveScene()
+    {
+        return m_currScene;
+    }
+
 
 
 }

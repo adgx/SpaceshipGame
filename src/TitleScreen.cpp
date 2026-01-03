@@ -44,13 +44,15 @@ namespace SpaceEngine{
         pExitMat->addTexture("ui_hover_tex", pTexExit);
         //Creation of the UI button
         //pos: x:153 y:330 | res x:1440 y:1024 | space between buttons 0.04
-        Button* pStart = new Button({0.11, 0}, 
+        Button* pStart = new Button({0.f, 0.f},
+            {153.f, 330.f},
             pStartMat, 
             [this]() {return StartNewGame();}
         ); 
         //pos: x:153 y:464
         Button* pExit = new Button(
-            {0.11, 0.453}, 
+            {0.f, 0.f}, 
+            {153.f, 464.f}, 
             pExitMat, 
             [this]() {return ExitGame();}
         );
