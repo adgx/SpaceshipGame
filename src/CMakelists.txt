@@ -38,7 +38,8 @@ target_link_libraries(Main PRIVATE WindowManager
                         PRIVATE LogManager
                         PRIVATE InputManager
                         PRIVATE SceneManager
-                        PRIVATE Mesh)
+                        PRIVATE Mesh
+                        PRIVATE AudioManager)
 set_target_properties(App PROPERTIES FOLDER "App")
 
 #ShaderProgram

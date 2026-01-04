@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <AL/al.h>
 #include <AL/alc.h>
+#include <AL/al.h>
 
 namespace SpaceEngine{
     class AudioManager {

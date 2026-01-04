@@ -9,7 +9,6 @@
 #include "shader.h"
 #include "Asteroid.h"
 #include "EnemyShip.h"
-#include "managers/windowManager.h"
 #include "managers/audioManager.h"
 #include <vector>
 #include <string>
@@ -119,14 +118,6 @@ namespace SpaceEngine
             void Update(float dt);
 
         private:
-            
-
-            PhysicsManager* pPhyManager = nullptr;
-            void processDestroyQ();
-            void processInstantiateQ(float dt);
-
-            
-            
             struct SpawnRequest
             {
                 float timeRemaining = 0.f;

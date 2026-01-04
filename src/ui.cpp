@@ -4,6 +4,7 @@
 #include "app.h"
 #include "renderer.h"
 #include "shader.h"
+#include "managers/windowManager.h"
 
 namespace SpaceEngine
 {

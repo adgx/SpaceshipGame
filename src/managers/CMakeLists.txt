@@ -45,7 +45,8 @@ target_link_libraries(WindowManager PUBLIC glfw
     PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
     PUBLIC Utils
-    PRIVATE LogManager)
+    PRIVATE LogManager
+    PUBLIC AudioManager)
 set_target_properties(WindowManager PROPERTIES FOLDER "WindowManager")
 
 #InputManager
@@ -61,10 +62,8 @@ target_include_directories(AudioManager PUBLIC
     ${CMAKE_SOURCE_DIR}/include/managers
     ${openal_SOURCE_DIR}/include
 )
-
 target_link_libraries(AudioManager 
-    PUBLIC WindowManager
-    PUBLIC OpenAL
+    PUBLIC OpenAL::OpenAL
     PUBLIC LogManager)
 set_target_properties(AudioManager PROPERTIES FOLDER "AudioManager")
 #SceneManager
@@ -74,5 +73,6 @@ target_include_directories(SceneManager PRIVATE ${CMAKE_SOURCE_DIR}/include/mana
 target_link_libraries(SceneManager PRIVATE LogManager
                                     PRIVATE Mesh
                                     PRIVATE UI
+                                    PUBLIC AudioManager
                                     )
 set_target_properties(SceneManager PROPERTIES FOLDER "SceneManager")

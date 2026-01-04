@@ -5,7 +5,6 @@
 #include "mesh.h"
 #include "transform.h"
 #include "utils/utils.h"
-#include "managers/windowManager.h"
 #include "managers/inputManager.h"
 #include "log.h"
 

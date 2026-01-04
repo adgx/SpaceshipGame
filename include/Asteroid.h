@@ -21,9 +21,7 @@ namespace SpaceEngine {
         virtual void update(float dt) override;
         virtual void onCollisionEnter(Collider* col) override;
 
-        RenderObject getRenderObject();
-
-        void SetSpawnArea(float width, float height) {
+        inline void SetSpawnArea(float width, float height) {
             m_spawnRangeX = width / 2.0f;
             m_spawnRangeY = height / 2.0f;
         }

@@ -220,7 +220,7 @@ namespace SpaceEngine
 
             Asteroid* pAsteroid = new Asteroid(this, "Asteroid_LowPoly.obj");
             
-            pAsteroid->Init(); 
+            pAsteroid->Init(Vector3(x, y, z)); 
             pAsteroid->getTransform()->setWorldPosition(Vector3(x, y, z));
             
             // per avere asteroidi di diverse dimensioni
