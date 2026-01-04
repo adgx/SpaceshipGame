@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <random>
 #include "gameObject.h"
+#include "scene.h"
 #include "collisionDetection.h"
 #include "renderer.h"
 
@@ -15,7 +16,7 @@ namespace SpaceEngine {
         Asteroid(Scene* pScene, std::string filePathModel);
         virtual ~Asteroid();
 
-        void Init();
+        void Init(Vector3 startPos);
         
         virtual void update(float dt) override;
         virtual void onCollisionEnter(Collider* col) override;

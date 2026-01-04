@@ -80,14 +80,14 @@ namespace SpaceEngine
             }
             bool pendingDestroy = false;
         private:
-            //Attention
-            
+        
         protected:
-            GameObject(const std::string& filePathModel);
-            Transform* m_pTransform;
-            Mesh* m_pMesh = nullptr;
-            Collider* m_pCollider = nullptr;
-            Scene* pScene = nullptr;
-            ELayers m_layer = ELayers::DEFAULT_LAYER;
+        GameObject(const std::string& filePathModel);
+        Transform* m_pTransform;
+        Mesh* m_pMesh = nullptr;
+        Collider* m_pCollider = nullptr;
+        ELayers m_layer = ELayers::DEFAULT_LAYER;
+        //Attention
+        Scene* pScene = nullptr;
     };
 }

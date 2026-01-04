@@ -26,6 +26,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(LogManager PUBLIC MESHES_PATH="${CMAKE_SOURCE_DIR}/assets/meshes/")
     target_compile_definitions(LogManager PUBLIC TEXTURES_PATH="${CMAKE_SOURCE_DIR}/assets/textures/")
     target_compile_definitions(LogManager PUBLIC FONTS_PATH="${CMAKE_SOURCE_DIR}/assets/fonts/")
+    target_compile_definitions(LogManager PUBLIC AUDIO_PATH="${CMAKE_SOURCE_DIR}/assets/audio/")
     target_compile_definitions(LogManager PUBLIC PRODUCTION_BUILD=0)
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_definitions(LogManager PUBLIC RESOURCE_PATH="./assets/")
@@ -33,8 +34,10 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_definitions(LogManager PUBLIC MESHES_PATH="./assets/meshes/")
     target_compile_definitions(LogManager PUBLIC TEXTURES_PATH="./assets/textures/")
     target_compile_definitions(LogManager PUBLIC FONTS_PATH="./assets/fonts/")
+    target_compile_definitions(LogManager PUBLIC AUDIO_PATH="./assets/audio/")
     target_compile_definitions(LogManager PUBLIC PRODUCTION_BUILD=1)
 endif()
+
 #WindowManager
 add_library(WindowManager STATIC windowManager.cpp)
 target_include_directories(WindowManager PRIVATE ${CMAKE_SOURCE_DIR}/include/managers)
@@ -44,12 +47,26 @@ target_link_libraries(WindowManager PUBLIC glfw
     PUBLIC Utils
     PRIVATE LogManager)
 set_target_properties(WindowManager PROPERTIES FOLDER "WindowManager")
+
 #InputManager
 add_library(InputManager STATIC inputManager.cpp)
 target_include_directories(InputManager PRIVATE ${CMAKE_SOURCE_DIR}/include/managers)
 target_link_libraries(InputManager PRIVATE WindowManager
     PRIVATE LogManager)
 set_target_properties(InputManager PROPERTIES FOLDER "InputManager")
+
+#AudioManager
+add_library(AudioManager STATIC audioManager.cpp)
+target_include_directories(AudioManager PUBLIC 
+    ${CMAKE_SOURCE_DIR}/include/managers
+    ${openal_SOURCE_DIR}/include
+)
+
+target_link_libraries(AudioManager 
+    PUBLIC WindowManager
+    PUBLIC OpenAL
+    PUBLIC LogManager)
+set_target_properties(AudioManager PROPERTIES FOLDER "AudioManager")
 #SceneManager
 add_library(SceneManager STATIC sceneManager.cpp ../scene.cpp)
 target_include_directories(SceneManager PRIVATE ${CMAKE_SOURCE_DIR}/include/managers

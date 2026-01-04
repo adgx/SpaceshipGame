@@ -84,6 +84,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype
     GIT_TAG VER-2-14-1
 )
+FetchContent_MakeAvailable(freetype)
 
 #Fetch OpenAL
 FetchContent_Declare(
@@ -91,6 +92,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/kcat/openal-soft
     GIT_TAG 1.24.3
 )
+FetchContent_MakeAvailable(openal)
 
 add_subdirectory("${glad_SOURCE_DIR}/cmake" glad_cmake)
 glad_add_library(glad_gl_core_33 REPRODUCIBLE LOADER API gl:core=3.3)

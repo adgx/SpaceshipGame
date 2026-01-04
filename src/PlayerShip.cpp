@@ -12,8 +12,14 @@ namespace SpaceEngine {
     PlayerShip::PlayerShip(Scene* pScene, std::string filePathModel):GameObject(pScene)
     {
         m_pMesh = MeshManager::loadMesh(filePathModel);
+        if (m_pMesh) {
         BaseMaterial* pMat = m_pMesh->getMaterialBySubMeshIndex(0);
-        pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
+        if(pMat) {
+            pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
+        }
+        } else {
+            SPACE_ENGINE_ERROR("CRITICO: Impossibile caricare mesh PlayerShip: {}", filePathModel);
+        }
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
         m_pBullet = new Bullet(pScene, "Bullet.obj");
@@ -99,7 +105,9 @@ namespace SpaceEngine {
         if (m_pTransform) 
         {
             m_pTransform->setLocalPosition(Vector3(0.0f, 0.0f, -8.0f));
-        }
+            m_pTransform->setLocalScale(Vector3(1.0f));
+            m_pTransform->getWorldMatrix();
+        }     
     }
 
     RenderObject PlayerShip::getRenderObject() 

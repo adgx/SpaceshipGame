@@ -9,6 +9,8 @@
 #include "shader.h"
 #include "Asteroid.h"
 #include "EnemyShip.h"
+#include "managers/windowManager.h"
+#include "managers/audioManager.h"
 #include <vector>
 #include <string>
 #include <queue>
@@ -47,6 +49,9 @@ namespace SpaceEngine
             inline std::string getNameScene() const{return name;}
             inline Skybox* getSkybox() const{return pSkybox;}
             void notifyChangeRes();
+
+            void setAudioManager(AudioManager* am) { pAudioManager = am; }
+            AudioManager* getAudioManager() { return pAudioManager; }
             template<typename T>
             void addSceneComponent(T sceneComponent)
             {
@@ -115,6 +120,13 @@ namespace SpaceEngine
 
         private:
             
+
+            PhysicsManager* pPhyManager = nullptr;
+            void processDestroyQ();
+            void processInstantiateQ(float dt);
+
+            
+            
             struct SpawnRequest
             {
                 float timeRemaining = 0.f;
@@ -157,7 +169,7 @@ namespace SpaceEngine
             //cameras[0] is always the active camera
             vector<BaseCamera*> cameras;
             Skybox* pSkybox = nullptr;
-
+            AudioManager* pAudioManager = nullptr;
             //scene property
             bool active = true;
         protected:

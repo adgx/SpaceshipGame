@@ -91,9 +91,13 @@ namespace SpaceEngine
                 std::remove_if(gameObjects.begin(), gameObjects.end(),
                     [&](GameObject* pGameObj)
                     {
-                        bool flag; 
-                        if( flag = toDestroy.count(pGameObj) != 0; flag)
-                            pPhyManager->RemoveCollider(pGameObj->getComponent<Collider>());
+                        bool flag = toDestroy.count(pGameObj) != 0;
+                        if(flag){
+                            if (auto col = pGameObj->getComponent<Collider>())
+                                pPhyManager->RemoveCollider(col);
+                            
+                            delete pGameObj; 
+                        }
                         return flag; 
                     }),
                 gameObjects.end()

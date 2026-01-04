@@ -5,6 +5,7 @@
 #include "playerShip.h"
 #include "titleScreen.h"
 #include <vector>
+#include "audioManager.h"
 
 namespace SpaceEngine
 {
@@ -23,6 +24,17 @@ namespace SpaceEngine
         textureManager.Initialize();
         sceneManager.Initialize();
         
+        audioManager.Initialize();
+
+        audioManager.LoadSound("menu_music", "assets/audio/menu.wav");
+        audioManager.LoadSound("bg_music", "assets/audio/music_space.wav");
+        audioManager.LoadSound("shoot_player", "assets/audio/laser_player.wav");
+        audioManager.LoadSound("shoot_enemy", "assets/audio/laser_enemy.wav");
+        audioManager.LoadSound("enemy_explosion", "assets/audio/enemyexplosion.wav");
+        audioManager.LoadSound("asteroid_explosion", "assets/audio/asteroid_crash.wav");
+        audioManager.LoadSound("game_over", "assets/audio/game_over.wav");
+
+        audioManager.PlayMusic("bg_music", true);
         //Objects
         renderer = new Renderer();
         uiRenderer = new UIRenderer();
@@ -48,6 +60,7 @@ namespace SpaceEngine
         physicsManager.Shutdown();
         windowManager.Shutdown();
         logManager.Shutdown();
+        audioManager.Shutdown();
         delete renderer;
     }
     
@@ -56,6 +69,7 @@ namespace SpaceEngine
         state = EAppState::START;
         //initialize main scene
         pScene = new SpaceScene(&physicsManager);
+        pScene->setAudioManager(&audioManager);
         pScene->Init();
         //crea e inizializza il player
         PlayerShip* pPlayer = new PlayerShip(pScene, "TestCube.obj");
@@ -63,6 +77,7 @@ namespace SpaceEngine
         GL_CHECK_ERRORS();
         //add GameObject to the scene
         pScene->addSceneComponent<GameObject*>(pPlayer);
+
 
         //TODO: initialize correctly the camera please 
         PerspectiveCamera* pCamera = new PerspectiveCamera();
@@ -79,7 +94,6 @@ namespace SpaceEngine
         pLight = new Light(Vector3{10.f, -10.f, 0.f}, Vector3{1.f, 1.f, 1.f}); //right-bottom
         pScene->addSceneComponent<Light*>(pLight);
         pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{1.f, 1.f, 1.f}); //left-bottom
-        pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
         GL_CHECK_ERRORS();
 
         
@@ -140,13 +154,16 @@ namespace SpaceEngine
         {
             currentTime = static_cast<float>(glfwGetTime()); 
             float dt = currentTime - lastTime;
-            lastTime = static_cast<float>(glfwGetTime());
+            lastTime = currentTime;
            
             //collision/physic system
             accumulator += dt;
+            //SPACE_ENGINE_INFO("Accumulator: {}, dt: {}", accumulator, dt);
             while(accumulator >= fixed_dt)
             {
+                //SPACE_ENGINE_INFO("Physics Step Start");
                 physicsManager.Step(fixed_dt);
+                //SPACE_ENGINE_INFO("Physics Step End");
                 accumulator -= fixed_dt;
             }
 
@@ -155,6 +172,7 @@ namespace SpaceEngine
             InputHandle();
             inputHandler->handleInput();
 
+            //SPACE_ENGINE_INFO("Scene Update Start");
             //update game objects in the scene
             sceneManager.Update(dt);
 
