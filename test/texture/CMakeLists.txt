@@ -6,6 +6,7 @@ target_include_directories(TextureTest PRIVATE ${CMAKE_SOURCE_DIR}/include/
 target_link_libraries(TextureTest PRIVATE Texture
     PRIVATE glad_gl_core_33
     PRIVATE OpenGL::GL
+    PRIVATE App
     PRIVATE LogManager
     PRIVATE WindowManager)
     

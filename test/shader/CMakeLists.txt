@@ -6,6 +6,7 @@ target_include_directories(ShaderTest PRIVATE ${CMAKE_SOURCE_DIR}/include/
 target_link_libraries(ShaderTest PRIVATE ShaderProgram
     PRIVATE glad_gl_core_33
     PRIVATE OpenGL::GL
+    PRIVATE App
     PRIVATE LogManager
     PRIVATE WindowManager)
     
