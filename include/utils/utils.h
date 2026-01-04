@@ -20,6 +20,15 @@ namespace SpaceEngine
 
     namespace Math
     {
+        inline float fabs(float x)
+        {
+            uint32_t bits;
+            std::memcpy(&bits, &x, sizeof(bits));
+            bits &= 0x7FFFFFFF;
+            std::memcpy(&x, &bits, sizeof(x));
+            return x;
+        }
+
         inline Matrix4 aiMat4_2_Mat4(const aiMatrix4x4& m)
         {
             Matrix4 res;

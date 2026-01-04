@@ -161,9 +161,9 @@ namespace SpaceEngine
             Vector3 rightLocal() const { return localRot * Vector3(1.0f, 0.0f, 0.0f); }
             Vector3 upLocal() const { return localRot * Vector3(0.0f, 1.0f, 0.0f); }
 
-            Vector3 forwardWorld() const { return glm::normalize(Vector3(getWorldMatrix() * Vector4(0.0f, 0.0f, -1.0f, 0.0f))); }
-            Vector3 rightWorld() const { return glm::normalize(Vector3(getWorldMatrix() * Vector4(1.0f, 0.0f, 0.0f, 0.0f))); }
-            Vector3 upWorld() const { return glm::normalize(Vector3(getWorldMatrix() * Vector4(0.0f, 1.0f, 0.0f, 0.0f)));}
+            Vector3 forwardWorld() const { return glm::normalize(Vector3(0.0f, 0.0f, 1.0f)); }
+            Vector3 rightWorld() const { return glm::normalize(Vector3(1.0f, 0.0f, 0.0f)); }
+            Vector3 upWorld() const { return glm::normalize(Vector3(0.0f, 1.0f, 0.0f));}
 
             void lookAt(const Vector3& target, const Vector3& up = Vector3(0.0f, 1.0f, 0.0f)) 
             {

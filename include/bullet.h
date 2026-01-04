@@ -12,6 +12,7 @@ namespace SpaceEngine
             void onCollisionEnter(Collider* col) override;
 
         private:
-            float m_vel = 2.f;
+            float m_vel = 4.f;
+            float m_distCulling = 35.f;
     };
 }

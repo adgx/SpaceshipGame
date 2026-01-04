@@ -29,7 +29,7 @@ namespace SpaceEngine
 
         static bool pointInRect(const Rect& r, float x, float y)
         {
-            SPACE_ENGINE_DEBUG("Coordinates: x{} y{}", x, y);
+            //SPACE_ENGINE_DEBUG("Coordinates: x{} y{}", x, y);
             return x >= r.pos.x && x <= r.pos.x + r.size.x &&
                     y >= r.pos.y && y <= r.pos.y + r.size.y;
         }

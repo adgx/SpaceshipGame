@@ -557,15 +557,15 @@ namespace SpaceEngine
 
     void ShaderProgram::bindSubroutines()
     {
-        auto glError = glGetError();
+        GL_CHECK_ERRORS();
         if(vsIdxSubRoutUniform.size() > 0){
             glUniformSubroutinesuiv(GL_VERTEX_SHADER, static_cast<GLsizei>(vsIdxSubRoutUniform.size()), vsIdxSubRoutUniform.data());
-            glError = glGetError();
+            GL_CHECK_ERRORS();
         }
         if(fsIdxSubRoutUniform.size() > 0)
         {
             glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, static_cast<GLsizei>(fsIdxSubRoutUniform.size()), fsIdxSubRoutUniform.data());
-            glError = glGetError();
+            GL_CHECK_ERRORS();
         }
     }
 

@@ -17,11 +17,16 @@ namespace SpaceEngine {
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
         m_pBullet = new Bullet(pScene, "Bullet.obj");
-
-        m_speed = 15.0f;               
-        m_limitX = 7.0f;              
+        Transform* pTransformBullet = m_pBullet->getComponent<Transform>();
+        //set the parent of the bullet's trasform and place an offset 
+        pTransformBullet->setParent(m_pTransform);
+        pTransformBullet->setLocalPosition(pTransformBullet->getLocalPosition() + 
+            pTransformBullet->forwardLocal() * 1.5f);
+        pTransformBullet->rotateGlobal(90.f, {1.f, 0.f, 0.f});
+        m_speed = 15.f;               
+        m_limitX = 7.f;              
         m_limitY = 3.5f;               
-        m_shootCooldown = 0.0f;   
+        m_shootCooldown = 0.f;   
         
         //--------------------------------------------------------
         //-------------------set the InputHandler-----------------
