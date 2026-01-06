@@ -3,11 +3,13 @@
 
 namespace SpaceEngine
 {
-    void FontLoader::LoadFont(const std::string& nameFont)
-    {
-        FT_Library ft;
 
-        FT_CHECK(FT_Init_FreeType(&ft));
-        
+    void FontLoader::LoadFont(const std::string &nameFont)
+    {
+        std::map<char, Character> mapChars;
+        mapChars = TextureManager::loadFontChars(nameFont);
+
+        if (!mapChars.empty())
+            m_fonts[Utils::getFileNameNoExt(nameFont)] = mapChars;
     }
 }

@@ -15,6 +15,7 @@ namespace SpaceEngine
     using Vector2 = glm::vec2;
     using Vector3 = glm::vec3;
     using Vector4 = glm::vec4;
+    using Vector2i = glm::ivec2;
     using Quat = glm::quat;
     
 

@@ -68,6 +68,7 @@ target_link_libraries(Texture PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
     PUBLIC Utils
     PUBLIC STB
+    PUBLIC freetype
     PRIVATE LogManager)
 target_include_directories(Texture PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(Texture PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)
@@ -102,7 +103,7 @@ target_link_libraries(Font PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
     PRIVATE Mesh
     PUBLIC Utils
-    PRIVATE LogManager
+    PRIVATE Texture
     PUBLIC freetype)
 target_include_directories(Font PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(Font PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)

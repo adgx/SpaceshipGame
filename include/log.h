@@ -130,4 +130,5 @@ static const char* getGLErrorString(GLenum error)
     {                                                                   \
         if(int error = call; error)                                     \
             SPACE_ENGINE_FATAL("FreeType error: {} for " #call, error); \
+        exit(-1);                                                       \
     }while(0)  

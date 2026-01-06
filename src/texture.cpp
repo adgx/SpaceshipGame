@@ -2,6 +2,11 @@
 #include "utils/stb_image.h"
 #include "utils/utils.h"
 #include "log.h"
+#include "font.h"
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <array>
 #include <string_view>
 
@@ -9,10 +14,10 @@ constexpr std::size_t N_CUBEMAP_TEX = 6;
 
 namespace SpaceEngine
 {
-    Texture::Texture(GLenum textureTarget, const std::string& FileName)
+    Texture::Texture(GLenum textureTarget, const std::string &FileName)
     {
         this->textureTarget = textureTarget;
-        this->fileName      = fileName;
+        this->fileName = fileName;
     }
 
     Texture::Texture(GLenum textureTarget)
@@ -27,7 +32,7 @@ namespace SpaceEngine
 
     void Texture::bind() const
     {
-        if(textureObj!=0)
+        if (textureObj != 0)
             bindInternal(texUnit);
         else
         {
@@ -40,47 +45,44 @@ namespace SpaceEngine
         glActiveTexture(textureUnit);
         glBindTexture(textureTarget, textureObj);
     }
-    //Texture manager
-    std::unordered_map<std::string, Texture*> TextureManager::texMap;
-    
-    void TextureManager::insert(std::string& nameKey, Texture* pTex)
+    // Texture manager
+    std::unordered_map<std::string, Texture *> TextureManager::texMap;
+
+    void TextureManager::insert(std::string &nameKey, Texture *pTex)
     {
         auto it = texMap.find(nameKey);
-        if(it == texMap.end())
+        if (it == texMap.end())
         {
             texMap[nameKey] = pTex;
         }
     }
 
-
-    Texture* TextureManager::loadCubeMap(const std::string& nameDir)
+    Texture *TextureManager::loadCubeMap(const std::string &nameDir)
     {
-        if(!Utils::directoryExists(TEXTURES_PATH+nameDir))
+        if (!Utils::directoryExists(TEXTURES_PATH + nameDir))
         {
-            SPACE_ENGINE_ERROR("Dir Texture cubemap not found, dir{}", TEXTURES_PATH+nameDir);
+            SPACE_ENGINE_ERROR("Dir Texture cubemap not found, dir{}", TEXTURES_PATH + nameDir);
             exit(-1);
         }
 
-        Texture* pTex = new Texture(GL_TEXTURE_CUBE_MAP);
+        Texture *pTex = new Texture(GL_TEXTURE_CUBE_MAP);
         glGenTextures(1, &pTex->textureObj); // Genera l'ID della texture
-        glBindTexture(GL_TEXTURE_CUBE_MAP, pTex->textureObj); 
+        glBindTexture(GL_TEXTURE_CUBE_MAP, pTex->textureObj);
 
         SPACE_ENGINE_INFO("Loading cubemap texture");
-        constexpr std::array<const char*, N_CUBEMAP_TEX> faces = {
+        constexpr std::array<const char *, N_CUBEMAP_TEX> faces = {
             "/right.png",
             "/left.png",
             "/top.png",
             "/bottom.png",
             "/front.png",
-            "/back.png"
-        };
+            "/back.png"};
 
-
-        pTex->path = TEXTURES_PATH+nameDir;
-        for(int i = 0; i < N_CUBEMAP_TEX; i++)
+        pTex->path = TEXTURES_PATH + nameDir;
+        for (int i = 0; i < N_CUBEMAP_TEX; i++)
         {
-            
-            std::string fullPath = pTex->path + std::string(faces[i]);   
+
+            std::string fullPath = pTex->path + std::string(faces[i]);
             unsigned char *data = stbi_load(fullPath.c_str(), &pTex->imageWidth, &pTex->imageHeight, &pTex->imageBPP, 0);
             if (data)
             {
@@ -90,8 +92,8 @@ namespace SpaceEngine
                 else if (pTex->imageBPP == 1)
                     format = GL_RED;
                 // Sommando 'i', accediamo a destra, sinistra, sopra
-                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
-                            0, GL_RGB, pTex->imageWidth, pTex->imageHeight, 0, format, GL_UNSIGNED_BYTE, data);
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                             0, GL_RGB, pTex->imageWidth, pTex->imageHeight, 0, format, GL_UNSIGNED_BYTE, data);
                 auto flag = glGetError();
                 stbi_image_free(data);
             }
@@ -101,30 +103,29 @@ namespace SpaceEngine
                 stbi_image_free(data);
             }
 
-            
-            //capiamo
-            //stbi_set_flip_vertically_on_load(true);
+            // capiamo
+            // stbi_set_flip_vertically_on_load(true);
         }
-        
+
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        
+
         pTex->fileName = nameDir;
 
         insert(pTex->fileName, pTex);
-        
+
         return pTex;
     }
 
-    Texture* TextureManager::load(const std::string& path, bool isSRGB)
+    Texture *TextureManager::load(const std::string &path, bool isSRGB)
     {
-        Texture* pTex = new Texture(GL_TEXTURE_2D);
+        Texture *pTex = new Texture(GL_TEXTURE_2D);
         SPACE_ENGINE_INFO("Loading texture");
-        
-        if(!Utils::fileExists(path))
+
+        if (!Utils::fileExists(path))
         {
             SPACE_ENGINE_ERROR("File Texture not found, dir{}", path);
             exit(-1);
@@ -132,22 +133,24 @@ namespace SpaceEngine
         pTex->path = path;
         pTex->fileName = Utils::getFileNameFormPath(path);
 
-        if (!load(pTex, isSRGB)) {
+        if (!load(pTex, isSRGB))
+        {
             return nullptr;
         }
 
         insert(pTex->fileName, pTex);
-        
+
         return pTex;
     }
 
-    bool TextureManager::load(Texture* pTex, bool isSRGB)
+    bool TextureManager::load(Texture *pTex, bool isSRGB)
     {
-        unsigned char* pImageData = NULL;
+        unsigned char *pImageData = NULL;
         stbi_set_flip_vertically_on_load(0);
         pImageData = stbi_load(pTex->path.c_str(), &(pTex->imageWidth), &(pTex->imageHeight), &(pTex->imageBPP), 0);
 
-        if (!pImageData) {
+        if (!pImageData)
+        {
             SPACE_ENGINE_ERROR("Can't load texture from '{}' - {}", pTex->path, stbi_failure_reason());
             return false;
         }
@@ -155,15 +158,15 @@ namespace SpaceEngine
         SPACE_ENGINE_INFO("Loaded texture '{}' width {}, height {}, bpp {}", pTex->path, pTex->imageWidth, pTex->imageHeight, pTex->imageBPP);
         loadInternal(pTex, pImageData, isSRGB);
         stbi_image_free(pImageData);
-        
+
         return true;
     }
 
-    Texture* TextureManager::load(const std::string& texName, uint32_t bufferSize, void* pBufferData, bool isSRGB)
+    Texture *TextureManager::load(const std::string &texName, uint32_t bufferSize, void *pBufferData, bool isSRGB)
     {
-        Texture* pTex = new Texture(GL_TEXTURE_2D);
+        Texture *pTex = new Texture(GL_TEXTURE_2D);
         pTex->fileName = texName;
-        void* pImageData = stbi_load_from_memory((const stbi_uc*)pBufferData, bufferSize, &(pTex->imageWidth), &(pTex->imageHeight), &(pTex->imageBPP), 0);
+        void *pImageData = stbi_load_from_memory((const stbi_uc *)pBufferData, bufferSize, &(pTex->imageWidth), &(pTex->imageHeight), &(pTex->imageBPP), 0);
         loadInternal(pTex, pImageData, isSRGB);
         stbi_image_free(pImageData);
 
@@ -172,11 +175,9 @@ namespace SpaceEngine
         return pTex;
     }
 
-
-
-    Texture* TextureManager::loadRaw(const std::string& texName, int width, int height, int BPP, const unsigned char* pImageData, bool isSRGB)
+    Texture *TextureManager::loadRaw(const std::string &texName, int width, int height, int BPP, const unsigned char *pImageData, bool isSRGB)
     {
-        Texture* pTex = new Texture(GL_TEXTURE_2D);
+        Texture *pTex = new Texture(GL_TEXTURE_2D);
         pTex->fileName = texName;
 
         pTex->imageWidth = width;
@@ -188,43 +189,44 @@ namespace SpaceEngine
         return pTex;
     }
 
-    void TextureManager::loadInternal(Texture* pTex, const void* pImageData, bool isSRGB)
+    void TextureManager::loadInternal(Texture *pTex, const void *pImageData, bool isSRGB)
     {
         glGenTextures(1, &(pTex->textureObj));
         glBindTexture(pTex->textureTarget, pTex->textureObj);
 
         GLenum internalFormat = GL_NONE;
 
-        if (pTex->textureTarget == GL_TEXTURE_2D) 
+        if (pTex->textureTarget == GL_TEXTURE_2D)
         {
-            switch (pTex->imageBPP) 
+            switch (pTex->imageBPP)
             {
-                case 1: 
-                    {
-                        glTexImage2D(pTex->textureTarget, 0, GL_RED, pTex->imageWidth, pTex->imageHeight, 0, GL_RED, GL_UNSIGNED_BYTE, pImageData);
-                        GLint SwizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_RED };
-                        glTexParameteriv(pTex->textureTarget, GL_TEXTURE_SWIZZLE_RGBA, SwizzleMask);
-                    }
-                    break;
-
-                case 2:
-                    glTexImage2D(pTex->textureTarget, 0, GL_RG, pTex->imageWidth, pTex->imageHeight, 0, GL_RG, GL_UNSIGNED_BYTE, pImageData);
-                    break;
-
-                case 3:
-                    internalFormat = isSRGB ? GL_SRGB8 : GL_RGB8;
-                    glTexImage2D(pTex->textureTarget, 0, internalFormat, pTex->imageWidth, pTex->imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pImageData);
-                    break;
-
-                case 4:
-                    internalFormat = isSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
-                    glTexImage2D(pTex->textureTarget, 0, internalFormat, pTex->imageWidth, pTex->imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pImageData);
-                    break;
-
-                default: SPACE_ENGINE_FATAL("Support for BPP {} is not implemented\n", pTex->imageBPP);
+            case 1:
+            {
+                glTexImage2D(pTex->textureTarget, 0, GL_RED, pTex->imageWidth, pTex->imageHeight, 0, GL_RED, GL_UNSIGNED_BYTE, pImageData);
+                GLint SwizzleMask[] = {GL_RED, GL_RED, GL_RED, GL_RED};
+                glTexParameteriv(pTex->textureTarget, GL_TEXTURE_SWIZZLE_RGBA, SwizzleMask);
             }
-        } 
-        else 
+            break;
+
+            case 2:
+                glTexImage2D(pTex->textureTarget, 0, GL_RG, pTex->imageWidth, pTex->imageHeight, 0, GL_RG, GL_UNSIGNED_BYTE, pImageData);
+                break;
+
+            case 3:
+                internalFormat = isSRGB ? GL_SRGB8 : GL_RGB8;
+                glTexImage2D(pTex->textureTarget, 0, internalFormat, pTex->imageWidth, pTex->imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pImageData);
+                break;
+
+            case 4:
+                internalFormat = isSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+                glTexImage2D(pTex->textureTarget, 0, internalFormat, pTex->imageWidth, pTex->imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pImageData);
+                break;
+
+            default:
+                SPACE_ENGINE_FATAL("Support for BPP {} is not implemented\n", pTex->imageBPP);
+            }
+        }
+        else
         {
             SPACE_ENGINE_FATAL("Support for texture target {} is not implemented\n", pTex->textureTarget);
             exit(1);
@@ -241,10 +243,62 @@ namespace SpaceEngine
         glBindTexture(pTex->textureTarget, 0);
     }
 
-    Texture* TextureManager::findTexture(const std::string& texName)
+    std::map<char, Character> TextureManager::loadFontChars(const std::string &nameFont)
+    {
+        FT_Library ft;
+        // init the library
+        FT_CHECK(FT_Init_FreeType(&ft));
+        // load font
+        std::string fullPath = FONTS_PATH + nameFont;
+        FT_Face face;
+        FT_CHECK(FT_New_Face(ft, fullPath.c_str(), 0, &face));
+        FT_CHECK(FT_Set_Pixel_Sizes(face, 0, 48));
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        std::map<char, Character> mapChars;
+        // load first 128 characters of ASCII
+        for (unsigned char c = 0; c < 128; c++)
+        {
+            FT_CHECK(FT_Load_Char(face, c, FT_LOAD_RENDER));
+
+            // generate texture
+            Texture *pTex = new Texture(GL_TEXTURE_2D);
+            pTex->fileName = Utils::getFileNameNoExt(nameFont)+ "_" + static_cast<char>(c);
+            glGenTextures(1, &pTex->textureObj);
+            glBindTexture(pTex->textureTarget, pTex->textureObj);
+            glTexImage2D(GL_TEXTURE_2D,
+                         0,
+                         GL_RED,
+                         face->glyph->bitmap.width,
+                         face->glyph->bitmap.rows,
+                         0,
+                         GL_RED,
+                         GL_UNSIGNED_BYTE,
+                         face->glyph->bitmap.buffer);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            insert(pTex->fileName, pTex);
+            mapChars[c] = Character{pTex,
+            Vector2i(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+            Vector2i(face->glyph->bitmap_left, face->glyph->bitmap_top),
+            static_cast<unsigned int>(face->glyph->advance.x)};
+        }
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        FT_Done_Face(face);
+        FT_Done_FreeType(ft);
+
+        return mapChars;
+    }
+
+    Texture *TextureManager::findTexture(const std::string &texName)
     {
         auto it = texMap.find(texName);
-        if(it != texMap.end())
+        if (it != texMap.end())
         {
             return it->second;
         }
@@ -253,10 +307,9 @@ namespace SpaceEngine
 
     void TextureManager::Shutdown()
     {
-        for (auto& [name, pTex] : texMap)
+        for (auto &[name, pTex] : texMap)
             delete pTex;
         texMap.clear();
     }
-
 
 }
