@@ -7,6 +7,7 @@
 #include "utils/utils.h"
 #include "managers/inputManager.h"
 #include "log.h"
+#include "font.h"
 
 
 namespace SpaceEngine
@@ -89,6 +90,7 @@ namespace SpaceEngine
             bool dirty = true;
             bool fill = false;
     };
+
 
     class UIBase
     {
@@ -263,6 +265,9 @@ namespace SpaceEngine
             std::vector<UIRenderObject> gatherUIRenderables();
         private:
             std::vector<UIBase*> m_vecUIElements;
+            std::vector<Text*> m_vecText;
             UINavigator* m_pNavigator = nullptr;
     };
+
+    
 }

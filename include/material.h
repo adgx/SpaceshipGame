@@ -2,7 +2,11 @@
 #include "utils/utils.h"
 #include "shader.h"
 #include "texture.h"
+#include "font.h"
+#include "log.h"
+
 #include <variant>
+#include <map>
 
 namespace SpaceEngine
 {
@@ -97,17 +101,21 @@ namespace SpaceEngine
     class TextMaterial : public BaseMaterial
     {
         private:
-         TextMaterial()
+         TextMaterial(const std::string& nameFont)
          {
-            texs = 
-            {
-                {"text_tex", nullptr}
-            };
             props = 
             {
                 {"color_val", Vector3{1.f, 1.f, 1.f}}
             };
+
+            if(!FontLoader::getFont(nameFont))
+            {
+                SPACE_ENGINE_FATAL("Font: {} not loaded");
+                exit(-1);
+            }
          }
+
+         std::map<char, Character>* m_font = nullptr;
     };
 
     class PBRMaterial : public BaseMaterial
