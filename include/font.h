@@ -11,10 +11,10 @@ namespace SpaceEngine
 {
     struct Character
     {
-        Texture* pTex;
-        Vector2i size;
-        Vector2i bearing;
-        unsigned int advance;
+        Texture* pTex = nullptr;
+        Vector2i size = {0, 0};
+        Vector2i bearing = {0, 0};
+        unsigned int advance = 0;
     };
 
     class FontLoader

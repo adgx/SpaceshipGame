@@ -1,13 +1,15 @@
 #pragma once
 
 #include <string>
-
 #include <glad/gl.h>
 #include <unordered_map>
 #include <vector>
+#include <map>
 
 namespace SpaceEngine
 {
+    struct Character;
+
     class Texture
     {
     public:
