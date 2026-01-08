@@ -1,6 +1,7 @@
 #include "scene.h"
 #include <glad/gl.h>
 #include "log.h"
+#include "font.h"
 
 namespace SpaceEngine
 {
@@ -135,6 +136,15 @@ namespace SpaceEngine
                     std::move_iterator(vecUIRendObjs.end())
                 );
             }
+
+            if (std::vector<TextRenderObject> vecTextRendObjs = pLayout->gatherTextRenderables(); vecTextRendObjs.size())
+            {
+                textRenderables.insert(
+                    textRenderables.end(),
+                    std::move_iterator(vecTextRendObjs.begin()),
+                    std::move_iterator(vecTextRendObjs.end())
+                );
+            }
         }
     }
 
@@ -175,8 +185,14 @@ namespace SpaceEngine
         UIBase* healthIcon3 = new UIBase({0.f, 0.f},
             {248.f, 76.f}, 
             iconMat);
+
+        //Text
+        TextMaterial* pScoreMat = MaterialManager::createMaterial<TextMaterial>("ScoreMat", "Orbitron-Regular");
+        Text* pTextScore = new Text({0.f, 0.f}, {815.f, 93.f}, {10.f, 10.f}, pScoreMat);
+        pTextScore->setString("Score: ");
         UILayout* pUILayout = new UILayout();
         addSceneComponent(pUILayout);
+        pUILayout->addText(pTextScore);
         pUILayout->addUIElement(healthIcon1);
         pUILayout->addUIElement(healthIcon2);
         pUILayout->addUIElement(healthIcon3);

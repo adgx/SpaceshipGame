@@ -4,6 +4,7 @@
 #include "player.h"
 #include "playerShip.h"
 #include "titleScreen.h"
+#include "font.h"
 
 #include <vector>
 
@@ -69,6 +70,7 @@ namespace SpaceEngine
     void App::Start()
     {
         state = EAppState::START;
+        FontLoader::LoadFont("Orbitron-Regular.ttf");
         //initialize main scene
         pScene = new SpaceScene(&physicsManager);
         pScene->setAudioManager(&audioManager);

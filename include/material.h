@@ -101,8 +101,9 @@ namespace SpaceEngine
 
     class TextMaterial : public BaseMaterial
     {
+        friend class MaterialManager;
         public:
-        std::array<std::array<float, 4>, 6> bindCharacter(char c, float& offsetX, float resScale,  Transform2D& transf)
+        std::array<std::array<float, 4>, 6> bindCharacter(char c, float& offsetX, float resScale,  Vector2 pos, Transform2D& transf)
         {
             if(m_font.find(c) == m_font.end())
             {
@@ -113,8 +114,9 @@ namespace SpaceEngine
             Character ch = m_font[c];
             //bind texture
             ch.pTex->bind(); 
+            GL_CHECK_ERRORS();
             float xpos = offsetX + ch.bearing.x * transf.scale.x * resScale;
-            float ypos = transf.pos.y - (ch.size.y - ch.bearing.y) * transf.scale.x * resScale;
+            float ypos = pos.y - (ch.size.y - ch.bearing.y) * transf.scale.x * resScale;
 
             float w = ch.size.x * transf.scale.x * resScale;
             float h = ch.size.y * transf.scale.y * resScale;
@@ -130,7 +132,7 @@ namespace SpaceEngine
                 { xpos + w, ypos + h,   1.0f, 0.0f }
             }};
 
-            offsetX += (ch.advance) * transf.scale.x * resScale;
+            offsetX += (ch.advance >> 6) * transf.scale.x * resScale;
             
             return vertices;
         }
@@ -231,13 +233,20 @@ namespace SpaceEngine
             void Shutdown();
 
             template <typename T>
-            static T* createMaterial(const std::string name)
+            static T* createMaterial(const std::string name, const std::string nameFont = "")
             {
                 static_assert(std::is_base_of_v<BaseMaterial, T>);
 
                 if(materialsMap.find(name) == materialsMap.end())
                 {
-                    T* pMat = new T();
+                    T* pMat = nullptr;
+
+                    if constexpr (std::is_same_v<T, TextMaterial>)
+                    {
+                        pMat = new TextMaterial(nameFont);    
+                    }
+                    else pMat = new T();
+                    
                     pMat->name = name;
                     materialsMap[name] = pMat;
                     return pMat;   

@@ -215,6 +215,13 @@ namespace SpaceEngine
 
                     else{SPACE_ENGINE_ERROR("You can add only a one UINavigator per UILayout");}
                 }
+
+                
+            }
+
+            inline void addText(Text* pText)
+            {
+                m_vecText.push_back(pText);
             }
 
             template<typename T>

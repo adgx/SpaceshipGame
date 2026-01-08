@@ -115,6 +115,7 @@ namespace SpaceEngine
 
     void TextRenderer::render(const std::vector<TextRenderObject>& textRenderables)
     {
+        glDisable(GL_DEPTH_TEST);
         for(TextRenderObject textRendObj : textRenderables)
         {
             TextMaterial* pMat = textRendObj.pText->pTextMeshRend->getMaterial();
@@ -141,17 +142,24 @@ namespace SpaceEngine
                     Utils::applyRatioScreenRes(transf.anchor, transf.pos, resScale, finalOffset, finalPos);
                     transf.setDirty(false);
                 }
+                
+                offsetX = finalPos.x;
+                pMesh->bindVAO();
 
                 for(auto c = string.begin(); c != string.end(); ++c)
                 {
-                    pMesh->bindVAO();
-                    std::array<std::array<float, 4>, 6> data = pMat->bindCharacter(*c, offsetX, resScale, transf);
+                    GL_CHECK_ERRORS();
+                    std::array<std::array<float, 4>, 6> data = pMat->bindCharacter(*c, offsetX, resScale, finalPos, transf);
                     pMesh->subData(data);
+                    GL_CHECK_ERRORS();
                     pMesh->draw();
+                    GL_CHECK_ERRORS();
                 }
+                glBindVertexArray(0);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
             }
         }
-
+        glEnable(GL_DEPTH_TEST);
         glUseProgram(0);
     }
 };

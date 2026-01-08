@@ -736,7 +736,9 @@ namespace SpaceEngine
 
     void TextMesh::subData(const std::array<std::array<float, 4>, 6>& vertices)
     {
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*4*6, vertices.data());
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         GL_CHECK_ERRORS();
     }
 

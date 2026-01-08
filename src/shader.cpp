@@ -754,19 +754,21 @@ namespace SpaceEngine
 
     void ShaderManager::Initialize()
     {
-        auto flag = glGetError();
+        GL_CHECK_ERRORS();
         createShaderProgram("simple");
-        flag = glGetError();
+        GL_CHECK_ERRORS();
         createShaderProgram("ui");
-        flag = glGetError();
+        GL_CHECK_ERRORS();
         createShaderProgram("uiButton");
-        flag = glGetError();
+        GL_CHECK_ERRORS();
         createShaderProgram("simpleTex");
-        flag = glGetError();
+        GL_CHECK_ERRORS();
         createShaderProgram("pbr");
-        flag = glGetError();        
+        GL_CHECK_ERRORS();
         createShaderProgram("skybox");
-        flag = glGetError();
+        GL_CHECK_ERRORS();        
+        createShaderProgram("glyphs");
+        GL_CHECK_ERRORS();
     }
 
     void ShaderManager::Shutdown()
