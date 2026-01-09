@@ -7,9 +7,6 @@
 #include "light.h"
 #include "log.h"
 #include "shader.h"
-#include "Asteroid.h"
-#include "EnemyShip.h"
-#include "PlayerShip.h"
 #include "managers/audioManager.h"
 #include <vector>
 #include <string>
@@ -172,17 +169,7 @@ namespace SpaceEngine
     class ScoreSys : public Observer<GameObject, int>
     {
         public:
-            void onNotify(const GameObject& entity, const int& event) override
-            {
-                if(const Asteroid* pAsteroid = dynamic_cast<const Asteroid*>(&entity))
-                {
-                    m_score += static_cast<uint32_t>(event); 
-                }
-                else if(const EnemyShip* pEnemy = dynamic_cast<const EnemyShip*>(&entity))
-                {
-                    m_score += static_cast<uint32_t>(event); 
-                }
-            }
+            void onNotify(const GameObject& entity, const int& event) override;
         private:
             uint32_t m_score = 0; 
     };

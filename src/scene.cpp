@@ -2,6 +2,9 @@
 #include <glad/gl.h>
 #include "log.h"
 #include "font.h"
+#include "Asteroid.h"
+#include "EnemyShip.h"
+#include "PlayerShip.h"
 
 namespace SpaceEngine
 {
@@ -282,6 +285,18 @@ namespace SpaceEngine
         {
             if(pLayout->removeUIElement(pIcon2rm))
                 return;
+        }
+    }
+
+    void ScoreSys::onNotify(const GameObject& entity, const int& event)
+    {
+        if(const PlayerShip* pPlayer = dynamic_cast<const PlayerShip*>(&entity))
+        {
+            m_score += static_cast<uint32_t>(event); 
+        }
+        else if(const EnemyShip* pEnemy = dynamic_cast<const EnemyShip*>(&entity))
+        {
+            m_score += static_cast<uint32_t>(event); 
         }
     }
 }
