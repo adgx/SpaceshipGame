@@ -163,7 +163,7 @@ namespace SpaceEngine
 
         alSourcei(source, AL_BUFFER, buffer);
         alSourcei(source, AL_LOOPING, AL_FALSE); 
-        alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+        alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE); //TODO: da cambiare se vogliamo suoni 3D(proiettili direzzionali, ecc)
 
         alSourcef(source, AL_GAIN, 1.0f);
         alSourcePlay(source);
@@ -178,7 +178,7 @@ namespace SpaceEngine
         ALuint buffer = m_soundBuffers[name];
         alSourcei(m_musicSource, AL_BUFFER, buffer);
         alSourcei(m_musicSource, AL_LOOPING, loop ? AL_TRUE : AL_FALSE);
-        alSourcei(m_musicSource, AL_SOURCE_RELATIVE, AL_TRUE);
+        alSourcei(m_musicSource, AL_SOURCE_RELATIVE, AL_TRUE); //TODO: da cambiare se vogliamo musica 3D(probabilmente no)
         alSourcef(m_musicSource, AL_GAIN, 0.5f); // Volume musica al 50% di default
         alSourcePlay(m_musicSource);
 

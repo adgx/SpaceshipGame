@@ -2,22 +2,11 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include "scene.h"
 #include "GameObject.h"
 #include "renderer.h"
 #include "collisionDetection.h"
-
-struct Bullet {
-    glm::vec3 position;
-    glm::vec3 direction;
-    float speed;
-    float lifeTime; // Per distruggerlo dopo un po'
-    
-    // Semplice update integrato per brevità
-    void Update(float dt) {
-        position += direction * speed * dt;
-        lifeTime -= dt;
-    }
-};
+#include "bullet.h"
 
 namespace SpaceEngine {
 
@@ -34,14 +23,13 @@ namespace SpaceEngine {
 
         virtual void Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget = nullptr);
 
-        // Muove la nave e gestisce il timer di sparo
-        // Restituisce un vettore di proiettili (vuoto se non spara in questo frame)
-        //std::vector<Bullet> Update(float dt, glm::vec3 playerPos); //funzione update con sparo
-        virtual void update(float dt) override; //funzione update senza sparo
+        virtual void update(float dt) override;
 
         virtual void onCollisionEnter(Collider* col) override;
 
         RenderObject getRenderObject();
+
+        void Shoot();
 
         //da implementare: se supera la videocamera si deve distruggere
 
@@ -53,6 +41,8 @@ namespace SpaceEngine {
 
         float m_spawnRangeX;
         float m_spawnRangeY;
+
+        int m_health;
 
         float m_spawnZ, m_despawnZ;
 

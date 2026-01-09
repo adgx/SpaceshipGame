@@ -35,6 +35,8 @@ namespace SpaceEngine {
             m_pTransform->setLocalScale(glm::vec3(scaleVar));
         }
 
+        this->setLayer(ELayers::ASTEROID_LAYER);
+
         if (m_pTransform) {
          m_pTransform->getWorldMatrix(); 
         }

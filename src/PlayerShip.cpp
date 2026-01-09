@@ -159,11 +159,27 @@ namespace SpaceEngine {
     void PlayerShip::onCollisionEnter(Collider* col) 
     {
         SPACE_ENGINE_INFO("PlayerShip Collision onEnter Called with Collider: {}", reinterpret_cast<std::uintptr_t>(col));
-        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER || col->gameObj->getLayer() == ELayers::ASTEROID_LAYER)
+        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER || col->gameObj->getLayer() == ELayers::ASTEROID_LAYER || col->gameObj->getLayer() == ELayers::BULLET_LAYER)
         {
+            SPACE_ENGINE_INFO("Layer nemico confermato! Salute attuale: {}", m_health);
+        
             if(m_health > 0)
             {
                 m_health--;
+                SPACE_ENGINE_INFO("Danno subito! Nuova salute: {}", m_health);
+
+                if (SpaceScene* pSpaceScene = dynamic_cast<SpaceScene*>(pScene)) {
+                    SPACE_ENGINE_INFO("Chiamata a removeHealthIcon...");
+                    pSpaceScene->removeHealthIcon();
+                } else {
+                    SPACE_ENGINE_ERROR("ERRORE: pScene non è una SpaceScene!");
+                }
+
+                if(m_health <= 0)
+                {
+                    SPACE_ENGINE_INFO("GAME OVER - PlayerShip distrutta!");
+                    if(pScene) pScene->requestDestroy(this);
+                }
             }
         }
     }

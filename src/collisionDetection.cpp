@@ -53,8 +53,8 @@ namespace SpaceEngine
         
                 GameObject* A = pair.a->gameObj;
                 GameObject* B = pair.b->gameObj;
-                A->onCollisionEnter(pair.a);
-                B->onCollisionEnter(pair.b);
+                A->onCollisionEnter(pair.b);
+                B->onCollisionEnter(pair.a);
             }
         }
     }

@@ -245,7 +245,7 @@ namespace SpaceEngine
 
             EnemyShip* pEnemy = new EnemyShip(this, "TestCube.obj");
             
-            pEnemy->Init(Vector3(x, y, z), EnemyType::NORMAL, nullptr); // FIXME: Target null per ora
+            pEnemy->Init(Vector3(x, y, z), EnemyType::SPREAD, nullptr); // TODO: implementazione spawn diversi tipi di nemici
 
             requestInstantiate(pEnemy); 
         }
@@ -268,5 +268,4 @@ namespace SpaceEngine
                 return;
         }
     }
-
 }

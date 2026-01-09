@@ -9,6 +9,7 @@
 #include "shader.h"
 #include "Asteroid.h"
 #include "EnemyShip.h"
+#include "PlayerShip.h"
 #include "managers/audioManager.h"
 #include <vector>
 #include <string>
@@ -20,6 +21,7 @@ using namespace std;
 namespace SpaceEngine
 {
     class GameObject;
+    class PlayerShip;
     
     class Scene
     {
@@ -174,8 +176,9 @@ namespace SpaceEngine
             SpaceScene(PhysicsManager* pPhyManager);
             ~SpaceScene() = default;
             void removeHealthIcon();
+            void SetPlayer(PlayerShip* player) { m_pPlayer = player; }
             
-            private:
+        private:
             void UpdateScene(float dt) override;
             float randomRange(float min, float max); 
             void handleSpawning(float dt);
@@ -191,6 +194,7 @@ namespace SpaceEngine
             float m_gameAreaX = 50.0f; // Larghezza totale area spawn
             float m_gameAreaY = 30.0f; // Altezza totale area spawn
             std::stack<UIBase*> healthIcons;
+            PlayerShip* m_pPlayer = nullptr;
     };
 
     class DeathScene : public Scene

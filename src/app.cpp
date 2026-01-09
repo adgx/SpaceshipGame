@@ -74,6 +74,9 @@ namespace SpaceEngine
         //crea e inizializza il player
         PlayerShip* pPlayer = new PlayerShip(pScene, "TestCube.obj");
         pPlayer->Init();
+        if (SpaceScene* spaceScene = dynamic_cast<SpaceScene*>(pScene)) {
+            spaceScene->SetPlayer(pPlayer);
+        }
         GL_CHECK_ERRORS();
         //add GameObject to the scene
         pScene->addSceneComponent<GameObject*>(pPlayer);

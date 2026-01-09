@@ -22,6 +22,12 @@ namespace SpaceEngine
     {
         return m_layer;
     }
+
+    void GameObject::setLayer(ELayers layer)
+    {
+        m_layer = layer;
+    }
+    
     void GameObject::destroy()
     {
         if(!pendingDestroy)

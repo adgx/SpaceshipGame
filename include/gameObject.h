@@ -28,6 +28,7 @@ namespace SpaceEngine
             GameObject(const GameObject& other);
             virtual ~GameObject();
             ELayers getLayer();
+            void setLayer(ELayers layer);
             void destroy(); 
             virtual void update(float dt);
             virtual void fixedUpdate(float fixed_dt);
