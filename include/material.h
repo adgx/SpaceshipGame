@@ -2,7 +2,12 @@
 #include "utils/utils.h"
 #include "shader.h"
 #include "texture.h"
+#include "font.h"
+#include "log.h"
+
 #include <variant>
+#include <map>
+#include <array>
 
 namespace SpaceEngine
 {
@@ -94,6 +99,65 @@ namespace SpaceEngine
             friend class MaterialManager;
     };
 
+    class TextMaterial : public BaseMaterial
+    {
+        friend class MaterialManager;
+        public:
+        std::array<std::array<float, 4>, 6> bindCharacter(char c, float& offsetX, float resScale,  Vector2 pos, Transform2D& transf)
+        {
+            if(m_font.find(c) == m_font.end())
+            {
+                SPACE_ENGINE_FATAL("TextMaterial: Charater not found");
+                exit(-1);
+            }
+
+            Character ch = m_font[c];
+            //bind texture
+            ch.pTex->bind(); 
+            GL_CHECK_ERRORS();
+            float xpos = offsetX + ch.bearing.x * transf.scale.x * resScale;
+            float ypos = pos.y - (ch.size.y - ch.bearing.y) * transf.scale.y * resScale;
+
+            float w = ch.size.x * transf.scale.x * resScale;
+            float h = ch.size.y * transf.scale.y * resScale;
+        
+            std::array<std::array<float, 4>, 6> vertices
+            {{
+                { xpos,     ypos + h,   0.0f, 1.0f },
+                { xpos,     ypos,       0.0f, 0.0f },
+                { xpos + w, ypos,       1.0f, 0.0f },
+                
+                { xpos,     ypos + h,   0.0f, 1.0f },
+                { xpos + w, ypos,       1.0f, 0.0f },
+                { xpos + w, ypos + h,   1.0f, 1.0f }
+            }};
+
+            offsetX += (ch.advance >> 6) * transf.scale.x * resScale;
+            
+            return vertices;
+        }
+
+        private:
+         TextMaterial(const std::string& nameFont)
+         {
+            props = 
+            {
+                {"color_val", Vector3{1.f, 1.f, 1.f}}
+            };
+
+            auto pFont = FontLoader::getFont(nameFont); 
+            if(!pFont)
+            {
+                SPACE_ENGINE_FATAL("Font: {} not loaded");
+                exit(-1);
+            }
+
+            m_font = *pFont;
+         }
+
+         std::map<char, Character> m_font;
+    };
+
     class PBRMaterial : public BaseMaterial
     {
         private:
@@ -169,13 +233,20 @@ namespace SpaceEngine
             void Shutdown();
 
             template <typename T>
-            static T* createMaterial(const std::string name)
+            static T* createMaterial(const std::string name, const std::string nameFont = "")
             {
                 static_assert(std::is_base_of_v<BaseMaterial, T>);
 
                 if(materialsMap.find(name) == materialsMap.end())
                 {
-                    T* pMat = new T();
+                    T* pMat = nullptr;
+
+                    if constexpr (std::is_same_v<T, TextMaterial>)
+                    {
+                        pMat = new TextMaterial(nameFont);    
+                    }
+                    else pMat = new T();
+                    
                     pMat->name = name;
                     materialsMap[name] = pMat;
                     return pMat;   

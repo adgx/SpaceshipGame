@@ -122,6 +122,15 @@ static const char* getGLErrorString(GLenum error)
 #define GL_CHECK_ERRORS()                                     \
     do {                                                      \
         if (GLenum err = glGetError(); err != GL_NO_ERROR)    \
-            SPACE_ENGINE_FATAL("GL error: %s", getGLErrorString(err)); \
+            SPACE_ENGINE_FATAL("GL error: {}", getGLErrorString(err)); \
     } while (0)
 
+#define FT_CHECK(call)                                                  \
+    do                                                                  \
+    {                                                                   \
+        if(int error = call; error)                                     \
+        {                                                               \
+            SPACE_ENGINE_FATAL("FreeType error: {} for " #call, error); \
+            exit(-1);                                                   \
+        }                                                               \
+    }while(0)  

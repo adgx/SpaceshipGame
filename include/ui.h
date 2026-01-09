@@ -7,13 +7,11 @@
 #include "utils/utils.h"
 #include "managers/inputManager.h"
 #include "log.h"
+#include "font.h"
 
 
 namespace SpaceEngine
 {
-    //resolution used in figma
-    constexpr int REF_WIDTH  = 1920;
-    constexpr int REF_HEIGHT = 1080;
     //px screen info
     struct Rect
     {
@@ -90,6 +88,7 @@ namespace SpaceEngine
             bool fill = false;
     };
 
+
     class UIBase
     {
         public:
@@ -130,6 +129,7 @@ namespace SpaceEngine
     class UINavOnClickCommand;
     class UINavOnPressCommand;
     struct UIRenderObject;
+    struct TextRenderObject;
 
     class UINavigator
     {
@@ -215,6 +215,13 @@ namespace SpaceEngine
 
                     else{SPACE_ENGINE_ERROR("You can add only a one UINavigator per UILayout");}
                 }
+
+                
+            }
+
+            inline void addText(Text* pText)
+            {
+                m_vecText.push_back(pText);
             }
 
             template<typename T>
@@ -261,8 +268,13 @@ namespace SpaceEngine
             void notifyChangeRes();
             int removeUIElement(const UIBase* pUIBase);
             std::vector<UIRenderObject> gatherUIRenderables();
+            std::vector<TextRenderObject> gatherTextRenderables();
+
         private:
             std::vector<UIBase*> m_vecUIElements;
+            std::vector<Text*> m_vecText;
             UINavigator* m_pNavigator = nullptr;
     };
+
+    
 }

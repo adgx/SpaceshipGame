@@ -4,6 +4,7 @@
 #include "player.h"
 #include "playerShip.h"
 #include "titleScreen.h"
+#include "font.h"
 
 #include <vector>
 
@@ -26,18 +27,20 @@ namespace SpaceEngine
         
         audioManager.Initialize();
 
-        audioManager.LoadSound("menu_music", "assets/audio/menu.wav");
-        audioManager.LoadSound("bg_music", "assets/audio/music_space.wav");
-        audioManager.LoadSound("shoot_player", "assets/audio/laser_player.wav");
-        audioManager.LoadSound("shoot_enemy", "assets/audio/laser_enemy.wav");
-        audioManager.LoadSound("enemy_explosion", "assets/audio/enemyexplosion.wav");
-        audioManager.LoadSound("asteroid_explosion", "assets/audio/asteroid_crash.wav");
-        audioManager.LoadSound("game_over", "assets/audio/game_over.wav");
+        audioManager.LoadSound("menu_music", AUDIO_PATH"menu.wav");
+        audioManager.LoadSound("bg_music", AUDIO_PATH"music_space.wav");
+        audioManager.LoadSound("shoot_player", AUDIO_PATH"laser_player.wav");
+        audioManager.LoadSound("shoot_enemy", AUDIO_PATH"laser_enemy.wav");
+        audioManager.LoadSound("enemy_explosion", AUDIO_PATH"enemyexplosion.wav");
+        audioManager.LoadSound("asteroid_explosion", AUDIO_PATH"asteroid_crash.wav");
+        audioManager.LoadSound("game_over", AUDIO_PATH"game_over.wav");
 
         audioManager.PlayMusic("bg_music", true);
-        //Objects
+        //Renderer objects 
         renderer = new Renderer();
         uiRenderer = new UIRenderer();
+        textRenderer = new TextRenderer();
+
         SPACE_ENGINE_INFO("Initilization app done");
         //scene 
         SPACE_ENGINE_DEBUG("Start the initialization the scene");
@@ -67,6 +70,7 @@ namespace SpaceEngine
     void App::Start()
     {
         state = EAppState::START;
+        FontLoader::LoadFont("Orbitron-Regular.ttf");
         //initialize main scene
         pScene = new SpaceScene(&physicsManager);
         pScene->setAudioManager(&audioManager);
@@ -152,6 +156,7 @@ namespace SpaceEngine
         //Gathers
         std::vector<RenderObject> worldRenderables;
         std::vector<UIRenderObject> uiRenderables;
+        std::vector<TextRenderObject> textRenderables;
 
         while(!windowManager.WindowShouldClose())
         {
@@ -180,7 +185,7 @@ namespace SpaceEngine
             sceneManager.Update(dt);
 
             //collects the renderizable objects in the scene
-            sceneManager.GatherRenderables(worldRenderables, uiRenderables);
+            sceneManager.GatherRenderables(worldRenderables, uiRenderables, textRenderables);
             //gather scene object to rendering the scene
             RendererParams rParams{worldRenderables, 
                 *(sceneManager.GetLights()), 
@@ -192,7 +197,9 @@ namespace SpaceEngine
             GL_CHECK_ERRORS();
             uiRenderer->render(uiRenderables);
             GL_CHECK_ERRORS();
-
+            textRenderer->render(textRenderables);
+            GL_CHECK_ERRORS();
+            
             sceneManager.LateUpdate();
             
             windowManager.PollEvents();

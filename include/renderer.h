@@ -7,6 +7,7 @@
 #include "skybox.h"
 #include "ui.h"
 #include "light.h"
+#include "font.h"
 
 #include <vector>
 
@@ -16,8 +17,6 @@ namespace SpaceEngine
     struct RenderObject
     {
         Matrix4 modelMatrix;
-        //std::vector<Matrix4>modelMatrix;
-        //int instances = 0;
         Mesh* mesh = nullptr;
     };
 
@@ -26,6 +25,11 @@ namespace SpaceEngine
         UIMesh* pUIMesh = nullptr;
         UIMaterial* pMaterial = nullptr;
         Rect* pRect = nullptr;
+    };
+
+    struct TextRenderObject
+    {
+        Text* pText = nullptr;
     };
 
     struct RendererParams
@@ -48,5 +52,11 @@ namespace SpaceEngine
     {
         public:
             void render(const std::vector<UIRenderObject>& uiRenderables);
+    };
+
+    class TextRenderer
+    {
+        public:
+            void render(const std::vector<TextRenderObject>& textRenderables);
     };
 }

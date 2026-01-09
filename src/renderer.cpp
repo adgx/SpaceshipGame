@@ -87,6 +87,8 @@ namespace SpaceEngine
     void UIRenderer::render(const std::vector<UIRenderObject>& uiRenderables)
     {
         glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         for (const auto& ui : uiRenderables)
         {
             if (!ui.pUIMesh || !ui.pMaterial) continue;
@@ -107,8 +109,62 @@ namespace SpaceEngine
             GL_CHECK_ERRORS();
             glUseProgram(0);
         }
+        glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
-        
     }
 
+    void TextRenderer::render(const std::vector<TextRenderObject>& textRenderables)
+    {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        for(TextRenderObject textRendObj : textRenderables)
+        {
+            TextMaterial* pMat = textRendObj.pText->pTextMeshRend->getMaterial();
+            TextMesh* pMesh = textRendObj.pText->pTextMeshRend->getTextMesh();
+            ShaderProgram* pShader = pMat->getShader();
+            
+            if (pShader)
+            {
+                pShader->use();
+                pMat->bindingPropsToShader();
+                pShader->setUniform("projection", WindowManager::sceenProjMatrix);
+                pShader->setUniform("text_tex", 0);
+                std::string string = textRendObj.pText->getString();
+                Transform2D& transf = *textRendObj.pText->pTransf;
+                //resolution adaption
+                float resScale = 1.f;
+                float offsetX = 0.f;
+                Vector2 finalOffset = {0.f, 0.f}; 
+                Vector2 finalPos = {transf.pos.x, transf.pos.y};
+
+                
+                if(transf.dirty)
+                {
+                    Utils::applyRatioScreenRes(transf.anchor, transf.pos, resScale, finalOffset, finalPos);
+                    transf.setDirty(false);
+                }
+                
+                offsetX = finalPos.x;
+                pMesh->bindVAO();
+
+                for(auto c = string.begin(); c != string.end(); ++c)
+                {
+                    GL_CHECK_ERRORS();
+                    std::array<std::array<float, 4>, 6> data = pMat->bindCharacter(*c, offsetX, resScale, finalPos, transf);
+                    pMesh->subData(data);
+                    GL_CHECK_ERRORS();
+                    pMesh->draw();
+                    GL_CHECK_ERRORS();
+                }
+                glBindVertexArray(0);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+            }
+        }
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glUseProgram(0);
+    }
 };

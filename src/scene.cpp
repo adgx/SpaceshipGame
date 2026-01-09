@@ -1,6 +1,7 @@
 #include "scene.h"
 #include <glad/gl.h>
 #include "log.h"
+#include "font.h"
 
 namespace SpaceEngine
 {
@@ -104,7 +105,7 @@ namespace SpaceEngine
             );
     }
 
-    void Scene::gatherRenderables(std::vector<RenderObject>& worldRenderables, std::vector<UIRenderObject>& uiRenderables)
+    void Scene::gatherRenderables(std::vector<RenderObject>& worldRenderables, std::vector<UIRenderObject>& uiRenderables, std::vector<TextRenderObject>& textRenderables)
     {
         for (auto& gameObj : gameObjects)
         {
@@ -133,6 +134,15 @@ namespace SpaceEngine
                     uiRenderables.end(),
                     std::move_iterator(vecUIRendObjs.begin()),
                     std::move_iterator(vecUIRendObjs.end())
+                );
+            }
+
+            if (std::vector<TextRenderObject> vecTextRendObjs = pLayout->gatherTextRenderables(); vecTextRendObjs.size())
+            {
+                textRenderables.insert(
+                    textRenderables.end(),
+                    std::move_iterator(vecTextRendObjs.begin()),
+                    std::move_iterator(vecTextRendObjs.end())
                 );
             }
         }
@@ -175,8 +185,14 @@ namespace SpaceEngine
         UIBase* healthIcon3 = new UIBase({0.f, 0.f},
             {248.f, 76.f}, 
             iconMat);
+
+        //Text
+        TextMaterial* pScoreMat = MaterialManager::createMaterial<TextMaterial>("ScoreMat", "Orbitron-Regular");
+        Text* pTextScore = new Text({05.f, 0.5f}, {1200.f, 220.f}, {1.f, 1.f}, pScoreMat);
+        pTextScore->setString("SCORE: ");
         UILayout* pUILayout = new UILayout();
         addSceneComponent(pUILayout);
+        pUILayout->addText(pTextScore);
         pUILayout->addUIElement(healthIcon1);
         pUILayout->addUIElement(healthIcon2);
         pUILayout->addUIElement(healthIcon3);

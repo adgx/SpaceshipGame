@@ -29,6 +29,7 @@ target_link_libraries(App PRIVATE WindowManager
     PUBLIC AudioManager
     PUBLIC ShaderProgram
     PRIVATE SceneManager
+    PRIVATE Font
     PUBLIC Mesh)
 
 target_include_directories(Main PRIVATE ${CMAKE_SOURCE_DIR}/include/)
@@ -57,6 +58,7 @@ target_link_libraries(Mesh PUBLIC glad_gl_core_33
     PUBLIC assimp
     PRIVATE glm
     PUBLIC Texture
+    PRIVATE Font
     PRIVATE LogManager)
 target_include_directories(Mesh PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(Mesh PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)
@@ -68,7 +70,8 @@ target_link_libraries(Texture PUBLIC glad_gl_core_33
     PRIVATE OpenGL::GL
     PUBLIC Utils
     PUBLIC STB
-    PRIVATE LogManager)
+    PRIVATE LogManager
+    PUBLIC Font)
 target_include_directories(Texture PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(Texture PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)
 set_target_properties(Texture PROPERTIES FOLDER "Texture")
@@ -95,3 +98,16 @@ target_link_libraries(UI PUBLIC glad_gl_core_33
 target_include_directories(UI PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(UI PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)
 set_target_properties(UI PROPERTIES FOLDER "UI")
+
+#Font
+add_library(Font STATIC font.cpp)
+target_link_libraries(Font PUBLIC glad_gl_core_33
+    PRIVATE OpenGL::GL
+    PRIVATE LogManager
+    PRIVATE Mesh
+    PUBLIC Utils
+    PRIVATE Texture
+    PUBLIC freetype)
+target_include_directories(Font PRIVATE ${CMAKE_SOURCE_DIR}/include/)
+target_include_directories(Font PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)
+set_target_properties(Font PROPERTIES FOLDER "Font")

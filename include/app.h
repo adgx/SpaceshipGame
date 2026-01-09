@@ -39,6 +39,7 @@ namespace SpaceEngine
             Scene* pScene;
             Renderer* renderer;
             UIRenderer* uiRenderer;
+            TextRenderer* textRenderer;
             WindowManager windowManager;
             static InputHandler* inputHandler;
     };

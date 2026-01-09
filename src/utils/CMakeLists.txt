@@ -6,7 +6,9 @@ set_target_properties(STB PROPERTIES FOLDER "stb_image")
 
 #Utils
 add_library(Utils STATIC utils.cpp)
-target_include_directories(Utils PRIVATE ${CMAKE_SOURCE_DIR}/include/utils)
+target_include_directories(Utils PRIVATE ${CMAKE_SOURCE_DIR}/include/utils
+                                PRIVATE ${CMAKE_SOURCE_DIR}/include/managers)
 set_target_properties(Utils PROPERTIES FOLDER "Utils")
 target_link_libraries(Utils PUBLIC assimp
-                            PUBLIC glm)
+                            PUBLIC glm
+                            PRIVATE WindowManager)

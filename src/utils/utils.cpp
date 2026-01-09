@@ -1,7 +1,13 @@
 #pragma once
-#include "utils/utils.h"
+
 #include <filesystem>
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
+#include <algorithm>
+
+#include "utils/utils.h"
+#include "managers/windowManager.h"
 
 #define COLOR_TEXTURE_UNIT              GL_TEXTURE0
 #define COLOR_TEXTURE_UNIT_INDEX        0
@@ -41,6 +47,23 @@
 
 namespace SpaceEngine
 {
+    void Utils::applyRatioScreenRes(Vector2 anchor, Vector2 pos, float& outScale, Vector2& outOffset, Vector2& outPos) 
+    {
+            float scaleX = WindowManager::width / static_cast<float>(REF_WIDTH);
+            float scaleY = WindowManager::height / static_cast<float>(REF_HEIGHT);
+            outScale = std::min(scaleX, scaleY);
+
+            //offset when change the resolution
+            outOffset.x = (WindowManager::width - REF_WIDTH * outScale) * 0.5f;
+            outOffset.y = (WindowManager::height - REF_HEIGHT * outScale) * 0.5f;
+            //anchor valuation
+            float anchorX = anchor.x * REF_WIDTH;
+            float anchorY = anchor.y * REF_HEIGHT;
+            //space postion
+            outPos.x = (anchorX + pos.x) * outScale + outOffset.x;
+            outPos.y = (anchorY + pos.y) * outScale + outOffset.y;
+    }
+
     std::wstring toWide(const std::string& str)
     {
         int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);

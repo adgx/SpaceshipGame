@@ -1,6 +1,11 @@
 #include "asteroid.h"
+
+#include "collisionDetection.h"
+#include "scene.h"
+
 #include <iostream>
 #include <ctime>
+
 
 namespace SpaceEngine {
 

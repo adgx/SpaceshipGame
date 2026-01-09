@@ -31,16 +31,18 @@ namespace SpaceEngine
     }
 
     void SceneManager::GatherRenderables(std::vector<RenderObject>& worldRenderables, 
-                std::vector<UIRenderObject>& uiRenderables)
+                std::vector<UIRenderObject>& uiRenderables, 
+                std::vector<TextRenderObject>& textRenderables)
     {
         worldRenderables.clear();
         uiRenderables.clear();
+        textRenderables.clear();
 
         for(Scene* pScene: m_vecScenes)
         {
             if(pScene->isActive())
             {
-                pScene->gatherRenderables(worldRenderables, uiRenderables);
+                pScene->gatherRenderables(worldRenderables, uiRenderables, textRenderables);
             }
         }
     }
