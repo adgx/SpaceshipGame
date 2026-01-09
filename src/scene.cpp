@@ -188,8 +188,8 @@ namespace SpaceEngine
 
         //Text
         TextMaterial* pScoreMat = MaterialManager::createMaterial<TextMaterial>("ScoreMat", "Orbitron-Regular");
-        Text* pTextScore = new Text({0.f, 0.f}, {815.f, 93.f}, {10.f, 10.f}, pScoreMat);
-        pTextScore->setString("Score: ");
+        Text* pTextScore = new Text({05.f, 0.5f}, {1200.f, 220.f}, {1.f, 1.f}, pScoreMat);
+        pTextScore->setString("SCORE: ");
         UILayout* pUILayout = new UILayout();
         addSceneComponent(pUILayout);
         pUILayout->addText(pTextScore);

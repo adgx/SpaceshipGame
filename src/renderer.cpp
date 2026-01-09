@@ -87,6 +87,8 @@ namespace SpaceEngine
     void UIRenderer::render(const std::vector<UIRenderObject>& uiRenderables)
     {
         glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         for (const auto& ui : uiRenderables)
         {
             if (!ui.pUIMesh || !ui.pMaterial) continue;
@@ -107,15 +109,16 @@ namespace SpaceEngine
             GL_CHECK_ERRORS();
             glUseProgram(0);
         }
+        glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
-        
     }
-
-
 
     void TextRenderer::render(const std::vector<TextRenderObject>& textRenderables)
     {
         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         for(TextRenderObject textRendObj : textRenderables)
         {
             TextMaterial* pMat = textRendObj.pText->pTextMeshRend->getMaterial();
@@ -159,7 +162,9 @@ namespace SpaceEngine
                 glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
             }
         }
+        glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
         glUseProgram(0);
     }
 };
