@@ -8,6 +8,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd Textures/Enemy_Albedo.png
-map_Ns Textures/Enemy_Normals.png
-map_refl Textures/Enemy_Metallic.png
+map_ka Enemy_AO.png
+map_Kd Enemy_Albedo.png
+map_Pr Enemy_Roughness.png
+map_refl Enemy_Metallic.png
+norm Enemy_Normals.png
