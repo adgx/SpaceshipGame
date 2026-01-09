@@ -199,6 +199,7 @@ namespace SpaceEngine
             float m_spawnZ = -100.0f; // Lontano dalla camera
             float m_gameAreaX = 50.0f; // Larghezza totale area spawn
             float m_gameAreaY = 30.0f; // Altezza totale area spawn
+            float m_elapsedTime = 0.0f;
             std::stack<UIBase*> healthIcons;
             PlayerShip* m_pPlayer = nullptr;
     };

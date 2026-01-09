@@ -174,6 +174,7 @@ namespace SpaceEngine
     Scene(pPhyManager)
     {
         name = "SpaceScene";
+        m_elapsedTime = 0.0f;
         UIMaterial* iconMat = MaterialManager::createMaterial<UIMaterial>("HealthIcon");
         Texture* pTex = TextureManager::load(TEXTURES_PATH"HUD/Health.png");
         iconMat->addTexture("ui_tex", pTex);
@@ -206,6 +207,7 @@ namespace SpaceEngine
 
     void SpaceScene::UpdateScene(float dt)
     {
+        m_elapsedTime +=dt;
         SpaceScene::handleSpawning(dt);
     }
 
@@ -262,10 +264,27 @@ namespace SpaceEngine
             float y = randomRange(-safeY, safeY);
             float z = m_spawnZ;
 
+            EnemyType typeToSpawn = EnemyType::NORMAL;
+
+            if (m_elapsedTime < 10.0f) 
+            {
+                //primi 10 secondi: solo NORMAL
+                typeToSpawn = EnemyType::NORMAL;
+            }
+            else if (m_elapsedTime < 25.0f) 
+            {
+                //tra 10 e 20 secondi: random tra NORMAL e SPREAD
+                typeToSpawn = (rand() % 2 == 0) ? EnemyType::NORMAL : EnemyType::SPREAD;
+            }
+            else 
+            {
+                //dopo 20 secondi: random tra SPREAD e AIMER
+                typeToSpawn = (rand() % 2 == 0) ? EnemyType::SPREAD : EnemyType::AIMER;
+            }
+
             EnemyShip* pEnemy = new EnemyShip(this, "TestCube.obj");
             
-            pEnemy->Init(Vector3(x, y, z), EnemyType::SPREAD, nullptr); // TODO: implementazione spawn diversi tipi di nemici
-
+            pEnemy->Init(Vector3(x, y, z), typeToSpawn, m_pPlayer);
             requestInstantiate(pEnemy); 
         }
     }
