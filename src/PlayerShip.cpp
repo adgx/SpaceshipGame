@@ -20,7 +20,7 @@ namespace SpaceEngine {
         //set the parent of the bullet's trasform and place an offset 
         pTransformBullet->setParent(m_pTransform);
         pTransformBullet->setLocalPosition(pTransformBullet->getLocalPosition() + 
-            pTransformBullet->forwardLocal() * 1.5f);
+            pTransformBullet->forwardLocal() * -3.f);
         pTransformBullet->rotateGlobal(90.f, {1.f, 0.f, 0.f});
         m_speed = 15.f;               
         m_limitX = 7.f;              

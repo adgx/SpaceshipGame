@@ -170,6 +170,7 @@ namespace SpaceEngine
     {
         public:
             void onNotify(const GameObject& entity, const int& event) override;
+            Text* pTextPoints;
         private:
             uint32_t m_score = 0; 
     };
@@ -183,6 +184,7 @@ namespace SpaceEngine
             ~SpaceScene() = default;
             void removeHealthIcon();
             void SetPlayer(PlayerShip* player) { m_pPlayer = player; }
+            static ScoreSys* pScoreSys;
             
         private:
             void UpdateScene(float dt) override;
@@ -202,6 +204,7 @@ namespace SpaceEngine
             float m_elapsedTime = 0.0f;
             std::stack<UIBase*> healthIcons;
             PlayerShip* m_pPlayer = nullptr;
+            
     };
 
     class DeathScene : public Scene

@@ -48,16 +48,16 @@ namespace SpaceEngine
             Collider(GameObject* gameObj):gameObj(gameObj)
             {
                 //x
-                bbox.c.x = gameObj->getComponent<Mesh>()->maxPos.x;
-                bbox.r[0] = (bbox.c.x - gameObj->getComponent<Mesh>()->minPos.x) / 2.f;
+                bbox.c.x = gameObj->getComponent<Mesh>()->maxPos.x * gameObj->getComponent<Transform>()->localScale.x;
+                bbox.r[0] = (bbox.c.x - gameObj->getComponent<Mesh>()->minPos.x * gameObj->getComponent<Transform>()->localScale.x) / 2.f;
                 bbox.c.x -= bbox.r[0];
                 //y
-                bbox.c.y = gameObj->getComponent<Mesh>()->maxPos.y;
-                bbox.r[1] = (bbox.c.y - gameObj->getComponent<Mesh>()->minPos.y) / 2.f;
+                bbox.c.y = gameObj->getComponent<Mesh>()->maxPos.y * gameObj->getComponent<Transform>()->localScale.y;
+                bbox.r[1] = (bbox.c.y - gameObj->getComponent<Mesh>()->minPos.y * gameObj->getComponent<Transform>()->localScale.y) / 2.f;
                 bbox.c.y -= bbox.r[1];
                 //z
-                bbox.c.z = gameObj->getComponent<Mesh>()->maxPos.z;
-                bbox.r[2] = (bbox.c.z - gameObj->getComponent<Mesh>()->minPos.z) / 2.f;
+                bbox.c.z = gameObj->getComponent<Mesh>()->maxPos.z * gameObj->getComponent<Transform>()->localScale.z;
+                bbox.r[2] = (bbox.c.z - gameObj->getComponent<Mesh>()->minPos.z * gameObj->getComponent<Transform>()->localScale.z) / 2.f;
                 bbox.c.z -= bbox.r[2];
 
                 pos = bbox.c;
