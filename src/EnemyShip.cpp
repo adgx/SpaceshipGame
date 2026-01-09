@@ -14,14 +14,6 @@ namespace SpaceEngine {
         m_spawnZ(-100.0f), m_despawnZ(20.0f)
     {
         m_pMesh = MeshManager::loadMesh(filePathModel);
-        if (m_pMesh) {
-            BaseMaterial* pMat = m_pMesh->getMaterialBySubMeshIndex(0);
-            if(pMat) {
-                pMat->pShader = ShaderManager::findShaderProgram("simpleTex");
-            }
-        } else {
-            SPACE_ENGINE_ERROR("CRASH EVITATO: Impossibile caricare mesh {}", filePathModel);
-        }
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
 

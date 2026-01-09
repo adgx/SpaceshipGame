@@ -282,7 +282,7 @@ namespace SpaceEngine
                 typeToSpawn = (rand() % 2 == 0) ? EnemyType::SPREAD : EnemyType::AIMER;
             }
 
-            EnemyShip* pEnemy = new EnemyShip(this, "TestCube.obj");
+            EnemyShip* pEnemy = new EnemyShip(this, "Enemy.obj");
             
             pEnemy->Init(Vector3(x, y, z), typeToSpawn, m_pPlayer);
             requestInstantiate(pEnemy); 
