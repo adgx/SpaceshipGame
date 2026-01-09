@@ -170,6 +170,7 @@ namespace SpaceEngine
     //-----------------------------------------// 
     //---------------SpaceScene----------------//
     //-----------------------------------------// 
+    ScoreSys* SpaceScene::pScoreSys = new ScoreSys();
     SpaceScene::SpaceScene(PhysicsManager* pPhyManager):
     Scene(pPhyManager)
     {
@@ -193,10 +194,15 @@ namespace SpaceEngine
         //Text
         TextMaterial* pScoreMat = MaterialManager::createMaterial<TextMaterial>("ScoreMat", "Orbitron-Regular");
         Text* pTextScore = new Text({0.5f, 0.0f}, {-200.f, 90.f}, {1.f, 1.f}, pScoreMat);
+        Text* pTextPoints = new Text({0.5f, 0.0f}, {100.f, 90.f}, {1.f, 1.f}, pScoreMat);
+        pScoreSys->pTextPoints = pTextPoints;
         pTextScore->setString("SCORE: ");
+        pTextPoints->setString("0");
+
         UILayout* pUILayout = new UILayout();
         addSceneComponent(pUILayout);
         pUILayout->addText(pTextScore);
+        pUILayout->addText(pTextPoints);
         pUILayout->addUIElement(healthIcon1);
         pUILayout->addUIElement(healthIcon2);
         pUILayout->addUIElement(healthIcon3);
@@ -311,11 +317,18 @@ namespace SpaceEngine
     {
         if(const PlayerShip* pPlayer = dynamic_cast<const PlayerShip*>(&entity))
         {
-            m_score += static_cast<uint32_t>(event); 
+            //m_score += static_cast<uint32_t>(event);
+            //pTextPoints->setString(std::to_string(m_score));
         }
         else if(const EnemyShip* pEnemy = dynamic_cast<const EnemyShip*>(&entity))
         {
             m_score += static_cast<uint32_t>(event); 
+            pTextPoints->setString(std::to_string(m_score));
+        }
+        else if(const Asteroid* pAsteroid = dynamic_cast<const Asteroid*>(&entity))
+        {
+            m_score += static_cast<uint32_t>(event); 
+            pTextPoints->setString(std::to_string(m_score));
         }
     }
 }

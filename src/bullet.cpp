@@ -61,10 +61,12 @@ namespace SpaceEngine
         SPACE_ENGINE_INFO("Bullet Collision onEnter Called with Collider: {}", reinterpret_cast<std::uintptr_t>(col));
         if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER)
         {
+            SpaceScene::pScoreSys->onNotify(*col->gameObj, 100);
             SPACE_ENGINE_INFO("Bullet hit an Enemy!");
         }
         if(col->gameObj->getLayer() == ELayers::ASTEROID_LAYER){
             SPACE_ENGINE_INFO("Bullet hit an Asteroid!");
+            SpaceScene::pScoreSys->onNotify(*col->gameObj, 10);
             pScene->requestDestroy(col->gameObj);
         }
         pScene->requestDestroy(this);
