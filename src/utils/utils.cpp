@@ -1,151 +1,114 @@
-#pragma once
+#include "utils/utils.h"
+#include "managers/windowManager.h"
 
-#include <filesystem>
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
 #include <algorithm>
+#include <vector>
 
-#include "utils/utils.h"
-#include "managers/windowManager.h"
-
-#define COLOR_TEXTURE_UNIT              GL_TEXTURE0
-#define COLOR_TEXTURE_UNIT_INDEX        0
-#define SHADOW_TEXTURE_UNIT             GL_TEXTURE1
-#define SHADOW_TEXTURE_UNIT_INDEX       1
-#define NORMAL_TEXTURE_UNIT             GL_TEXTURE2
-#define NORMAL_TEXTURE_UNIT_INDEX       2
-#define RANDOM_TEXTURE_UNIT             GL_TEXTURE3
-#define RANDOM_TEXTURE_UNIT_INDEX       3
-#define DISPLACEMENT_TEXTURE_UNIT       GL_TEXTURE4
-#define DISPLACEMENT_TEXTURE_UNIT_INDEX 4
-#define ALBEDO_TEXTURE_UNIT             GL_TEXTURE5
-#define ALBEDO_TEXTURE_UNIT_INDEX       5          
-#define ROUGHNESS_TEXTURE_UNIT          GL_TEXTURE6
-#define ROUGHNESS_TEXTURE_UNIT_INDEX    6
-#define MOTION_TEXTURE_UNIT             GL_TEXTURE7
-#define MOTION_TEXTURE_UNIT_INDEX       7
-#define SPECULAR_EXPONENT_UNIT             GL_TEXTURE8
-#define SPECULAR_EXPONENT_UNIT_INDEX       8
-#define CASCACDE_SHADOW_TEXTURE_UNIT0               SHADOW_TEXTURE_UNIT
-#define CASCACDE_SHADOW_TEXTURE_UNIT0_INDEX         SHADOW_TEXTURE_UNIT_INDEX
-#define CASCACDE_SHADOW_TEXTURE_UNIT1               GL_TEXTURE9
-#define CASCACDE_SHADOW_TEXTURE_UNIT1_INDEX         9
-#define CASCACDE_SHADOW_TEXTURE_UNIT2               GL_TEXTURE10
-#define CASCACDE_SHADOW_TEXTURE_UNIT2_INDEX         10
-#define SHADOW_CUBE_MAP_TEXTURE_UNIT                GL_TEXTURE11
-#define SHADOW_CUBE_MAP_TEXTURE_UNIT_INDEX          11
-#define SHADOW_MAP_RANDOM_OFFSET_TEXTURE_UNIT       GL_TEXTURE12
-#define SHADOW_MAP_RANDOM_OFFSET_TEXTURE_UNIT_INDEX 12
-#define METALLIC_TEXTURE_UNIT                       GL_TEXTURE14
-#define METALLIC_TEXTURE_UNIT_INDEX                 14
-#define HEIGHT_TEXTURE_UNIT                         GL_TEXTURE15
-#define HEIGHT_TEXTURE_UNIT_INDEX                   15
-
-#define GET_GL_TEXTURE_UNIT(N) GL_TEXTURE##N
-
+// Rimosso: #include <filesystem> non serve più
 
 namespace SpaceEngine
 {
+    // --- Helper per le stringhe (sostituisce toWide se servisse, ma qui semplifichiamo) ---
+    // Manteniamo la logica semplice basata su char standard per evitare problemi di encoding misti
+    
     void Utils::applyRatioScreenRes(Vector2 anchor, Vector2 pos, float& outScale, Vector2& outOffset, Vector2& outPos) 
     {
             float scaleX = WindowManager::width / static_cast<float>(REF_WIDTH);
             float scaleY = WindowManager::height / static_cast<float>(REF_HEIGHT);
             outScale = std::min(scaleX, scaleY);
 
-            //offset when change the resolution
             outOffset.x = (WindowManager::width - REF_WIDTH * outScale) * 0.5f;
             outOffset.y = (WindowManager::height - REF_HEIGHT * outScale) * 0.5f;
-            //anchor valuation
+            
             float anchorX = anchor.x * REF_WIDTH;
             float anchorY = anchor.y * REF_HEIGHT;
-            //space postion
+            
             outPos.x = (anchorX + pos.x) * outScale + outOffset.x;
             outPos.y = (anchorY + pos.y) * outScale + outOffset.y;
     }
 
-    std::wstring toWide(const std::string& str)
-    {
-        int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
-        std::wstring result(size, L'\0');
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &result[0], size);
-        result.pop_back(); // remove null terminator
-        return result;
-    }
+    // --- REIMPLEMENTAZIONE SENZA FILESYSTEM ---
 
     bool Utils::fileExists(const std::string &path) 
     {
-        #ifdef _WIN64
-            std::wstring wpath = toWide(path);
-    
-            WIN32_FIND_DATAW data;
-            HANDLE h = FindFirstFileW(wpath.c_str(), &data);
-            if (h == INVALID_HANDLE_VALUE)
-                return false;
-    
-            bool match = (std::filesystem::path(path).filename().wstring() == data.cFileName);
-            FindClose(h);
-            return match;
-        #else
-            struct stat info;
-            int ret = -1;
+        // Metodo nativo Windows molto più rapido e sicuro di FindFirstFile + filesystem
+        DWORD attrib = GetFileAttributesA(path.c_str());
 
-            ret = stat(path.c_str(), &info);
-
-
-            return 0 == ret;
-        #endif
+        return (attrib != INVALID_FILE_ATTRIBUTES && 
+               !(attrib & FILE_ATTRIBUTE_DIRECTORY));
     }
 
     bool Utils::directoryExists(const std::string& pathDir)
     {
-        #ifdef _WIN64
         DWORD attrib = GetFileAttributesA(pathDir.c_str());
-        return (attrib != INVALID_FILE_ATTRIBUTES &&
-           (attrib & FILE_ATTRIBUTE_DIRECTORY));
-        #else
-            return false
-        #endif
+        
+        return (attrib != INVALID_FILE_ATTRIBUTES && 
+               (attrib & FILE_ATTRIBUTE_DIRECTORY));
     }
 
     std::string Utils::getFullPath(const std::string& dir, const aiString& path)
     {
         std::string p(path.data);
-        p = getFileNameFormPath(p);
+        if (p.empty()) return "";
 
-        std::string fullPath = dir + "/" + p;
+        // 1. Normalizza gli slash (importante per Windows/Assimp)
+        std::replace(p.begin(), p.end(), '\\', '/');
 
-        return fullPath;
+        // --- STRATEGIA DI CARICAMENTO A TENTATIVI ---
+
+        // TENTATIVO 1: Percorso originale relativo al modello
+        // Esempio: assets/models/ + texture.png -> assets/models/texture.png
+        std::string pathStep1 = joinPaths(dir, p);
+        if (fileExists(pathStep1)) {
+            return pathStep1;
+        }
+
+        // Preparazione per i tentativi successivi: prendiamo solo il nome del file pulito
+        // Esempio: se p era "C:/Utenti/Bob/Desktop/texture.png", diventa "texture.png"
+        std::string filename = getFileNameFormPath(p);
+
+        // TENTATIVO 2: Cerca il file "sciolto" nella stessa cartella del modello
+        // Utile se il modello aveva percorsi assoluti rotti
+        std::string pathStep2 = joinPaths(dir, filename);
+        if (fileExists(pathStep2)) {
+            return pathStep2;
+        }
+
+        // TENTATIVO 3 (QUELLO CHE TI MANCA): Cerca nella cartella textures globale
+        // Esempio: assets/textures/ + texture.png
+        // NOTA: Assicurati che il path sia relativo all'EXE (./assets/textures/)
+        std::string pathStep3 = joinPaths("./assets/textures/", filename);
+        if (fileExists(pathStep3)) {
+            return pathStep3;
+        }
+
+        // TENTATIVO 4: Cerca nella cartella textures senza ./ (a volte serve)
+        std::string pathStep4 = joinPaths("assets/textures/", filename);
+        if (fileExists(pathStep4)) {
+            return pathStep4;
+        }
+
+        // Se fallisce tutto, ritorna il primo tentativo così l'errore in console
+        // ti dirà dove ha provato a cercare inizialmente.
+        return pathStep1;
     }
 
     std::string Utils::getDirFromFilename(const std::string& fileName)
     {
-        // Extract the directory part from the file name
-        std::string::size_type slashIndex;
-
-    #ifdef _WIN64
-        slashIndex = fileName.find_last_of("\\");
-
-        if (slashIndex == -1) {
-            slashIndex = fileName.find_last_of("/");
-        }
-    #else
-        SlashIndex = Filename.find_last_of("/");
-    #endif
-
-        std::string dir;
+        size_t slashIndex = fileName.find_last_of("/\\");
 
         if (slashIndex == std::string::npos) {
-            dir = ".";
+            return ".";
         }
         else if (slashIndex == 0) {
-            dir = "/";
+            return "/";
         }
         else {
-            dir = fileName.substr(0, slashIndex);
+            return fileName.substr(0, slashIndex);
         }
-
-        return dir;
     }
 
     std::string Utils::getExtension(const char *name) 
@@ -155,28 +118,63 @@ namespace SpaceEngine
         
         if (dotLoc != std::string::npos)
         {
-            std::string ext = nameStr.substr(dotLoc);
-            return ext;
+            return nameStr.substr(dotLoc);
         }
-
         return "";
     }
 
+    // Sostituisce std::filesystem::path(p).filename().string()
     std::string Utils::getFileNameFormPath(const std::string& path)
     {
-        std::filesystem::path p(path);
-        return p.filename().string();
+        // Cerca l'ultimo separatore (supporta sia slash che backslash)
+        size_t pivot = path.find_last_of("/\\");
+        
+        // Se non trova separatori, l'intero path è il nome del file
+        if (pivot == std::string::npos) {
+            return path;
+        }
+        
+        // Restituisce tutto ciò che c'è dopo il separatore
+        return path.substr(pivot + 1);
     }
 
+    // Sostituisce std::filesystem::path(p).stem().string()
     std::string Utils::getFileNameNoExt(const std::string& filePath)
     {
-        std::filesystem::path p(filePath);
-        return p.stem().string();   // stem() = filename without extension
+        // Prima isoliamo il nome del file dal percorso completo
+        std::string filename = getFileNameFormPath(filePath);
+
+        // Poi cerchiamo l'ultimo punto
+        size_t lastDot = filename.find_last_of('.');
+
+        // Se non c'è punto, restituisce il nome intero.
+        // Se c'è, restituisce la sottostringa da 0 al punto.
+        if (lastDot == std::string::npos) {
+            return filename;
+        }
+        return filename.substr(0, lastDot);
     }
     
+    // Sostituisce l'operatore / di filesystem
     std::string Utils::joinPaths(const std::string& a, const std::string& b)
     {
-        std::filesystem::path p = std::filesystem::path(a) / std::filesystem::path(b);  // Correct handling of slashes and OS differences
-        return p.string();
+        if (a.empty()) return b;
+        if (b.empty()) return a;
+
+        char lastChar = a.back();
+        // Controlla se 'a' finisce già con un separatore
+        bool aHasSlash = (lastChar == '\\' || lastChar == '/');
+        bool bHasSlash = (b.front() == '\\' || b.front() == '/');
+        if (aHasSlash && bHasSlash) {
+        // Se entrambi hanno lo slash (es: "dir/" e "/file"), togliamone uno
+        return a + b.substr(1);
+        } 
+        else if (!aHasSlash && !bHasSlash) {
+            // Se nessuno ha lo slash, aggiungiamolo (usa / che funziona ovunque)
+            return a + '/' + b;
+        }
+        
+        // Altrimenti aggiunge il separatore di Windows standard
+        return a + b;
     }
 }

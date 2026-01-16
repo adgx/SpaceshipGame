@@ -2,18 +2,16 @@
 #include "log.h"
 #include "utils/utils.h"
 
-
-
 #include <fstream>
-
-using std::ifstream;
-using std::ios;
-using std::string;
-
 #include <sstream>
 #include <filesystem>
 #include <sys/stat.h>
 #include <vector>
+#include <map>
+
+using std::ifstream;
+using std::ios;
+using std::string;
 
 namespace SpaceEngine
 {
@@ -79,7 +77,6 @@ namespace SpaceEngine
 
     int ShaderProgram::compileShader(const char *fileName) 
     {
-
         // Check the file name's extension to determine the shader type
         string ext = getExtension(fileName);
         Type type = Type::VERTEX;
@@ -92,8 +89,10 @@ namespace SpaceEngine
     	}
 
         // Pass the discovered shader type along
-        SPACE_ENGINE_ASSERT(compileShader(fileName, type), "Shader compiling error");
-        return 1;
+        // FIX: Assert fix for release mode
+        int res = compileShader(fileName, type);
+        SPACE_ENGINE_ASSERT(res, "Shader compiling error");
+        return res;
     }
 
     string ShaderProgram::getExtension(const char *name) {
@@ -145,8 +144,10 @@ namespace SpaceEngine
         code << inFile.rdbuf();
         inFile.close();
 
-        SPACE_ENGINE_ASSERT(compileShader(code.str(), type, fileName), "Shader compiling error");
-        return 1;
+        // FIX: Assert fix for release mode
+        int res = compileShader(code.str(), type, fileName);
+        SPACE_ENGINE_ASSERT(res, "Shader compiling error");
+        return res;
     }
 
     int ShaderProgram::compileShader(const string &source,
@@ -262,32 +263,10 @@ namespace SpaceEngine
         }
         return 1;
     }
-/*
-    void ShaderProgram::findUniformLocations() {
-        uniformsInfo.clear();
 
-        GLint numUniforms = 0;
-        GLint maxLen;
-        GLchar *name;
-
-        glGetProgramiv(handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
-        glGetProgramiv(handle, GL_ACTIVE_UNIFORMS, &numUniforms);
-
-        name = new GLchar[maxLen];
-        for (GLuint i = 0; i < numUniforms; ++i) {
-            GLint size;
-            GLenum type;
-            GLsizei written;
-            glGetActiveUniform(handle, i, maxLen, &written, &size, &type, name);
-            GLint location = glGetUniformLocation(handle, name);
-            uniformLocations[name] = glGetUniformLocation(handle, name);
-        }
-        delete[] name;
-    }
-*/
     int ShaderProgram::use() {
         if (handle <= 0 || (!linked)){
-            SPACE_ENGINE_DEBUG("Shader has not been linked");
+            //SPACE_ENGINE_DEBUG("Shader has not been linked");
             return 0;
         }
         glUseProgram(handle);
@@ -709,26 +688,37 @@ namespace SpaceEngine
         ShaderProgram* pSP = new ShaderProgram();
         std::vector<std::filesystem::path> shaderFiles;
 
-        for (const auto& entry : std::filesystem::directory_iterator(SHADERS_PATH)) 
-        {
-            if (!entry.is_regular_file())
-                continue;
+        // FIX: Path relativo forzato per la release
+        std::string pathShaders = "./assets/shaders"; 
 
-            const auto& p = entry.path();
-            if (p.stem() == nameFile) {
-                shaderFiles.push_back(p);
+        if (std::filesystem::exists(pathShaders)) {
+            for (const auto& entry : std::filesystem::directory_iterator(pathShaders)) 
+            {
+                if (!entry.is_regular_file())
+                    continue;
+
+                const auto& p = entry.path();
+                if (p.stem() == nameFile) {
+                    shaderFiles.push_back(p);
+                }
             }
+        }
+        else
+        {
+             SPACE_ENGINE_ERROR("CRITICAL: Shader folder not found at ./assets/shaders");
         }
 
         if(shaderFiles.empty())
         {
             SPACE_ENGINE_ERROR("Shader file not found, name: {}", nameFile);
+            delete pSP;
             return nullptr;
         }
 
         
         for(const std::filesystem::path& path : shaderFiles)
         {
+            // FIX: path.string() per evitare problemi
             pSP->compileShader(path.string().c_str());
         }
         pSP->link();
