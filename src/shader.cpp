@@ -89,7 +89,6 @@ namespace SpaceEngine
     	}
 
         // Pass the discovered shader type along
-        // FIX: Assert fix for release mode
         int res = compileShader(fileName, type);
         SPACE_ENGINE_ASSERT(res, "Shader compiling error");
         return res;
@@ -144,7 +143,6 @@ namespace SpaceEngine
         code << inFile.rdbuf();
         inFile.close();
 
-        // FIX: Assert fix for release mode
         int res = compileShader(code.str(), type, fileName);
         SPACE_ENGINE_ASSERT(res, "Shader compiling error");
         return res;
@@ -266,7 +264,7 @@ namespace SpaceEngine
 
     int ShaderProgram::use() {
         if (handle <= 0 || (!linked)){
-            //SPACE_ENGINE_DEBUG("Shader has not been linked");
+            SPACE_ENGINE_DEBUG("Shader has not been linked");
             return 0;
         }
         glUseProgram(handle);
@@ -688,11 +686,8 @@ namespace SpaceEngine
         ShaderProgram* pSP = new ShaderProgram();
         std::vector<std::filesystem::path> shaderFiles;
 
-        // FIX: Path relativo forzato per la release
-        std::string pathShaders = "./assets/shaders"; 
-
-        if (std::filesystem::exists(pathShaders)) {
-            for (const auto& entry : std::filesystem::directory_iterator(pathShaders)) 
+        if (std::filesystem::exists(SHADERS_PATH)) {
+            for (const auto& entry : std::filesystem::directory_iterator(SHADERS_PATH)) 
             {
                 if (!entry.is_regular_file())
                     continue;
@@ -705,7 +700,7 @@ namespace SpaceEngine
         }
         else
         {
-             SPACE_ENGINE_ERROR("CRITICAL: Shader folder not found at ./assets/shaders");
+             SPACE_ENGINE_ERROR("CRITICAL: Shader folder not found at {}", SHADERS_PATH);
         }
 
         if(shaderFiles.empty())
