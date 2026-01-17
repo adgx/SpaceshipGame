@@ -122,7 +122,7 @@ static const char* getGLErrorString(GLenum error)
 #define GL_CHECK_ERRORS()                                     \
     do {                                                      \
         if (GLenum err = glGetError(); err != GL_NO_ERROR)    \
-            SPACE_ENGINE_FATAL("GL error: {}", getGLErrorString(err)); \
+            SPACE_ENGINE_FATAL("GL error: {}, file:{}, line:{}", getGLErrorString(err), __FILE__, __LINE__); \
     } while (0)
 
 #define FT_CHECK(call)                                                  \
