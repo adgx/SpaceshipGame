@@ -5,6 +5,7 @@
 #include "Asteroid.h"
 #include "EnemyShip.h"
 #include "PlayerShip.h"
+#include "gameObject.h"
 
 namespace SpaceEngine
 {
@@ -171,11 +172,27 @@ namespace SpaceEngine
     //---------------SpaceScene----------------//
     //-----------------------------------------// 
     ScoreSys* SpaceScene::pScoreSys = new ScoreSys();
+    Bullet* SpaceScene::pBulletEnemy = nullptr;
+
     SpaceScene::SpaceScene(PhysicsManager* pPhyManager):
     Scene(pPhyManager)
     {
         name = "SpaceScene";
         m_elapsedTime = 0.0f;
+        //bullet enemy
+        if(!pBulletEnemy)
+        {
+            pBulletEnemy = new Bullet(this, "Bullet.obj");
+            pBulletEnemy->setOwner(ELayers::ENEMY_LAYER);
+        }
+
+        if(m_asteroidDebug)
+        {
+            Asteroid* pAsteroid = new Asteroid(this, "Asteroid_LowPoly.obj");
+            
+            pAsteroid->Init(Vector3(0.f, 0.f, -30.f)); 
+            addSceneComponent(pAsteroid);
+        }
         UIMaterial* iconMat = MaterialManager::createMaterial<UIMaterial>("HealthIcon");
         Texture* pTex = TextureManager::load(TEXTURES_PATH"HUD/Health.png");
         iconMat->addTexture("ui_tex", pTex);
@@ -236,7 +253,7 @@ namespace SpaceEngine
         m_enemyTimer += dt;
 
         // --- SPAWN ASTEROIDI ---
-        if (m_asteroidTimer >= m_asteroidInterval)
+        if (!m_asteroidDebug && m_asteroidTimer >= m_asteroidInterval)
         {
             // Reset
             m_asteroidTimer = 0.0f;

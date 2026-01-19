@@ -47,7 +47,7 @@ namespace SpaceEngine {
         }
 
         //Velocità casuale
-        m_velocity = 15.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 15.0f));
+        m_velocity = 1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 15.0f));
         // Rotazione casuale
         m_rotationSpeed = 30.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 60.0f));
     }

@@ -14,8 +14,6 @@
 
 namespace SpaceEngine
 {
-
-
     class App
     {
         public:

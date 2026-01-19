@@ -36,7 +36,7 @@ namespace SpaceEngine {
     private:
         EnemyType m_type;
         GameObject* m_pTarget; //il giocatore da mirare per aimer
-
+        const Bullet* m_pBulletPrefab;
         float m_speed;
 
         float m_spawnRangeX;

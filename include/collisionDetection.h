@@ -21,7 +21,7 @@ namespace SpaceEngine
 
         float maxSide()
         {
-            return 2 * std::max(std::max(r[0], r[1]), r[2]);
+            return std::max(std::max(r[0], r[1]), r[2]);
         }
 
         static int test(const AABB& a, const AABB& b)
@@ -116,9 +116,9 @@ namespace SpaceEngine
     class PhysicsManager
     {
         private:
-            static const int HGRID_MAX_LEVELS = 4;
+            static const int HGRID_MAX_LEVELS = 6;
             static const int NUM_BUCKETS = 1024;
-            static const int MIN_CELL_SIZE = 16;
+            static const int MIN_CELL_SIZE = 2;
             //this allows to create a margin for the cell where is palced the object
             static constexpr float SPHERE_TO_CELL_RATIO = 1.f/4.f;//is considered the diameter
             static constexpr float CELL_TO_CELL_RATIO = 2.f;
@@ -130,7 +130,7 @@ namespace SpaceEngine
             
                 bool operator==(const CollisionPair& o) const
                 {
-                    return (a == o.a && b == o.b);
+                    return (a == o.a && b == o.b) || (a == o.b && b == o.a);
                 }
             };
 
@@ -159,7 +159,7 @@ namespace SpaceEngine
                     const int h3 = 0xcb1ab31f;
                     const int h4 = 0x165667b1;
 
-                    int n = h1 * cellPos.x + h2 * cellPos.y + h3 * cellPos.z + h4 * cellPos.z;
+                    int n = h1 * cellPos.x + h2 * cellPos.y + h3 * cellPos.z + h4 * cellPos.w;
 
                     n = n % NUM_BUCKETS;
 
@@ -172,7 +172,7 @@ namespace SpaceEngine
                 void AddColliderToHGrid(Collider* col)
                 {
                     int level;
-                    float size = MIN_CELL_SIZE, diameter = 2.f* col->bbox.maxSide();
+                    float size = MIN_CELL_SIZE, diameter = col->bbox.maxSide();
 
                     //find the lowest level where objcet fully fits inside cell
                     for(level = 0; size * SPHERE_TO_CELL_RATIO < diameter; level++)
@@ -180,9 +180,9 @@ namespace SpaceEngine
 
                     assert(level < HGRID_MAX_LEVELS);
 
-                    Cell cellPos(static_cast<int>(col->bbox.c.x / size), 
-                        static_cast<int>(col->bbox.c.y / size), 
-                        static_cast<int>(col->bbox.c.z / size), 
+                    Cell cellPos(static_cast<int>((col->bbox.c.x + col->pos.x)/ size), 
+                        static_cast<int>((col->bbox.c.y + col->pos.y) / size), 
+                        static_cast<int>((col->bbox.c.z + col->pos.z) / size), 
                         level);
                     int bucket = ComputeHashBucketIndex(cellPos);
                     col->bucket = bucket;
@@ -217,7 +217,7 @@ namespace SpaceEngine
                     float size = MIN_CELL_SIZE;
                     int startLevel = 0;
                     uint32_t occupiedLevelsMask = this->occupiedLevelsMask;
-                    Vector3 pos = col->bbox.c;
+                    Vector3 pos = col->bbox.c + col->pos;
 
                     //tick++;
 
@@ -231,7 +231,7 @@ namespace SpaceEngine
                         if((occupiedLevelsMask & 1) == 0)
                             continue;
 
-                        float delta = col->bbox.maxSide() + size * SPHERE_TO_CELL_RATIO;
+                        float delta = col->bbox.maxSide() + size * SPHERE_TO_CELL_RATIO + MIN_CELL_SIZE/2.f;
                         float ooSize = 1.f / size;
 
                         int x1 = static_cast<int>(floorf((pos.x - delta) * ooSize));
@@ -257,7 +257,7 @@ namespace SpaceEngine
 
                                     while(p)
                                     {
-                                        if(p != col || p->gameObj->pendingDestroy)
+                                        if(p != col && !p->gameObj->pendingDestroy)
                                         {
                                             if(Collider::testCollidersLocalSpace(col, p))
                                             {

@@ -1,13 +1,15 @@
 #pragma once
+
 #include "utils/stb_image.h"
 #include "renderer.h"
 #include "camera.h"
-#include "gameObject.h"
 #include "collisionDetection.h"
 #include "light.h"
 #include "log.h"
 #include "shader.h"
 #include "managers/audioManager.h"
+#include "bullet.h"
+
 #include <vector>
 #include <string>
 #include <queue>
@@ -94,21 +96,21 @@ namespace SpaceEngine
             void requestDestroy(GameObject* pGameObj);
             
             template <typename T>
-            void requestInstantiate(const T* prefab, float time = 0.f)
+            T* requestInstantiate(const T* prefab, float time = 0.f)
             {
-                requestInstantiateImpl(prefab, time, false, {});
+                return requestInstantiateImpl(prefab, time, false, {});
             }
 
             template <typename T>
-            void requestInstantiate(const T* prefab, Vector3 wPos)
+            T* requestInstantiate(const T* prefab, Vector3 wPos)
             {
-                requestInstantiateImpl(prefab, 0.0f, true, wPos);
+                return requestInstantiateImpl(prefab, 0.0f, true, wPos);
             }
 
             template <typename T>
-            void requestInstantiate(const T* prefab, float time, Vector3 wPos)
+            T* requestInstantiate(const T* prefab, float time, Vector3 wPos)
             {
-                requestInstantiateImpl(prefab, time, true, wPos);
+                return requestInstantiateImpl(prefab, time, true, wPos);
             }
 
             BaseCamera* getActiveCamera() const;
@@ -130,7 +132,7 @@ namespace SpaceEngine
             void processInstantiateQ(float dt);
             inline void enqueueSpawn(SpawnRequest&& sr){spawnQ.push_back(std::move(sr));}
             template <typename T>
-            void requestInstantiateImpl(const T* prefab,
+            T* requestInstantiateImpl(const T* prefab,
                                         float time,
                                         bool overrideWorldPos,
                                         const Vector3& wPos)
@@ -139,12 +141,15 @@ namespace SpaceEngine
                               "T must derive from GameObject");
                 
                 SpawnRequest sr;
-                sr.prefab = new T(*prefab);  // ← exactly what you asked
+                T* pObj = new T(*prefab);
+                sr.prefab = pObj;  
                 sr.timeRemaining = time;
                 sr.overrideWorldPos = overrideWorldPos;
                 sr.wPos = wPos;
-                
+                  
                 enqueueSpawn(std::move(sr));
+
+                return pObj;
             }
 
             //Don't use it to instantiate GameObjects directly instead use RequestInstatiate
@@ -185,6 +190,7 @@ namespace SpaceEngine
             void removeHealthIcon();
             void SetPlayer(PlayerShip* player) { m_pPlayer = player; }
             static ScoreSys* pScoreSys;
+            static Bullet* pBulletEnemy; 
             
         private:
             void UpdateScene(float dt) override;
@@ -205,8 +211,9 @@ namespace SpaceEngine
             Text* m_pPoints;
             unsigned int m_points = 0;
             float m_timer = 0.f;
-            std::stack<UIBase*> healthIcons;
+            bool m_asteroidDebug = false;
             PlayerShip* m_pPlayer = nullptr;
+            std::stack<UIBase*> healthIcons;
             
     };
 

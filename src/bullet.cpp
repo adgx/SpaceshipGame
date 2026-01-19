@@ -2,6 +2,7 @@
 #include "collisionDetection.h"
 #include "Asteroid.h"
 #include "EnemyShip.h"
+#include "PlayerShip.h"
 #include "scene.h"
 
 namespace SpaceEngine
@@ -12,6 +13,12 @@ namespace SpaceEngine
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
     }
+
+    Bullet::Bullet(const Bullet& other) : GameObject(other)
+    {
+        m_owner = other.m_owner;
+    }
+
 
     void Bullet::Fire(Vector3 position, Vector3 direction, Vector3 rotation, float speed)
     {
@@ -28,7 +35,7 @@ namespace SpaceEngine
     void Bullet::update(float dt)
     {   
         Vector3 moveDir;
-        if (m_useCustomDirection)
+         if (m_useCustomDirection)
         {
             // Se impostato manualmente (Enemy), usa quella direzione
             moveDir = m_moveDirection;
@@ -58,17 +65,30 @@ namespace SpaceEngine
         {
             return; //ignora la collisione se fatta con il proprietario
         }
+        
+        pScene->requestDestroy(this);
+        
         SPACE_ENGINE_INFO("Bullet Collision onEnter Called with Collider: {}", reinterpret_cast<std::uintptr_t>(col));
-        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER)
+        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER && m_owner == ELayers::PLAYER_LAYER)
         {
             //SpaceScene::pScoreSys->onNotify(*col->gameObj, 100);
             SPACE_ENGINE_INFO("Bullet hit an Enemy!");
+            pScene->requestDestroy(col->gameObj);
         }
-        if(col->gameObj->getLayer() == ELayers::ASTEROID_LAYER){
+        else if(col->gameObj->getLayer() == ELayers::ASTEROID_LAYER && m_owner == ELayers::PLAYER_LAYER){
             SPACE_ENGINE_INFO("Bullet hit an Asteroid!");
             //SpaceScene::pScoreSys->onNotify(*col->gameObj, 10);
             pScene->requestDestroy(col->gameObj);
         }
-        pScene->requestDestroy(this);
+
+        else if(col->gameObj->getLayer() == ELayers::PLAYER_LAYER && m_owner == ELayers::ENEMY_LAYER)
+        {
+            PlayerShip* pPlayer = dynamic_cast<PlayerShip*>(col->gameObj);
+            if(pPlayer)
+            {
+                pPlayer->DecreaseHealth();
+            }
+            
+        }
     }
 }

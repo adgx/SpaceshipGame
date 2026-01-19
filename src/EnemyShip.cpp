@@ -8,6 +8,8 @@
 
 namespace SpaceEngine {
 
+    
+
     EnemyShip::EnemyShip(Scene* pScene, std::string filePathModel):GameObject(pScene),
         m_type(EnemyType::NORMAL), m_pTarget(nullptr), m_speed(10.0f),
         m_shootTimer(0.0f), m_shootCooldown(2.0f), m_spawnRangeX(50.0f), m_spawnRangeY(30.0f),
@@ -28,9 +30,7 @@ namespace SpaceEngine {
         m_pTarget = pTarget;
         
         if (m_pTransform) {
-            m_pTransform->setLocalPosition(spawnPos);
-            // Ruota di 180 gradi su Y se il modello guarda verso -Z ma arriva da -Z verso +Z
-            m_pTransform->setLocalRotation(Vector3(0, 3.14f, 0)); 
+            m_pTransform->setWorldPosition(spawnPos);
 
             m_pTransform->setLocalScale(Vector3(2.0f));
         }
@@ -84,24 +84,15 @@ namespace SpaceEngine {
             Vector3 forwardDir(0.0f, 0.0f, 1.0f); //direzione verso il player
 
             for (float angleOffset : angles) {
-                Bullet* pBullet = new Bullet(pScene, "Bullet.obj");
-                pBullet->setLayer(ELayers::BULLET_LAYER);
-                pBullet->setOwner(ELayers::ENEMY_LAYER);
-
                 Vector3 shootDir = glm::rotateY(forwardDir, angleOffset);
 
                 float rotY = atan2(shootDir.x, shootDir.z);
                 Vector3 visualRot(1.5708f, rotY, 0.0f);
 
-                pBullet->Fire(spawnPos, shootDir, visualRot, 15.0f); 
-                pScene->requestInstantiate(pBullet);
+                pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, shootDir, visualRot, 15.0f);
             }
         }
         else if(m_type == EnemyType::AIMER && m_pTarget) {
-            Bullet* pBullet = new Bullet(pScene, "Bullet.obj");
-            pBullet->setLayer(ELayers::BULLET_LAYER);
-            pBullet->setOwner(ELayers::ENEMY_LAYER);
-
             // per trovare angolo di sparo verso il player in base alla sua pos attuale
             Vector3 targetPos = m_pTarget->getTransform()->getWorldPosition();
             Vector3 direction = glm::normalize(targetPos - spawnPos);
@@ -110,19 +101,13 @@ namespace SpaceEngine {
             
             Vector3 aimRot = Vector3(1.5708f, angleY, 0); 
 
-            pBullet->Fire(spawnPos, direction, aimRot, 15.0f);
-            pScene->requestInstantiate(pBullet);
+            pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, direction, aimRot, 15.0f);
         }
         else{
-            Bullet* pBullet = new Bullet(pScene, "Bullet.obj");
-            pBullet->setLayer(ELayers::BULLET_LAYER);
-            pBullet->setOwner(ELayers::ENEMY_LAYER);
-
             Vector3 shootDir(0.0f, 0.0f, 1.0f); // Dritto verso +Z
             Vector3 visualRot(1.5708f, 0.0f, 0.0f);
 
-            pBullet->Fire(spawnPos, shootDir, visualRot, 15.0f);
-            pScene->requestInstantiate(pBullet);
+            pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, shootDir, visualRot, 15.0f);
         }
 
         if (auto* audioMgr = pScene->getAudioManager()) {

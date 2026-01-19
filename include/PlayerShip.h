@@ -27,6 +27,7 @@ namespace SpaceEngine {
         void MoveLeft();
         void MoveRight();
         void Fire();
+        inline void DecreaseHealth(){ if(m_health > 0) --m_health;}
 
         // Gestisce l'input e aggiorna la posizione
         virtual void update(float dt) override;
