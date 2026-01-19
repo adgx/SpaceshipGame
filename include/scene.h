@@ -21,6 +21,8 @@ namespace SpaceEngine
 {
     class GameObject;
     class PlayerShip;
+    class Asteroid;
+    class EnemyShip;
     
     class Scene
     {
@@ -32,11 +34,12 @@ namespace SpaceEngine
             };
             virtual ~Scene() = default;
             
-            void OnLoad()
+            virtual void OnLoad()
             {
                 SPACE_ENGINE_INFO("On load scene");
             }
-            void OnUnload()
+
+            virtual void OnUnload()
             {
                 SPACE_ENGINE_INFO("On unload scene");
             }
@@ -179,6 +182,13 @@ namespace SpaceEngine
         private:
             uint32_t m_score = 0; 
     };
+
+    class PointSubject : public Subject<GameObject, int>
+    {
+        public:
+            PointSubject();
+            void notifyPoints(GameObject& pGameObj, int score);
+    };
     
 
     class SpaceScene : public Scene
@@ -189,6 +199,7 @@ namespace SpaceEngine
             ~SpaceScene() = default;
             void removeHealthIcon();
             void SetPlayer(PlayerShip* player) { m_pPlayer = player; }
+            void OnLoad() override;
             static ScoreSys* pScoreSys;
             static Bullet* pBulletEnemy; 
             
@@ -198,6 +209,8 @@ namespace SpaceEngine
             void handleSpawning(float dt);
             
             //GESTIONE SPAWN
+            static EnemyShip* m_pEnemy;
+            static Asteroid* m_pAsteroid;
             float m_asteroidTimer = 0.0f;
             float m_enemyTimer = 0.0f;
             // Intervalli di spawn
@@ -208,7 +221,6 @@ namespace SpaceEngine
             float m_gameAreaX = 10.0f; // Larghezza totale area spawn
             float m_gameAreaY = 10.0f; // Altezza totale area spawn
             float m_elapsedTime = 0.0f;
-            Text* m_pPoints;
             unsigned int m_points = 0;
             float m_timer = 0.f;
             bool m_asteroidDebug = false;

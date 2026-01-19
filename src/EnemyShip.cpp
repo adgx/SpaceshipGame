@@ -8,8 +8,6 @@
 
 namespace SpaceEngine {
 
-    
-
     EnemyShip::EnemyShip(Scene* pScene, std::string filePathModel):GameObject(pScene),
         m_type(EnemyType::NORMAL), m_pTarget(nullptr), m_speed(10.0f),
         m_shootTimer(0.0f), m_shootCooldown(2.0f), m_spawnRangeX(50.0f), m_spawnRangeY(30.0f),
@@ -23,11 +21,13 @@ namespace SpaceEngine {
     }
 
     EnemyShip::~EnemyShip() {
+        delete m_pSub;
     }
 
     void EnemyShip::Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget) {
         m_type = type;
         m_pTarget = pTarget;
+        m_pSub = new PointSubject();
         
         if (m_pTransform) {
             m_pTransform->setWorldPosition(spawnPos);
@@ -136,13 +136,22 @@ namespace SpaceEngine {
 
     void EnemyShip::onCollisionEnter(Collider* col) {
         SPACE_ENGINE_INFO("Enemy hit something!");
-        m_health--;
-
-        if (m_health <= 0) {
-            if(pScene) pScene->requestDestroy(this);
+        if(col->gameObj->getLayer() == ELayers::PLAYER_LAYER)
+        {
+            DecreaseHealth();
             if (auto* audioMgr = pScene->getAudioManager()) {
                 audioMgr->PlaySound("enemy_explosion");
-            }
-        }  
+            }  
+        }
+    }
+
+    void EnemyShip::DecreaseHealth()
+    { 
+        if(m_health > 0) --m_health;
+        if(m_health == 0)
+        {
+                m_pSub->notifyPoints(*this, m_score);
+                pScene->requestDestroy(this);
+        }
     }
 }

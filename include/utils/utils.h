@@ -133,7 +133,7 @@ namespace SpaceEngine
             Subject(): m_pObsHead(nullptr){}
             ~Subject()
             {
-                m_pObsHead->destroyObsList();
+                //m_pObsHead->destroyObsList();
                 m_pObsHead = nullptr;
             }
             void addObserver(Observer<EntityT, EventT>* observer)

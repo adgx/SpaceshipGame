@@ -18,9 +18,10 @@ namespace SpaceEngine
     {
         public:
             App();
-            static InputHandler& GetInputHandler();
             ~App();
             void Run();
+            static InputHandler& GetInputHandler();
+            static EAppState state;
         private:
             void Start();
             void InputHandle();

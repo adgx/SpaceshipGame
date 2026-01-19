@@ -199,42 +199,42 @@ namespace SpaceEngine
 
         InputHandler& inputHandler = App::GetInputHandler();
         //Down command for joystick and keyboard
-        inputHandler.bindCommand(EAppState::RUN, 
+        inputHandler.bindCommand(EAppState::START, 
             this, 
             {SPACE_ENGINE_JK_BUTTON_DOWN, 
                 EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
                 m_pMoveDownCmd});
-        inputHandler.bindCommand(EAppState::RUN, 
+        inputHandler.bindCommand(EAppState::START, 
             this, 
             {SPACE_ENGINE_KEY_BUTTON_S, 
                 EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
                 m_pMoveDownCmd});
         
         //UP command for joystick and keyboard
-        inputHandler.bindCommand(EAppState::RUN, 
+        inputHandler.bindCommand(EAppState::START, 
             this, 
             {SPACE_ENGINE_JK_BUTTON_UP, 
                 EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
                 m_pMoveUpCmd});
-        inputHandler.bindCommand(EAppState::RUN, 
+        inputHandler.bindCommand(EAppState::START, 
             this, 
             {SPACE_ENGINE_KEY_BUTTON_W, 
                 EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
                 m_pMoveUpCmd});
 
         //Click command for joystick and keyboard
-        inputHandler.bindCommand(EAppState::RUN, 
+        inputHandler.bindCommand(EAppState::START, 
             this, 
             {SPACE_ENGINE_JK_BUTTON_A, 
                 EInputType::SPACE_ENGINE_INPUT_JOYSTICK, 
                 m_pOnPressCmd});
-        inputHandler.bindCommand(EAppState::RUN, 
+        inputHandler.bindCommand(EAppState::START, 
             this, 
             {SPACE_ENGINE_KEY_BUTTON_ENTER, 
                 EInputType::SPACE_ENGINE_INPUT_KEYBOARD, 
                 m_pOnPressCmd});
         //Click command for mouse
-        inputHandler.bindCommand(EAppState::RUN, 
+        inputHandler.bindCommand(EAppState::START, 
             this, 
             {SPACE_ENGINE_MOUSE_BUTTON_LEFT, 
                 EInputType::SPACE_ENGINE_INPUT_MOUSE, 

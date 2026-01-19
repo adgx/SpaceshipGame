@@ -10,7 +10,7 @@
 
 namespace SpaceEngine
 {
-    EAppState state = EAppState::START;
+    EAppState App::state = EAppState::START;
     InputHandler* App::inputHandler = nullptr;
     
     App::App()
@@ -144,7 +144,6 @@ namespace SpaceEngine
     void App::Run()
     {
         SPACE_ENGINE_DEBUG("App - GameLoop");
-        state = EAppState::RUN;
         //token debug stuff
         
         float lastTime = static_cast<float>(glfwGetTime());

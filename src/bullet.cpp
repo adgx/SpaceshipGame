@@ -69,19 +69,21 @@ namespace SpaceEngine
         pScene->requestDestroy(this);
         
         SPACE_ENGINE_INFO("Bullet Collision onEnter Called with Collider: {}", reinterpret_cast<std::uintptr_t>(col));
-        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER && m_owner == ELayers::PLAYER_LAYER)
+        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER && m_layer == ELayers::BULLET_PLAYER_LAYER)
         {
-            //SpaceScene::pScoreSys->onNotify(*col->gameObj, 100);
             SPACE_ENGINE_INFO("Bullet hit an Enemy!");
-            pScene->requestDestroy(col->gameObj);
+            //dynamic cast
+            EnemyShip* pEnemy = dynamic_cast<EnemyShip*>(col->gameObj);
+            if(pEnemy)
+            {
+                pEnemy->DecreaseHealth();
+            }
         }
-        else if(col->gameObj->getLayer() == ELayers::ASTEROID_LAYER && m_owner == ELayers::PLAYER_LAYER){
+        else if(col->gameObj->getLayer() == ELayers::ASTEROID_LAYER && m_layer == ELayers::BULLET_PLAYER_LAYER){
             SPACE_ENGINE_INFO("Bullet hit an Asteroid!");
-            //SpaceScene::pScoreSys->onNotify(*col->gameObj, 10);
-            pScene->requestDestroy(col->gameObj);
         }
 
-        else if(col->gameObj->getLayer() == ELayers::PLAYER_LAYER && m_owner == ELayers::ENEMY_LAYER)
+        else if(col->gameObj->getLayer() == ELayers::PLAYER_LAYER && m_layer == ELayers::BULLET_ENEMY_LAYER)
         {
             PlayerShip* pPlayer = dynamic_cast<PlayerShip*>(col->gameObj);
             if(pPlayer)

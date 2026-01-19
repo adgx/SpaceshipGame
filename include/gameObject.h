@@ -8,14 +8,15 @@
 
 namespace SpaceEngine
 {
-
     enum class ELayers
     {
         DEFAULT_LAYER,
         PLAYER_LAYER,
         ENEMY_LAYER,
         BULLET_LAYER,
-        ASTEROID_LAYER
+        ASTEROID_LAYER,
+        BULLET_PLAYER_LAYER,
+        BULLET_ENEMY_LAYER,
     };
 
     class Scene;
@@ -23,7 +24,6 @@ namespace SpaceEngine
     class GameObject 
     {
         public:
-            GameObject() = delete;
             GameObject(Scene* pScene);
             GameObject(const GameObject& other);
             virtual ~GameObject();

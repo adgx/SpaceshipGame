@@ -1,11 +1,12 @@
 #pragma once
-#include <glad/gl.h>
-#include <GLFW/glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <random>
+
 #include "gameObject.h"
 #include "renderer.h"
+#include "scene.h"
 
 namespace SpaceEngine {
 
@@ -25,14 +26,16 @@ namespace SpaceEngine {
         }
 
     private:
+        PointSubject* m_pSub; 
         Vector3 m_rotationAxis;
+
         float m_velocity;
         float m_rotationSpeed;
-
         float m_spawnRangeX;
         float m_spawnRangeY;
-        
         float m_spawnZ, m_despawnZ;
+
+        int m_score = 50;
 
         void Spawn();
     };

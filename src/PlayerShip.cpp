@@ -16,7 +16,7 @@ namespace SpaceEngine {
         m_pCollider = new Collider(this);
         m_pBullet = new Bullet(pScene, "Bullet.obj");
         m_pBullet->setOwner(ELayers::PLAYER_LAYER);
-        m_pBullet->setLayer(ELayers::PLAYER_LAYER);
+        m_pBullet->setLayer(ELayers::BULLET_PLAYER_LAYER);
         Transform* pTransformBullet = m_pBullet->getComponent<Transform>();
         //m_pBullet->setLayer(ELayers::BULLET_LAYER);
         //set the parent of the bullet's trasform and place an offset 
@@ -116,7 +116,7 @@ namespace SpaceEngine {
     void PlayerShip::onCollisionEnter(Collider* col) 
     {
         SPACE_ENGINE_INFO("PlayerShip Collision onEnter Called with Collider: {}", reinterpret_cast<std::uintptr_t>(col));
-        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER || col->gameObj->getLayer() == ELayers::ASTEROID_LAYER || col->gameObj->getLayer() == ELayers::BULLET_LAYER)
+        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER || col->gameObj->getLayer() == ELayers::ASTEROID_LAYER || col->gameObj->getLayer() == ELayers::BULLET_ENEMY_LAYER)
         {
             SPACE_ENGINE_INFO("Layer nemico confermato! Salute attuale: {}", m_health);
         
@@ -139,7 +139,8 @@ namespace SpaceEngine {
                 {
                     SPACE_ENGINE_INFO("GAME OVER - PlayerShip distrutta!");
                     //to avoid 
-                    if(pScene) pScene->requestDestroy(this);
+                    //if(pScene) pScene->requestDestroy(this);
+                    m_pMesh = nullptr;
                     if (auto* audioMgr = pScene->getAudioManager()) {
                         audioMgr->PlaySound("player_explosion");
                         audioMgr->PlaySound("game_over");

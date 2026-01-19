@@ -20,34 +20,32 @@ namespace SpaceEngine {
     public:
         EnemyShip(Scene* pScene, std::string filePathModel);
         virtual ~EnemyShip();
-
         virtual void Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget = nullptr);
-
         virtual void update(float dt) override;
-
         virtual void onCollisionEnter(Collider* col) override;
-
         RenderObject getRenderObject();
+        void DecreaseHealth();
 
         void Shoot();
 
         //da implementare: se supera la videocamera si deve distruggere
 
     private:
-        EnemyType m_type;
         GameObject* m_pTarget; //il giocatore da mirare per aimer
+        PointSubject* m_pSub;
         const Bullet* m_pBulletPrefab;
-        float m_speed;
 
+        float m_speed;
         float m_spawnRangeX;
         float m_spawnRangeY;
-
-        int m_health;
-
         float m_spawnZ, m_despawnZ;
-
-        float m_shootTimer;
         float m_shootCooldown; // Ogni quanto spara
+        float m_shootTimer;
+        
+        int m_health;
+        int m_score = 100;
+    
+        EnemyType m_type;
 
         void performAI(float dt);
 

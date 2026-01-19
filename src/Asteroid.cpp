@@ -13,7 +13,7 @@ namespace SpaceEngine {
         m_pMesh = MeshManager::loadMesh(filePathModel);
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
-
+        
         m_rotationSpeed = 10.0f;
         m_velocity = 0.0f;
         m_spawnZ = -100.0f;
@@ -28,9 +28,12 @@ namespace SpaceEngine {
     }
 
     Asteroid::~Asteroid() {
+        if(m_pSub)
+            delete m_pSub;
     }
 
     void Asteroid::Init(Vector3 startPos) {
+        m_pSub = new PointSubject();
         if (m_pTransform) {
             // Usa la posizione decisa dalla Scena
             m_pTransform->setWorldPosition(startPos);
@@ -71,9 +74,18 @@ namespace SpaceEngine {
 
     void Asteroid::onCollisionEnter(Collider* col) {
         SPACE_ENGINE_INFO("PlayerShip Collision onEnter Called with Collider: {}", reinterpret_cast<std::uintptr_t>(col));
-        if (auto* audioMgr = pScene->getAudioManager()) {
-            audioMgr->PlaySound("asteroid_explosion");
+        if(col->gameObj->getLayer() == ELayers::PLAYER_LAYER)
+        {
+            if (auto* audioMgr = pScene->getAudioManager()) 
+                audioMgr->PlaySound("asteroid_explosion");
+            pScene->requestDestroy(this);
         }
-        pScene->requestDestroy(this);
+        else if(col->gameObj->getLayer() == ELayers::BULLET_PLAYER_LAYER)
+        {
+            m_pSub->notifyPoints(*this, m_score);
+            if (auto* audioMgr = pScene->getAudioManager()) 
+                audioMgr->PlaySound("asteroid_explosion");
+            pScene->requestDestroy(this);
+        }
     }
 }
