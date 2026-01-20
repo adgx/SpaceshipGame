@@ -433,7 +433,11 @@ namespace SpaceEngine
                                        &written,
                                        name);
             flag = glGetError();
+            GLuint loc = glGetSubroutineIndex( handle,
+                                               shType,
+                                               name);
             SPACE_ENGINE_DEBUG("ActiveSubroutine: {} Loc: {}", name, i);
+            SPACE_ENGINE_DEBUG("True Location: {}", loc);
             subroutinesInfo[name] = i;
         }
         
@@ -467,7 +471,11 @@ namespace SpaceEngine
   	                                            name);
             SPACE_ENGINE_DEBUG("ActiveSubroutineUniform: {} Loc: {}", name, i);
             subroutineUniformsInfo[shType][name] = i;
-
+            
+            GLuint loc = glGetSubroutineIndex( handle,
+                                               shType,
+                                               name);
+            SPACE_ENGINE_DEBUG("True Location: {}", loc);
             }
             vsIdxSubRoutUniform.resize(numLocs);
             vsSubroutinesInfo = subroutinesInfo;
@@ -489,7 +497,11 @@ namespace SpaceEngine
   	                                            &written,
   	                                            name);
                 SPACE_ENGINE_DEBUG("ActiveSubroutineUniform: {} Loc: {}", name, i);
-                subroutineUniformsInfo[shType][name] = i;
+                GLint loc = glGetSubroutineUniformLocation(handle,
+                                                    shType,
+                                                    name);
+                SPACE_ENGINE_DEBUG("True Location: {}", loc);
+                subroutineUniformsInfo[shType][name] = loc;
             }
             fsIdxSubRoutUniform.resize(numLocs);
             fsSubroutinesInfo = subroutinesInfo;

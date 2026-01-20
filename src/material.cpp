@@ -217,7 +217,7 @@ namespace SpaceEngine
         else pShader->setSubroutinesUniform("getAOFromVal", "AOMode");
 
         pShader->bindSubroutines();
-        auto glError = glGetError();
+        GL_CHECK_ERRORS();
     }
 
 

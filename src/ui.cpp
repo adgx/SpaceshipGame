@@ -252,22 +252,22 @@ namespace SpaceEngine
     {
         InputHandler& inputHandler = App::GetInputHandler();
         // Down
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_JK_BUTTON_DOWN, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pMoveDownCmd});
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_KEY_BUTTON_S, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pMoveDownCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_JK_BUTTON_DOWN, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pMoveDownCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_KEY_BUTTON_S, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pMoveDownCmd});
         // Up
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_JK_BUTTON_UP, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pMoveUpCmd});
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_KEY_BUTTON_W, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pMoveUpCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_JK_BUTTON_UP, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pMoveUpCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_KEY_BUTTON_W, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pMoveUpCmd});
         // Click/Press
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_JK_BUTTON_A, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pOnPressCmd});
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_KEY_BUTTON_ENTER, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pOnPressCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_JK_BUTTON_A, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pOnPressCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_KEY_BUTTON_ENTER, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pOnPressCmd});
         // Mouse
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_MOUSE_BUTTON_LEFT, EInputType::SPACE_ENGINE_INPUT_MOUSE, m_pOnClickCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_MOUSE_BUTTON_LEFT, EInputType::SPACE_ENGINE_INPUT_MOUSE, m_pOnClickCmd});
         //destra
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_JK_BUTTON_RIGHT, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pMoveRightCmd});
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_KEY_BUTTON_D, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pMoveRightCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_JK_BUTTON_RIGHT, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pMoveRightCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_KEY_BUTTON_D, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pMoveRightCmd});
         //sinistra
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_JK_BUTTON_LEFT, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pMoveLeftCmd});
-        inputHandler.bindCommand(EAppState::RUN, this, {SPACE_ENGINE_KEY_BUTTON_A, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pMoveLeftCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_JK_BUTTON_LEFT, EInputType::SPACE_ENGINE_INPUT_JOYSTICK, m_pMoveLeftCmd});
+        inputHandler.bindCommand(EAppState::START, this, {SPACE_ENGINE_KEY_BUTTON_A, EInputType::SPACE_ENGINE_INPUT_KEYBOARD, m_pMoveLeftCmd});
     }
 
     void UINavigator::unbindCommands()
