@@ -14,7 +14,6 @@ namespace SpaceEngine
     //-----------------------------------------//
     //---------------Scene---------------------//
     //-----------------------------------------//
-    
     BaseCamera* Scene::getActiveCamera() const
     {
         if(cameras.size() != 0 )
@@ -34,14 +33,17 @@ namespace SpaceEngine
         {
             pUILayout->update();
         }
-        
-        for (auto* obj : gameObjects)
-            obj->update(dt);
 
-        UpdateScene(dt);
-        // cleanup gameobjects phase
-        processInstantiateQ(dt);
-        processDestroyQ();
+        if (App::state == EAppState::RUN) 
+        {
+            for (auto* obj : gameObjects)
+                obj->update(dt);
+
+            // cleanup gameobjects phase
+            processInstantiateQ(dt);
+            processDestroyQ();
+        }
+
         UpdateScene(dt);
     }
 
@@ -258,11 +260,11 @@ namespace SpaceEngine
     }
 
     void SpaceScene::TogglePause() {
-        m_isPaused = !m_isPaused;
-
-        if (m_isPaused) {
-            m_pPauseScene->Show();
-        } else {
+        if (App::state == EAppState::RUN) {
+            App::state = EAppState::PAUSE;
+            if(m_pPauseScene) m_pPauseScene->Show();
+        } else if(App::state == EAppState::PAUSE) {
+            App::state = EAppState::RUN;
             m_pPauseScene->Hide();
         }
     }
@@ -278,12 +280,39 @@ namespace SpaceEngine
             m_escProcessed = false; 
         }
 
-        if (m_isPaused) {
+        if (App::state == EAppState::PAUSE) {
             m_pPauseScene->Update();
             return; 
         }
         m_elapsedTime +=dt;
-        SpaceScene::handleSpawning(dt);
+        if (App::state == EAppState::RUN) {
+            SpaceScene::handleSpawning(dt);
+        }
+    }
+
+    void SpaceScene::ResetGame()
+    {
+        for (auto* obj : gameObjects)
+        {
+            if (dynamic_cast<Asteroid*>(obj) || dynamic_cast<EnemyShip*>(obj))
+            {
+                requestDestroy(obj); 
+            }
+        }
+
+        m_asteroidTimer = 0.0f;
+        m_enemyTimer = 0.0f;
+
+        if (m_pPlayer )m_pPlayer->Reset();
+        if(pScoreSys) pScoreSys->Reset(); 
+        
+        SPACE_ENGINE_INFO("Game Reset Complete");
+    }
+
+    uint32_t SpaceScene::GetCurrentScore()
+    {
+        if(pScoreSys) return pScoreSys->GetScore();
+        return 0;
     }
 
     float SpaceScene::randomRange(float min, float max) 
@@ -398,6 +427,14 @@ namespace SpaceEngine
         {
             m_score += static_cast<uint32_t>(event); 
             pTextPoints->setString(std::to_string(m_score));
+        }
+    }
+
+    void ScoreSys::Reset()
+    {
+        m_score = 0;
+        if(pTextPoints) {
+            pTextPoints->setString("0");
         }
     }
 

@@ -104,6 +104,24 @@ namespace SpaceEngine {
         }     
     }
 
+    void PlayerShip::Reset()
+    {
+        m_health = 3;
+        if (m_pMesh == nullptr) {
+            m_pMesh = MeshManager::loadMesh("PlayerShip.obj"); 
+        }
+        if (m_pTransform) {
+            m_pTransform->setLocalPosition(Vector3(0.0f, 0.0f, -8.0f)); 
+            m_pTransform->setLocalScale(Vector3(1.0f));
+            m_pTransform->setLocalRotation(glm::quat(1.f, 0.f, 0.f, 0.f));
+            m_pTransform->rotateLocal(180, {0.f,1.f, 0.f});
+        }
+
+        m_shootCooldown = 0.f;
+        
+        SPACE_ENGINE_INFO("PlayerShip Reset Complete");
+    }
+
     void PlayerShip::update(float dt) {
         m_dt = dt;
         //HandleInput(dt);

@@ -166,7 +166,7 @@ namespace SpaceEngine
             GameObject* instantiate(const SpawnRequest& sr);
             //may be is useful a table with duoble link list to keep the gameObjects
             //for avoing a complex gathering
-            vector<GameObject*> gameObjects;
+            //vector<GameObject*> gameObjects;
             std::queue<GameObject*> destroyQ;
             std::list<SpawnRequest> spawnQ;
             std::vector<Light*> lights;
@@ -177,15 +177,17 @@ namespace SpaceEngine
             //scene property
             bool active = true;
         protected:
+            vector<GameObject*> gameObjects;
             std::string name;
             std::vector<UILayout*> m_vecUILayouts;
-            bool m_isPaused = false;
     };
 
     class ScoreSys : public Observer<GameObject, int>
     {
         public:
             void onNotify(const GameObject& entity, const int& event) override;
+            void Reset(); 
+            uint32_t GetScore() const { return m_score; }
             Text* pTextPoints;
         private:
             uint32_t m_score = 0; 
@@ -210,9 +212,11 @@ namespace SpaceEngine
             virtual void OnSwitch() override;
             static ScoreSys* pScoreSys;
             static Bullet* pBulletEnemy; 
+            void ResetGame();
             void TogglePause();
             void removePauseLayout(UILayout* layout);
             
+            uint32_t GetCurrentScore();
         private:
             void UpdateScene(float dt) override;
             float randomRange(float min, float max); 
@@ -236,8 +240,7 @@ namespace SpaceEngine
             bool m_asteroidDebug = false;
             PlayerShip* m_pPlayer = nullptr;
             std::stack<UIBase*> healthIcons;
-            
-            PlayerShip* m_pPlayer = nullptr;
+           
             PauseScene* m_pPauseScene = nullptr;
             bool m_escProcessed = false;
     };

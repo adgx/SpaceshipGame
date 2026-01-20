@@ -22,6 +22,7 @@ namespace SpaceEngine {
         virtual ~PlayerShip();
 
         void Init();
+        void Reset();
         void MoveUp();
         void MoveDown();
         void MoveLeft();

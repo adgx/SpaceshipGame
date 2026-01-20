@@ -82,10 +82,11 @@ namespace SpaceEngine{
         {
             m_lastWidth = WindowManager::width;
             m_lastHeight = WindowManager::height;
-
             notifyChangeRes(); 
-            
-            SPACE_ENGINE_DEBUG("TitleScreen UI Resized to: {}x{}", m_lastWidth, m_lastHeight);
+        }
+        if (Keyboard::keyDown(SPACE_ENGINE_KEY_BUTTON_ESCAPE))
+        {
+            ExitGame(); // Chiama la tua funzione che fa exit(0)
         }
     }
 
