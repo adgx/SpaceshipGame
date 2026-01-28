@@ -22,6 +22,7 @@ namespace SpaceEngine
     constexpr int REF_WIDTH  = 1920;
     constexpr int REF_HEIGHT = 1080;
 
+    
     namespace Math
     {
         inline float fabs(float x)
@@ -80,6 +81,15 @@ namespace SpaceEngine
             return a*a;
         }
     }
+
+    class PRNG
+    {
+        public:
+            static uint32_t getNumber();
+        private: 
+            static uint32_t xorShift(uint32_t value);
+            static uint32_t m_state;
+    };
 
     class Utils
     {

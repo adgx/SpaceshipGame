@@ -182,6 +182,88 @@ namespace SpaceEngine
             std::vector<UILayout*> m_vecUILayouts;
     };
 
+    class SpawnerSys
+    {
+        public:
+            void handlerSpawn()
+            {
+                switch(m_state)
+                {
+                    case SPAWN_ASTEROID_EASY:
+                        if(m_budget == 0)
+                        {
+                            m_state = SPAWN_ASTEROID_MED; 
+                        }
+
+                        break;
+                    case SPAWN_ASTEROID_MED:
+                        if(m_budget == 0)
+                        {
+                            m_state = SPAWN_ASTEROID_HARD; 
+                        }
+                        break;
+                    case SPAWN_ASTEROID_HARD:
+                        if(m_budget == 0)
+                        {
+                            if(m_lastStage)
+                                m_state = SPAWN_ENEMY_HARD; 
+                            else m_state = SPAWN_ENEMY_EASY; 
+                        }
+
+
+                        break;
+                    case SPAWN_ENEMY_EASY:
+                        if(m_budget == 0)
+                        {
+                            m_state = SPAWN_ENEMY_MED; 
+                        }
+                        break;
+                    case SPAWN_ENEMY_MED:
+                        if(m_budget == 0)
+                        {
+                            m_state = SPAWN_ENEMY_HARD; 
+                        }
+                        break;
+                    case SPAWN_ENEMY_HARD:
+                        if(m_budget == 0)
+                        {
+                            m_lastStage = true;
+                            m_state = SPAWN_ASTEROID_HARD; 
+                        }
+                        break;
+                }
+            } 
+        private:
+            enum ESpawnState
+            {
+                SPAWN_ASTEROID_EASY,
+                SPAWN_ASTEROID_MED,
+                SPAWN_ASTEROID_HARD,
+                SPAWN_ENEMY_EASY,
+                SPAWN_ENEMY_MED,
+                SPAWN_ENEMY_HARD,
+            };
+
+            ESpawnState m_state = ESpawnState::SPAWN_ASTEROID_EASY;
+            static constexpr int32_t m_budgetAsteroridE = 20;
+            static constexpr int32_t m_budgetAsteroridM = 30;
+            static constexpr int32_t m_budgetAsteroridH = 10;
+            static constexpr int32_t m_budgetEnemyE = 20;
+            static constexpr int32_t m_budgetEnemyM = 30;
+            static constexpr int32_t m_budgetEnemyH = 10;
+            static constexpr float m_velAsterorid = 8.f;            
+            static constexpr float m_timeAsterorid = 0.5f;
+            static constexpr float m_timeAsteroridXM = 1.25f;
+            static constexpr float m_timeAsteroridXH = 1.5f;
+            static constexpr float m_velEnemy = 8.f;
+            static constexpr float m_timeEnemyXM = 1.25f;
+            static constexpr float m_timeEnemyXH = 1.5f;
+            int32_t m_budget = m_budgetAsteroridE;
+            bool m_lastStage = false;
+            int8_t m_frontSpace[3] = {0, 0, 0};
+            int8_t m_backSpace[3] = {0, 0, 0};
+    };
+
     class ScoreSys : public Observer<GameObject, int>
     {
         public:

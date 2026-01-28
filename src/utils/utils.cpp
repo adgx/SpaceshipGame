@@ -195,4 +195,25 @@ namespace SpaceEngine
         // Altrimenti aggiunge il separatore di Windows standard
         return a + b;
     }
+
+    //-------------------------------------------------//
+    //-----------------------PRNG----------------------//
+    //-------------------------------------------------//
+    uint32_t PRNG::m_state = 1239131;
+
+    uint32_t PRNG::getNumber()
+    {
+        m_state = xorShift(m_state);
+        return m_state;
+    }
+
+    uint32_t PRNG::xorShift(uint32_t value) 
+    {
+        value ^= value << 13;
+        value ^= value >> 17;
+        value ^= value << 4;
+        return value;
+    }
+
+    
 }
