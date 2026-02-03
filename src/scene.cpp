@@ -430,6 +430,51 @@ namespace SpaceEngine
     //--------------------SpawnerSys-----------------------//
     //-----------------------------------------------------//
 
+    SpawnerSys::Stage SpawnerSys::m_lookupStages[] =
+    {
+        {
+            .eStage{SPAWN_ASTEROID_MED},
+            .minSpawn{1},
+            .maxSpawn{2},
+            .budget{BudgetAsteroridM},
+            .weights{0.3f, 0.7f, 0.f},
+            .spawnInterval{TimeAsterorid * TimeAsteroridXM}
+        },
+        {
+            .eStage{SPAWN_ASTEROID_HARD},
+            .minSpawn{1},
+            .maxSpawn{3},
+            .budget{BudgetAsteroridH},
+            .weights{0.1f, 0.3f, 0.6f},
+            .spawnInterval{TimeAsterorid * TimeAsteroridXH}
+        },
+        {
+            .eStage{SPAWN_ENEMY_EASY},
+            .minSpawn{1},
+            .maxSpawn{1},
+            .budget{BudgetEnemyE},
+            .weights{1.f, 0.f, 0.f},
+            .spawnInterval{TimeEnemy}
+        },
+        {
+            .eStage{SPAWN_ENEMY_MED},
+            .minSpawn{minSpawn = 1},
+            .maxSpawn{maxSpawn = 2},
+            .budget{budget = BudgetEnemyM},
+            .weights{0.3f, 0.7f, 0.f},
+            .spawnInterval{spawnInterval = TimeEnemy * TimeEnemyXM}
+        },
+        {
+            .eStage{SPAWN_ENEMY_HARD},
+            .minSpawn{1},
+            .maxSpawn{3},
+            .budget{BudgetEnemyM},
+            .weights{0.2f,0.7f,0.1f},
+            .spawnInterval{TimeEnemy * TimeEnemyXH}
+        }
+    };
+
+
     SpawnerSys::SpawnerSys()
     {
         SpawnerObs* m_pSpawnerObs = new SpawnerObs();
@@ -523,7 +568,7 @@ namespace SpaceEngine
             m_pSpawnerObs->space[i] = ESlot::FREE;
     }
 
-    int SpawnerSys::weightedRandom(int* weight, int dim)
+    int SpawnerSys::weightedRandom(float* weight, int dim)
     {
         float rand =static_cast<float>(PRNG::getNumber()) / 0xFFFF'FFFF; 
         float comulative = 0.f;
@@ -653,9 +698,9 @@ namespace SpaceEngine
         m_ticket = ticket;
     }
 
-    void SpawnerSubject::notifyDestroy(GameObject& pGameObj, int score)
+    void SpawnerSubject::notifyDestroy(GameObject& pGameObj)
     {
-        notify(pGameObj, score);
+        notify(pGameObj, m_ticket);
     }
 
     //-----------------------------------------------------//

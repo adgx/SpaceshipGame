@@ -214,7 +214,7 @@ namespace SpaceEngine
         
         struct Stage
         {
-            int weights[3];
+            float weights[3];
             ESpawnState eStage;
             uint32_t budget;
             uint32_t minSpawn;
@@ -223,7 +223,7 @@ namespace SpaceEngine
         };
         
         inline float getPosX(int index){return StartOffsetSpace + index * OffsetSpace;}
-        int weightedRandom(int* weight, int dim);
+        int weightedRandom(float* weight, int dim);
         void getAvailableSlot(int* available, int& dim);
         int pickSlot(int prev, int index, int spawnCount);
         uint32_t spawnEntities(Stage& stage, uint32_t spawnCount);
@@ -247,6 +247,9 @@ namespace SpaceEngine
         static constexpr float TimeEnemy = 1.5f;
         static constexpr float TimeEnemyXM = 0.75f;
         static constexpr float TimeEnemyXH = 0.6f;
+
+        static Stage m_lookupStages[];
+
         float m_timer = 0.f;
         Stage m_stage;
         Scene* m_pScene;
@@ -265,8 +268,9 @@ namespace SpaceEngine
     {
         public:
             SpawnerSubject(int ticket);
-            inline void setTicket(int ticket){ m_ticket = ticket;};
-            void notifyDestroy(GameObject& pGameObj, int score);
+            inline void setTicket(int ticket){ m_ticket = ticket;}
+            inline int getTicket(){ return m_ticket;}
+            void notifyDestroy(GameObject& pGameObj);
 
             private:
             int m_ticket = 0;

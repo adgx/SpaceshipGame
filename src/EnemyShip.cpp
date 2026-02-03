@@ -153,6 +153,7 @@ namespace SpaceEngine {
         if(m_health == 0)
         {
                 m_pSub->notifyPoints(*this, m_score);
+                m_pSpawnerSub->notifyDestroy(*this);
                 pScene->requestDestroy(this);
         }
     }

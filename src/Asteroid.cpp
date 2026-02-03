@@ -77,12 +77,14 @@ namespace SpaceEngine {
         SPACE_ENGINE_INFO("PlayerShip Collision onEnter Called with Collider: {}", reinterpret_cast<std::uintptr_t>(col));
         if(col->gameObj->getLayer() == ELayers::PLAYER_LAYER)
         {
+            m_pSpawnerSub->notifyDestroy(*this);
             if (auto* audioMgr = pScene->getAudioManager()) 
                 audioMgr->PlaySound("asteroid_explosion");
             pScene->requestDestroy(this);
         }
         else if(col->gameObj->getLayer() == ELayers::BULLET_PLAYER_LAYER)
         {
+            m_pSpawnerSub->notifyDestroy(*this);
             m_pSub->notifyPoints(*this, m_score);
             if (auto* audioMgr = pScene->getAudioManager()) 
                 audioMgr->PlaySound("asteroid_explosion");
