@@ -26,7 +26,8 @@ namespace SpaceEngine {
         }
 
     private:
-        PointSubject* m_pSub; 
+        PointSubject* m_pSub;
+        SpawnerSubject* m_pSpawnerSub;
         Vector3 m_rotationAxis;
 
         float m_velocity;

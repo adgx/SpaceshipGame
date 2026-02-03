@@ -20,7 +20,7 @@ namespace SpaceEngine {
     public:
         EnemyShip(Scene* pScene, std::string filePathModel);
         virtual ~EnemyShip();
-        virtual void Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget = nullptr);
+        void Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget = nullptr);
         virtual void update(float dt) override;
         virtual void onCollisionEnter(Collider* col) override;
         RenderObject getRenderObject();
@@ -33,6 +33,7 @@ namespace SpaceEngine {
     private:
         GameObject* m_pTarget; //il giocatore da mirare per aimer
         PointSubject* m_pSub;
+        SpawnerSubject* m_pSpawnerSub;
         const Bullet* m_pBulletPrefab;
 
         float m_speed;

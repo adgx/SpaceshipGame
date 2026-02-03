@@ -24,7 +24,7 @@ namespace SpaceEngine {
         delete m_pSub;
     }
 
-    void EnemyShip::Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget) {
+    void EnemyShip::Init(Vector3 spawnPos, EnemyType type, GameObject* pTarget) {
         m_type = type;
         m_pTarget = pTarget;
         m_pSub = new PointSubject();
