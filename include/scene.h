@@ -192,11 +192,12 @@ namespace SpaceEngine
                 ENEMY
             };
 
-            SpawnerSys() = default;
+            SpawnerSys();
             ~SpawnerSys() = default;
 
             void handlerSpawn(); 
             void clearSpace();
+            inline SpawnerObs* getObserver() { return m_pSpawnerObs;};
 
 
         private:
@@ -246,7 +247,7 @@ namespace SpaceEngine
         static constexpr float TimeEnemy = 1.5f;
         static constexpr float TimeEnemyXM = 0.75f;
         static constexpr float TimeEnemyXH = 0.6f;
-        float m_timer;
+        float m_timer = 0.f;
         Stage m_stage;
         Scene* m_pScene;
         SpawnerObs* m_pSpawnerObs;

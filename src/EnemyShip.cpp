@@ -22,12 +22,14 @@ namespace SpaceEngine {
 
     EnemyShip::~EnemyShip() {
         delete m_pSub;
+        delete m_pSpawnerSub;
     }
 
     void EnemyShip::Init(Vector3 spawnPos, EnemyType type, GameObject* pTarget) {
         m_type = type;
         m_pTarget = pTarget;
         m_pSub = new PointSubject();
+        m_pSpawnerSub = new SpawnerSubject();
         
         if (m_pTransform) {
             m_pTransform->setWorldPosition(spawnPos);

@@ -34,6 +34,7 @@ namespace SpaceEngine {
 
     void Asteroid::Init(Vector3 startPos) {
         m_pSub = new PointSubject();
+        m_pSpawnerSub = new SpawnerSubject();
         if (m_pTransform) {
             // Usa la posizione decisa dalla Scena
             m_pTransform->setWorldPosition(startPos);

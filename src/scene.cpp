@@ -430,6 +430,11 @@ namespace SpaceEngine
     //--------------------SpawnerSys-----------------------//
     //-----------------------------------------------------//
 
+    SpawnerSys::SpawnerSys()
+    {
+        SpawnerObs* m_pSpawnerObs = new SpawnerObs();
+    }
+
     void SpawnerSys::handlerSpawn()
     {
         switch(m_stage.eStage)
@@ -643,7 +648,7 @@ namespace SpaceEngine
 
     SpawnerSubject::SpawnerSubject()
     {
-        addObserver(SpaceScene::pScoreSys);
+        addObserver(SpaceScene::pSpawnerSys->getObserver());
     }
 
     void SpawnerSubject::notifyDestroy(GameObject& pGameObj, int score)
