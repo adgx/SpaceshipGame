@@ -228,8 +228,9 @@ namespace SpaceEngine
         int pickSlot(int prev, int index, int spawnCount);
         uint32_t spawnEntities(Stage& stage, uint32_t spawnCount);
         void spawnLogic();
+        void spawnAsteroid(uint32_t spawnCount);
+        void spawnEnemy(uint32_t spawnCount, uint32_t& nSpawned);
 
-        ESpawnState m_state = ESpawnState::SPAWN_ASTEROID_EASY;
         static constexpr int32_t BudgetAsteroridE = 20;
         static constexpr int32_t BudgetAsteroridM = 30;
         static constexpr int32_t BudgetAsteroridH = 10;
