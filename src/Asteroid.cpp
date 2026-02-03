@@ -32,9 +32,9 @@ namespace SpaceEngine {
             delete m_pSub;
     }
 
-    void Asteroid::Init(Vector3 startPos) {
+    void Asteroid::Init(Vector3 startPos, int ticket) {
         m_pSub = new PointSubject();
-        m_pSpawnerSub = new SpawnerSubject();
+        m_pSpawnerSub = new SpawnerSubject(ticket);
         if (m_pTransform) {
             // Usa la posizione decisa dalla Scena
             m_pTransform->setWorldPosition(startPos);

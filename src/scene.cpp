@@ -563,7 +563,8 @@ namespace SpaceEngine
             for(int i = 0, prev = -1; i < spawnCount; i++)
             {
                 int index = pickSlot(prev, index, spawnCount);
-                m_pScene->requestInstantiate(SpaceScene::m_pAsteroid, Vector3{getPosX(index), 0.f, -100.f});                        
+                Asteroid* pAsteroid = m_pScene->requestInstantiate(SpaceScene::m_pAsteroid);
+                pAsteroid->Init(Vector3{getPosX(index), 0.f, -100.f}, index);                       
                 m_pSpawnerObs->space[index] = ESlot::ASTEROID;
                 prev = index;
             }
@@ -586,7 +587,7 @@ namespace SpaceEngine
                 EnemyType enemyType = static_cast<EnemyType>(weightedRandom(m_stage.weights, 3));
                 EnemyShip* pEnemy = m_pScene->requestInstantiate(SpaceScene::m_pEnemy);
 
-                pEnemy->Init(Vector3{getPosX(index), 0.f, -100.f}, enemyType, SpaceScene::m_pPlayer);
+                pEnemy->Init(Vector3{getPosX(index), 0.f, -100.f}, enemyType, SpaceScene::m_pPlayer, index);
                 m_pSpawnerObs->space[index] = ESlot::ENEMY;
             }
 
@@ -646,9 +647,10 @@ namespace SpaceEngine
     //------------------SpawnerSubject---------------------//
     //-----------------------------------------------------//
 
-    SpawnerSubject::SpawnerSubject()
+    SpawnerSubject::SpawnerSubject(int ticket)
     {
         addObserver(SpaceScene::pSpawnerSys->getObserver());
+        m_ticket = ticket;
     }
 
     void SpawnerSubject::notifyDestroy(GameObject& pGameObj, int score)

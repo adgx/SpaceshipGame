@@ -264,7 +264,7 @@ namespace SpaceEngine
     class SpawnerSubject : public Subject<GameObject, int>
     {
         public:
-            SpawnerSubject();
+            SpawnerSubject(int ticket);
             inline void setTicket(int ticket){ m_ticket = ticket;};
             void notifyDestroy(GameObject& pGameObj, int score);
 

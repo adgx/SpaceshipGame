@@ -20,7 +20,7 @@ namespace SpaceEngine {
     public:
         EnemyShip(Scene* pScene, std::string filePathModel);
         virtual ~EnemyShip();
-        void Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget = nullptr);
+        void Init(glm::vec3 spawnPos, EnemyType type, GameObject* pTarget = nullptr, int ticket = 0);
         virtual void update(float dt) override;
         virtual void onCollisionEnter(Collider* col) override;
         RenderObject getRenderObject();
