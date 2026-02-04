@@ -234,6 +234,13 @@ namespace SpaceEngine
         void spawnAsteroid(uint32_t spawnCount);
         void spawnEnemy(uint32_t spawnCount, uint32_t& nSpawned);
 
+        void spawnPowerUp(); 
+        float m_powerupTimer = 0.0f;
+        float m_powerupInterval = 10.0f;
+
+        float randomRange(float min, float max) {
+            return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+        }
         
         static constexpr int32_t BudgetAsteroidE = 10;
         static constexpr int32_t BudgetAsteroidM = 20;

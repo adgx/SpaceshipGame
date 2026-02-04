@@ -432,8 +432,10 @@ namespace SpaceEngine
             pTmpE->Init(Vector3(x, y, z), typeToSpawn, m_pPlayer);
         }
 
+        // --- SPAWN POWERUP ---
         if (m_powerupTimer >= m_powerupInterval)
         {
+            SPACE_ENGINE_INFO("!!!!Spawning PowerUp...");
             m_powerupTimer = 0.0f;
 
             float objectMargin = 2.0f; 
@@ -488,6 +490,11 @@ namespace SpaceEngine
 
             PBRMaterial* pMat = MaterialManager::createMaterial<PBRMaterial>(matName);
             pMat->pShader = ShaderManager::findShaderProgram("powerup");
+
+            if (!pMat->pShader) {
+                SPACE_ENGINE_WARN("Shader 'powerup' not found! Loading/Compiling now...");
+                pMat->pShader = ShaderManager::findShaderProgram("powerup");
+            }
         
             if (pMat->getTexture("albedo_tex") == nullptr) {
                 Texture* pTex = TextureManager::load(TEXTURES_PATH + modelName);
@@ -641,12 +648,83 @@ namespace SpaceEngine
     {
         m_stage = m_lookupStages[ESpawnState::SPAWN_ENEMY_HARD];
         m_pSpawnerObs = new SpawnerObs();
+
+        m_powerupTimer = 0.0f;
+        m_powerupInterval = 10.0f;
+    }
+
+    void SpawnerSys::spawnPowerUp()
+    {
+        float safeX = 8.0f; 
+        float safeY = 4.5f; 
+        float z = -100.0f;
+
+        float x = randomRange(-safeX, safeX);
+        float y = randomRange(-safeY, safeY);
+
+        int PowerUprandomType = rand() % 3;
+        PowerUpType type = PowerUpType::RAPID_FIRE;
+        std::string modelName = "";
+        std::string matName = "";
+        std::string meshName = "";
+
+        switch(PowerUprandomType) {
+            case 0: 
+                type = PowerUpType::RAPID_FIRE;
+                modelName = "PowerUp/rapidFire_powerUp.png";
+                meshName = "QuadRapid.obj";
+                matName = "Mat_PowerUp_Rapid";
+                break;
+            case 1: 
+                type = PowerUpType::BOMB;
+                modelName = "PowerUp/bomb_powerUp.png";
+                meshName = "QuadBomb.obj";
+                matName = "Mat_PowerUp_Nuke";
+                break;
+            case 2: 
+                type = PowerUpType::HEALTH;
+                modelName = "PowerUp/Health_powerUp.png";
+                meshName = "QuadHealth.obj";
+                matName = "Mat_PowerUp_Health";
+                break;
+        }
+
+        if (!m_pScene) return;
+
+        PowerUp* pPower = new PowerUp(m_pScene, type, meshName);
+
+        PBRMaterial* pMat = MaterialManager::createMaterial<PBRMaterial>(matName);
+        
+        pMat->pShader = ShaderManager::findShaderProgram("powerup");
+        
+        if (pMat->getTexture("albedo_tex") == nullptr) {
+            Texture* pTex = TextureManager::load(TEXTURES_PATH + modelName);
+            if(pTex) {
+                pMat->addTexture("albedo_tex", pTex);
+            }
+        }
+        if (Mesh* pMesh = pPower->getComponent<Mesh>()) {
+            pMesh->bindMaterialToSubMeshIndex(0, pMat);
+        }
+
+        pPower->Init(Vector3(x, y, z));
+        
+        m_pScene->addSceneComponent(pPower); 
+        
+        SPACE_ENGINE_INFO("SpawnerSys: Spawned PowerUp Type {}", PowerUprandomType);
     }
 
     void SpawnerSys::handlerSpawn(float dt)
     {
         //update timer
         m_timer += dt;
+
+        m_powerupTimer += dt;
+        if (m_powerupTimer >= m_powerupInterval)
+        {
+            spawnPowerUp();
+            m_powerupTimer = 0.0f; 
+        }
 
         switch(m_stage.eStage)
         {
