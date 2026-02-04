@@ -52,37 +52,50 @@ namespace SpaceEngine{
         pUILayout->addComponent<UINavigator>(EAppState::TITLESCREEN);
         //Buttons
         UIButtonMaterial* pStartMat = MaterialManager::createMaterial<UIButtonMaterial>("StartButton");
+        UIButtonMaterial* pLeaderboardMat = MaterialManager::createMaterial<UIButtonMaterial>("LeaderboardButton");
         UIButtonMaterial* pExitMat = MaterialManager::createMaterial<UIButtonMaterial>("ExitButton");
         UIButtonMaterial* pSettingMat = MaterialManager::createMaterial<UIButtonMaterial>("SettingsButton");
         Texture* pTexStart = TextureManager::load(TEXTURES_PATH"buttons/NewGame.png");
+        Texture* pTexLeaderboard = TextureManager::load(TEXTURES_PATH"buttons/Leaderboard.png");
         Texture* pTexExit = TextureManager::load(TEXTURES_PATH"buttons/Exit.png");
         Texture* pTexSettings = TextureManager::load(TEXTURES_PATH"buttons/Options.png");
         //now We don't have the texture for the hover case
         pStartMat->addTexture("ui_tex", pTexStart);
+        pLeaderboardMat->addTexture("ui_tex", pTexLeaderboard);
         pExitMat->addTexture("ui_tex", pTexExit);
         pExitMat->addTexture("ui_hover_tex", pTexExit);
         pSettingMat->addTexture("ui_tex", pTexSettings);
         //Creation of the UI buttons
         //pos: x:153 y:330 | res x:1440 y:1024 | space between buttons 0.04
         Button* pStart = new Button({0.f, 0.f},
-            {153.f, 330.f},
+            {153.f, 300.f},
             pStartMat, 
             [this]() {return StartNewGame();}
         ); 
-        //pos: x:153 y:464
-        Button* pExit = new Button({0.f, 0.f}, 
-            {153.f, 570.f},
-            pExitMat, 
-            [this]() {return ExitGame();}
+        Button* pLeaderboard = new Button({0.f, 0.f},
+            {153.f, 422.f}, 
+            pLeaderboardMat, 
+            [this]() {
+                SceneManager::SwitchScene("LeaderboardScene");
+                return true;
+            }
         );
         //pos: x:153 y:397
         Button* pSettings = new Button({0.f, 0.f}, 
-            {153.f, 450.f},
+            {153.f, 540.f},
             pSettingMat, 
             [this]() {SceneManager::SwitchScene("SettingsScene");
                 return true;}
         );
+        //pos: x:153 y:464
+        Button* pExit = new Button({0.f, 0.f}, 
+            {153.f, 660.f},
+            pExitMat, 
+            [this]() {return ExitGame();}
+        );
+        
         pUILayout->addUIElement(pStart);
+        pUILayout->addUIElement(pLeaderboard);
         pUILayout->addUIElement(pExit);
         pUILayout->addUIElement(pSettings);
     }

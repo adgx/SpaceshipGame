@@ -228,7 +228,7 @@ namespace SpaceEngine {
     void GameOverScene::SubmitScore() {
         m_isInputActive = false;
         
-        std::string filename = SCORES_PATH"leaderboard.json";
+        std::string filename = TEXTURES_PATH + std::string("../leaderboard.json");
         std::vector<LeaderboardEntry> entries = LoadLeaderboard(filename);
 
         entries.push_back({m_inputBuffer, m_finalScore});
@@ -252,7 +252,8 @@ namespace SpaceEngine {
     bool GameOverScene::IsTop3(int score) {
         if (score == 0) return false;
 
-        std::vector<LeaderboardEntry> entries = LoadLeaderboard("assets/leaderboard.json");
+        std::string filename = TEXTURES_PATH + std::string("../leaderboard.json");
+        std::vector<LeaderboardEntry> entries = LoadLeaderboard(filename);
         
         if (entries.size() < 3) return true;
 
