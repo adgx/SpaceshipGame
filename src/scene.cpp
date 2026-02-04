@@ -646,7 +646,7 @@ namespace SpaceEngine
 
     SpawnerSys::SpawnerSys()
     {
-        m_stage = m_lookupStages[ESpawnState::SPAWN_ENEMY_HARD];
+        m_stage = m_lookupStages[ESpawnState::SPAWN_ASTEROID_EASY];
         m_pSpawnerObs = new SpawnerObs();
 
         m_powerupTimer = 0.0f;
