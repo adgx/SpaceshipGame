@@ -29,6 +29,8 @@ namespace SpaceEngine {
         void MoveRight();
         void Fire();
         inline void DecreaseHealth(){ if(m_health > 0) --m_health;}
+        void Heal();
+        void ActivateRapidFire(float duration);
 
         // Gestisce l'input e aggiorna la posizione
         virtual void update(float dt) override;
@@ -51,6 +53,9 @@ namespace SpaceEngine {
         float m_maxAngle = 25.0f;//massima inclinazione
         float m_bankSpeed = 5.0f;//vel di inclinazione
         int m_moveDirection = 0;//-1 sx, 0 fermo, 1 dx
+
+        bool m_isRapidFireActive = false;
+        float m_rapidFireTimer = 0.0f;
 
         MoveUpCommand* m_playerMoveUp;
         MoveDownCommand* m_playerMoveDown;

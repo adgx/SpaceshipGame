@@ -38,6 +38,9 @@ namespace SpaceEngine
         audioManager.LoadSound("enemy_explosion", AUDIO_PATH"enemyexplosion.wav");
         audioManager.LoadSound("asteroid_explosion", AUDIO_PATH"asteroid_crash.wav");
         audioManager.LoadSound("game_over", AUDIO_PATH"game_over.wav");
+        audioManager.LoadSound("bomb", AUDIO_PATH"bomb.wav");
+        audioManager.LoadSound("heal", AUDIO_PATH"heal.wav");
+        audioManager.LoadSound("rapid_fire", AUDIO_PATH"rapid_fire.wav");
 
         //Renderer objects 
         renderer = new Renderer();

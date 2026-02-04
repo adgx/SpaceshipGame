@@ -43,7 +43,7 @@ namespace SpaceEngine {
         m_pScoreText->setColor({1.f, 1.f, 1.f}); 
         m_pLayout->addText(m_pScoreText);
 
-        //new recordo solo se in top 5
+        //new recordo solo se in top 3
         UIMaterial* pRecordMat = MaterialManager::createMaterial<UIMaterial>("NewRecordMat");
         Texture* pTexRecord = TextureManager::load(TEXTURES_PATH"backgrounds/top_record.png"); 
         pRecordMat->addTexture("ui_tex", pTexRecord);
@@ -55,7 +55,6 @@ namespace SpaceEngine {
         m_pNewRecordImg->pUITransf->setHeight(40.f);
         m_pLayout->addUIElement(m_pNewRecordImg);
 
-        //per inserimento nickname  FIXME: enter name e player si sovrappongono e vanno messi + a sx
         m_pInputLabel = new Text({0.5f, 0.5f}, {-120.f, -20.f}, {0.7f, 0.7f}, pFontMat); 
         m_pInputLabel->setString("ENTER NAME:");
         m_pInputLabel->setColor({0.8f, 0.8f, 0.8f});
@@ -120,7 +119,7 @@ namespace SpaceEngine {
             m_pScoreText->setString(std::to_string(m_finalScore));
         }
 
-        m_hasRecord = IsTop5(m_finalScore);
+        m_hasRecord = IsTop3(m_finalScore);
         if (m_hasRecord) {
             m_inputBuffer = ""; //reset buffer
             m_keyTimer = 0.0f;
@@ -221,7 +220,7 @@ namespace SpaceEngine {
         
         if (keyPressed) {
             m_pNameDisplay->setString(m_inputBuffer + "_");
-            m_keyTimer = 0.25f;//per evitare bouncing
+            m_keyTimer = 0.20f;//per evitare bouncing
         }
     }
 
@@ -237,7 +236,7 @@ namespace SpaceEngine {
             return a.score > b.score; 
         });
 
-        if (entries.size() > 5) entries.resize(5);
+        if (entries.size() > 3) entries.resize(3);
 
         SaveLeaderboard(filename, entries);
 
@@ -249,12 +248,12 @@ namespace SpaceEngine {
         m_keyTimer = 0.5f;
     }
 
-    bool GameOverScene::IsTop5(int score) {
+    bool GameOverScene::IsTop3(int score) {
         if (score == 0) return false;
 
         std::vector<LeaderboardEntry> entries = LoadLeaderboard("assets/leaderboard.json");
         
-        if (entries.size() < 5) return true;
+        if (entries.size() < 3) return true;
 
         if (score > entries.back().score) return true;
 

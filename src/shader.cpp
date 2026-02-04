@@ -766,6 +766,8 @@ namespace SpaceEngine
         GL_CHECK_ERRORS();        
         createShaderProgram("glyphs");
         GL_CHECK_ERRORS();
+        createShaderProgram("powerup");
+        GL_CHECK_ERRORS(); 
     }
 
     void ShaderManager::Shutdown()

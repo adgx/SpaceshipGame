@@ -17,6 +17,7 @@ namespace SpaceEngine
         ASTEROID_LAYER,
         BULLET_PLAYER_LAYER,
         BULLET_ENEMY_LAYER,
+        POWERUP_LAYER,
     };
 
     class Scene;

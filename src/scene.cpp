@@ -1,11 +1,13 @@
 #include "scene.h"
 #include <glad/gl.h>
 #include "log.h"
+#include "mesh.h"
 #include "font.h"
 #include "Asteroid.h"
 #include "EnemyShip.h"
 #include "PlayerShip.h"
 #include "gameObject.h"
+#include "powerUp.h"
 #include "app.h"
 
 namespace SpaceEngine
@@ -224,6 +226,9 @@ namespace SpaceEngine
         m_pHUDLayout->addText(pTextPoints);
         
         ResetHealthIcons();
+
+        m_powerupInterval = 5.0f; 
+        m_powerupTimer = 0.0f;
     }
 
     void SpaceScene::ResetHealthIcons()
@@ -310,7 +315,17 @@ namespace SpaceEngine
     {
         for (auto* obj : gameObjects)
         {
-            if (dynamic_cast<Asteroid*>(obj) || dynamic_cast<EnemyShip*>(obj))
+            ELayers layer = obj->getLayer();
+
+            bool isEnemy = (layer == ELayers::ENEMY_LAYER);
+            bool isAsteroid = (layer == ELayers::ASTEROID_LAYER);
+            bool isPowerUp = (layer == ELayers::POWERUP_LAYER);
+            
+            bool isBullet = (layer == ELayers::BULLET_LAYER || 
+                            layer == ELayers::BULLET_PLAYER_LAYER || 
+                            layer == ELayers::BULLET_ENEMY_LAYER);
+
+            if (isEnemy || isAsteroid || isPowerUp || isBullet)
             {
                 requestDestroy(obj); 
             }
@@ -318,6 +333,7 @@ namespace SpaceEngine
         
         m_asteroidTimer = 0.0f;
         m_enemyTimer = 0.0f;
+        m_powerupTimer = 0.0f;
 
         if (m_pPlayer )m_pPlayer->Reset();
         if(pScoreSys) pScoreSys->Reset(); 
@@ -341,6 +357,7 @@ namespace SpaceEngine
     {
         m_asteroidTimer += dt;
         m_enemyTimer += dt;
+        m_powerupTimer += dt;
 
         // --- SPAWN ASTEROIDI ---
         if (!m_asteroidDebug && m_asteroidTimer >= m_asteroidInterval)
@@ -404,6 +421,127 @@ namespace SpaceEngine
             EnemyShip* pTmpE = requestInstantiate(m_pEnemy); 
             pTmpE->Init(Vector3(x, y, z), typeToSpawn, m_pPlayer);
         }
+
+        if (m_powerupTimer >= m_powerupInterval)
+        {
+            m_powerupTimer = 0.0f;
+
+            float objectMargin = 2.0f; 
+            float safeX = m_gameAreaX - objectMargin;
+            float safeY = m_gameAreaY - objectMargin; 
+
+            float x = randomRange(-safeX, safeX);
+            float y = randomRange(-safeY, safeY);
+            float z = m_spawnZ;
+            //sceglie casualmente il tipo di powerup
+            int PowerUprandomType = rand() % 3;
+
+            PowerUpType type = PowerUpType::RAPID_FIRE;
+            std::string modelName = "";
+            std::string matName = "";
+            std::string meshName = "";
+
+            switch(PowerUprandomType) {
+                case 0: 
+                    type = PowerUpType::RAPID_FIRE;
+                    modelName = "PowerUp/rapidFire_powerUp.png";
+                    meshName = "QuadRapid.obj";
+                    matName = "Mat_PowerUp_Rapid";
+                    break;
+                case 1: 
+                    type = PowerUpType::BOMB;
+                    modelName = "PowerUp/bomb_powerUp.png";
+                    meshName = "QuadBomb.obj";
+                    matName = "Mat_PowerUp_Nuke";
+                    break;
+                case 2: 
+                    type = PowerUpType::HEALTH;
+                    modelName = "PowerUp/Health_powerUp.png";
+                    meshName = "QuadHealth.obj";
+                    matName = "Mat_PowerUp_Health";
+                    break;
+            }
+
+            PowerUp* pPower = new PowerUp(this, type, meshName);
+
+            if (!pPower) {
+                SPACE_ENGINE_ERROR("CRITICAL: Impossible to allocate memory for PowerUp!");
+                return;
+            }
+
+            Mesh* pMesh = pPower->getComponent<Mesh>();
+            if (!pMesh) {
+                SPACE_ENGINE_ERROR("ERROR: Mesh '{}' NOT FOUND! PowerUp destroyed.", meshName);
+                delete pPower;
+                return;
+            }
+
+            PBRMaterial* pMat = MaterialManager::createMaterial<PBRMaterial>(matName);
+            pMat->pShader = ShaderManager::findShaderProgram("powerup");
+        
+            if (pMat->getTexture("albedo_tex") == nullptr) {
+                Texture* pTex = TextureManager::load(TEXTURES_PATH + modelName);
+                if(pTex) {
+                    pMat->addTexture("albedo_tex", pTex);
+                    std::get<float>(pMat->props["ambient_occlusion_val"]) = 1.0f; 
+                    std::get<Vector4>(pMat->props["albedo_color_val"]) = {1.f, 1.f, 1.f, 1.f};
+                } else {
+                     SPACE_ENGINE_ERROR("Texture NOT FOUND: {}", modelName);
+                     std::get<Vector4>(pMat->props["albedo_color_val"]) = {1.f, 0.f, 0.f, 1.f};
+                }
+            }
+
+            if (Mesh* pMesh = pPower->getComponent<Mesh>()) {
+                pMesh->bindMaterialToSubMeshIndex(0, pMat);
+            } else {
+                SPACE_ENGINE_ERROR("Mesh component missing on PowerUp!");
+            }
+        
+            pPower->Init(Vector3(x, y, z));
+            addSceneComponent(pPower);
+            
+            SPACE_ENGINE_INFO("Spawned PowerUp Type: {}", PowerUprandomType);
+        }
+    }
+
+    void SpaceScene::TriggerBomb()
+    {
+        SPACE_ENGINE_INFO("BOOM! Bomb triggered.");
+
+        for (auto* obj : gameObjects)
+        {
+            bool isEnemy = dynamic_cast<EnemyShip*>(obj) != nullptr;
+            bool isAsteroid = dynamic_cast<Asteroid*>(obj) != nullptr;
+            bool isEnemyBullet = dynamic_cast<Bullet*>(obj) != nullptr && obj->getLayer() == ELayers::BULLET_ENEMY_LAYER;
+
+            if (isEnemy || isAsteroid || isEnemyBullet)
+            {
+                requestDestroy(obj);
+                if (pScoreSys) pScoreSys->onNotify(*obj, 50); 
+            }
+        }
+    }
+
+    void SpaceScene::AddHealthIcon()
+    {
+        if (healthIcons.size() >= 3) return;
+
+        float startX = 150.f;
+        float spacing = 49.f;
+        float newX = startX + (healthIcons.size() * spacing);
+
+        UIMaterial* iconMat = MaterialManager::createMaterial<UIMaterial>("HealthIcon");
+        if (iconMat->getTexture("ui_tex") == nullptr) {
+            Texture* pTex = TextureManager::load(TEXTURES_PATH"HUD/Health.png");
+            iconMat->addTexture("ui_tex", pTex);
+        }
+
+        UIBase* newIcon = new UIBase({0.f, 0.f}, {newX, 76.f}, iconMat);
+
+        if (m_pHUDLayout) {
+            m_pHUDLayout->addUIElement(newIcon);
+        }
+        healthIcons.push(newIcon);
     }
 
     void SpaceScene::removeHealthIcon()

@@ -135,6 +135,14 @@ namespace SpaceEngine {
             m_shootCooldown -= dt;
         }
 
+        if (m_isRapidFireActive) {
+            m_rapidFireTimer -= dt;
+            if (m_rapidFireTimer <= 0.0f) {
+                m_isRapidFireActive = false;
+                SPACE_ENGINE_INFO("Rapid Fire Ended");
+            }
+        }
+
         float targetAngle = 0.0f;
         if (m_moveDirection != 0) {
             targetAngle = (float)-m_moveDirection * m_maxAngle;
@@ -199,7 +207,11 @@ namespace SpaceEngine {
                     audioMgr->PlaySound("shoot_player");
                 }
             }
-            m_shootCooldown = 0.5f;
+            if (m_isRapidFireActive) {
+                m_shootCooldown = 0.15f; 
+            } else {
+                m_shootCooldown = 0.5f;
+            }
         } 
     }
 
@@ -248,5 +260,26 @@ namespace SpaceEngine {
         
         m_pTransform->setWorldPosition(m_position);
         m_moveDirection = -1;
+    }
+
+    void PlayerShip::Heal()
+    {
+        if (m_health < 3)
+        {
+            m_health++;
+            SPACE_ENGINE_INFO("Player Healed! HP: {}", m_health);
+
+            if (SpaceScene* pSpaceScene = dynamic_cast<SpaceScene*>(pScene))
+            {
+                pSpaceScene->AddHealthIcon();
+            }
+        }
+    }
+
+    void PlayerShip::ActivateRapidFire(float duration)
+    {
+        m_isRapidFireActive = true;
+        m_rapidFireTimer = duration;
+        SPACE_ENGINE_INFO("Rapid Fire Activated for {} seconds", duration);
     }
 }

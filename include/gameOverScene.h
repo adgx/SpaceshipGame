@@ -22,7 +22,7 @@ namespace SpaceEngine {
         void UpdateScene(float dt) override;
 
     private:
-        bool IsTop5(int score);
+        bool IsTop3(int score);
         std::vector<LeaderboardEntry> LoadLeaderboard(const std::string& filename);
         void SaveLeaderboard(const std::string& filename, const std::vector<LeaderboardEntry>& entries);
         
