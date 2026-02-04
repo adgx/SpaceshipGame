@@ -20,7 +20,7 @@ vec4 uiTextureBase()
 subroutine( uiTexture )
 vec4 uiTextureHover()
 {
-    return texture(ui_hover_tex, TexCoords)*color_val;
+    return texture(ui_hover_tex, TexCoords)*color_val*vec4(1, 0.36, 0, 1);
 }
 
 void main()
