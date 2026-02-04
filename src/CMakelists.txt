@@ -16,6 +16,7 @@ add_library(App STATIC app.cpp
                     collisionDetection.cpp 
                     skybox.cpp
                     settingsScene.cpp
+                    leaderboardScene.cpp
                     pauseScene.cpp
                     gameOverScene.cpp
                     powerUp.cpp)

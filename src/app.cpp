@@ -6,6 +6,7 @@
 #include "titleScreen.h"
 #include "settingsScene.h"
 #include "gameOverScene.h"
+#include "leaderboardScene.h"
 #include "font.h"
 
 #include <vector>
@@ -127,6 +128,10 @@ namespace SpaceEngine
         GameOverScene* pGameOver = new GameOverScene(&physicsManager, dynamic_cast<SpaceScene*>(pScene));
         pGameOver->setActive(false);
         SceneManager::LoadScene(pGameOver);
+
+        LeaderboardScene* pLeaderboardScene = new LeaderboardScene(&physicsManager, &audioManager);
+        pLeaderboardScene->setActive(false);
+        SceneManager::LoadScene(pLeaderboardScene);
 
     }
 
