@@ -187,6 +187,10 @@ namespace SpaceEngine
         name = "SpaceScene";
         m_pPauseScene = new PauseScene(this);
         m_elapsedTime = 0.0f;
+        if(pSpawnerSys)
+        {
+            pSpawnerSys->setScene(this);
+        }
         //bullet enemy
         if(!pBulletEnemy)
         {
@@ -207,7 +211,7 @@ namespace SpaceEngine
         
         if(m_asteroidDebug)
         {
-            m_pAsteroid->Init(Vector3(0.f, 0.f, -30.f)); 
+            m_pAsteroid->Init(Vector3(0.f, 0.f, -30.f), 0.f); 
             addSceneComponent(m_pAsteroid);
         }
 
@@ -368,7 +372,7 @@ namespace SpaceEngine
 
             Asteroid* m_pTmpAst = requestInstantiate(m_pAsteroid); 
             
-            m_pTmpAst->Init(Vector3(x, y, z)); 
+            m_pTmpAst->Init(Vector3(x, y, z), 0.f); 
             m_pTmpAst->getTransform()->setWorldPosition(Vector3(x, y, z));
             
             // per avere asteroidi di diverse dimensioni
@@ -489,8 +493,8 @@ namespace SpaceEngine
 
     SpawnerSys::SpawnerSys()
     {
-        SpawnerObs* m_pSpawnerObs = new SpawnerObs();
         m_stage = m_lookupStages[ESpawnState::SPAWN_ASTEROID_EASY];
+        m_pSpawnerObs = new SpawnerObs();
     }
 
     void SpawnerSys::handlerSpawn(float dt)
@@ -557,7 +561,7 @@ namespace SpaceEngine
     {
         dim = 0;    
         for(int i = 0; i < SpawnerObs::SlotDim; i++)
-            if(m_pSpawnerObs->space[i] = ESlot::FREE)
+            if(m_pSpawnerObs->space[i] == ESlot::FREE)
                 available[dim++] = i;
     }
 
@@ -575,7 +579,7 @@ namespace SpaceEngine
         {
             int index = pickSlot(prev, i, spawnCount);
             Asteroid* pAsteroid = m_pScene->requestInstantiate(SpaceScene::m_pAsteroid);
-            pAsteroid->Init(Vector3{getPosX(index), 0.f, -100.f}, index);                       
+            pAsteroid->Init(Vector3{getPosX(index), 0.f, FarDistance}, VelAsterorid/m_stage.spawnInterval, index);                       
             m_pSpawnerObs->space[index] = ESlot::ASTEROID;
             prev = index;
         }
@@ -635,7 +639,7 @@ namespace SpaceEngine
         if(m_timer < m_stage.spawnInterval)
             return;
             
-        uint32_t spawnCount = weightedRandom(m_stage.weights, 3);
+        uint32_t spawnCount = weightedRandom(m_stage.weights, 3) + 1;
         spawnCount = std::min(spawnCount, m_stage.budget);
         
         uint32_t nSpawn = spawnEntities(m_stage, spawnCount);

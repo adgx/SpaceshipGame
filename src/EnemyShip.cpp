@@ -70,6 +70,11 @@ namespace SpaceEngine {
             // Spara solo se è davanti alla camera (non troppo vicino)
             Shoot();
         }
+
+        if (m_pTransform->getWorldPosition().z > m_despawnZ) {
+            m_pSpawnerSub->notifyDestroy(*this);
+            pScene->requestDestroy(this);
+        }
     }
 
     void EnemyShip::Shoot() {

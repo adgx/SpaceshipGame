@@ -197,8 +197,9 @@ namespace SpaceEngine
             SpawnerSys();
             ~SpawnerSys() = default;
 
-            void handlerSpawn(float dt); 
+            void handlerSpawn(float dt);
             void clearSpace();
+            inline void setScene(Scene* pScene){ m_pScene = pScene;}
             inline SpawnerObs* getObserver() { return m_pSpawnerObs;}
 
 
@@ -233,19 +234,24 @@ namespace SpaceEngine
         void spawnAsteroid(uint32_t spawnCount);
         void spawnEnemy(uint32_t spawnCount, uint32_t& nSpawned);
 
-        static constexpr int32_t BudgetAsteroidE = 20;
+        
+        static constexpr int32_t BudgetAsteroidE = 10;
         static constexpr int32_t BudgetAsteroidM = 30;
         static constexpr int32_t BudgetAsteroidH = 10;
         static constexpr int32_t BudgetEnemyE = 20;
         static constexpr int32_t BudgetEnemyM = 30;
         static constexpr int32_t BudgetEnemyH = 10;
         
-        static constexpr float StartOffsetSpace = -4.67f; //-7.0 + (14/6) = -4.67; 14/6 = 2.33            
-        static constexpr float OffsetSpace = 2.33f;            
-        static constexpr float VelAsterorid = 8.f;            
-        static constexpr float TimeAsterorid = 1.5f;
+        static constexpr float FarDistance = -80.f;
+        static constexpr float DeltaSpace = 2.f;          
+        static constexpr float StartOffsetSpace = -4.67f - DeltaSpace; //-7.0 + (14/6) = -4.67; 14/6 = 2.33  
+        static constexpr float OffsetSpace = 2.33f + DeltaSpace;
+
+        static constexpr float VelAsterorid = 40.f;            
+        static constexpr float TimeAsterorid = 4.f;
         static constexpr float TimeAsteroridXM = 0.75f;
         static constexpr float TimeAsteroridXH = 0.6f;
+        
         static constexpr float VelEnemy = 8.f;
         static constexpr float TimeEnemy = 1.5f;
         static constexpr float TimeEnemyXM = 0.75f;
@@ -253,7 +259,7 @@ namespace SpaceEngine
 
         static Stage m_lookupStages[];
 
-        float m_timer = 0.f;
+        float m_timer = TimeAsterorid;
         Stage m_stage;
         Scene* m_pScene;
         SpawnerObs* m_pSpawnerObs;

@@ -32,7 +32,7 @@ namespace SpaceEngine {
             delete m_pSub;
     }
 
-    void Asteroid::Init(Vector3 startPos, int ticket) {
+    void Asteroid::Init(Vector3 startPos, float vel, int ticket) {
         m_pSub = new PointSubject();
         m_pSpawnerSub = new SpawnerSubject(ticket);
         if (m_pTransform) {
@@ -40,8 +40,8 @@ namespace SpaceEngine {
             m_pTransform->setWorldPosition(startPos);
             
             // per avere asteroidi di diverse dimensioni
-            float scaleVar = 1.0f + static_cast<float>(rand()) / (RAND_MAX / 1.5f);
-            m_pTransform->setLocalScale(glm::vec3(scaleVar));
+            //float scaleVar = 1.0f + static_cast<float>(rand()) / (RAND_MAX / 1.5f);
+            //m_pTransform->setLocalScale(glm::vec3(scaleVar));
         }
 
         this->setLayer(ELayers::ASTEROID_LAYER);
@@ -51,7 +51,8 @@ namespace SpaceEngine {
         }
 
         //Velocità casuale
-        m_velocity = 1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 15.0f));
+        //m_velocity = 1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 15.0f));
+        m_velocity = vel;
         // Rotazione casuale
         m_rotationSpeed = 30.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 60.0f));
     }
@@ -69,7 +70,8 @@ namespace SpaceEngine {
 
         // 3. Controllo Uscita Schermo (Riciclo)
         if (currentPos.z > m_despawnZ) {
-            destroy();
+            m_pSpawnerSub->notifyDestroy(*this);
+            pScene->requestDestroy(this);
         }
     }
 
