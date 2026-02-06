@@ -44,17 +44,21 @@ namespace SpaceEngine
         }
     }
 
+    void PhysicsManager::RemoveColliders(const std::list<Collider*>& lCols)
+    {
+        for(auto col : lCols) RemoveCollider(col);
+    }
+
     void PhysicsManager::HandleCollisionEvents()
     {
         for (const auto& pair : currCollisions)
         {
             if (prevCollisions.find(pair) == prevCollisions.end())
             {
-        
-                GameObject* A = pair.a->gameObj;
-                GameObject* B = pair.b->gameObj;
-                A->onCollisionEnter(pair.b);
-                B->onCollisionEnter(pair.a);
+                if(!pair.a->gameObj->pendingDestroy && !pair.b->gameObj->pendingDestroy) {
+                    pair.a->gameObj->onCollisionEnter(pair.b);
+                    pair.b->gameObj->onCollisionEnter(pair.a);
+                }
             }
         }
     }
@@ -62,14 +66,24 @@ namespace SpaceEngine
     
     void PhysicsManager::Step(float fixed_dt)
     {
-        uint32_t occupiedLevelsMask = grid.occupiedLevelsMask;
-
+        currCollisions.clear();
         
         for(Collider* col : lColliders)
         {
             if(!col->gameObj->pendingDestroy)
             {
                 col->gameObj->fixedUpdate(fixed_dt);
+                Vector3 oldPos = col->pos;
+                float oldMaxSide = col->bbox.maxSide();
+
+                col->updateGlobalBounds();
+
+                if(col->pos != oldPos || abs(col->bbox.maxSide() - oldMaxSide) > 0.01f)
+                {
+                    grid.RemoveObjectFromGrid(col);
+                    grid.AddColliderToHGrid(col);
+                }
+                /*
                 //verify if the pos change, if yes update(remove and insert) the hgrid
                 Vector3 pos = col->gameObj->getComponent<Transform>()->getWorldPosition();
                 if(col->pos != pos)
@@ -77,7 +91,7 @@ namespace SpaceEngine
                     col->pos = pos;
                     grid.RemoveObjectFromGrid(col);
                     grid.AddColliderToHGrid(col);
-                }   
+                }*/
             }
         }
         

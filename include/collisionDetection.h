@@ -41,12 +41,27 @@ namespace SpaceEngine
             Collider* pPrev = nullptr;
             AABB bbox;
             Vector3 pos;
+            Vector3 localCenter; 
+            Vector3 localExtents;
             int bucket;
             int level;
             GameObject* gameObj = nullptr;
 
             Collider(GameObject* gameObj):gameObj(gameObj)
             {
+                if (Mesh* mesh = gameObj->getComponent<Mesh>()) {
+                    Vector3 min = mesh->minPos;
+                    Vector3 max = mesh->maxPos;
+                    
+                    localCenter = (min + max) * 0.5f;
+                    localExtents = (max - min) * 0.5f;
+                } else {
+                    localCenter = {0,0,0};
+                    localExtents = {1,1,1};
+                }
+
+                updateGlobalBounds();
+                /*
                 //x
                 bbox.c.x = gameObj->getComponent<Mesh>()->maxPos.x * gameObj->getComponent<Transform>()->localScale.x;
                 bbox.r[0] = (bbox.c.x - gameObj->getComponent<Mesh>()->minPos.x * gameObj->getComponent<Transform>()->localScale.x) / 2.f;
@@ -64,11 +79,32 @@ namespace SpaceEngine
 
                 SPACE_ENGINE_DEBUG("Collider: center: {}, {}, {} radious: {}, {}, {}", 
                     bbox.c.x, bbox.c.y, bbox.c.z,
-                    bbox.r[0], bbox.r[1], bbox.r[2])
+                    bbox.r[0], bbox.r[1], bbox.r[2])*/
+            }
+
+            void updateGlobalBounds()
+            {
+                Transform* t = gameObj->getComponent<Transform>();
+                Matrix4 modelMatrix = t->getWorldMatrix();
+                Vector3 worldCenter = modelMatrix * Vector4(localCenter, 1.f);
+                Vector3 worldExtents = localExtents * t->getLocalScale();
+                bbox.c = worldCenter;
+                Vector3 right = Vector3(modelMatrix[0]); 
+                Vector3 up    = Vector3(modelMatrix[1]); 
+                Vector3 fwd   = Vector3(modelMatrix[2]); 
+
+                // Dot product con abs per ottenere la massima proiezione sugli assi X, Y, Z globali
+                float newEx = std::abs(right.x) * localExtents.x + std::abs(up.x) * localExtents.y + std::abs(fwd.x) * localExtents.z;
+                float newEy = std::abs(right.y) * localExtents.x + std::abs(up.y) * localExtents.y + std::abs(fwd.y) * localExtents.z;
+                float newEz = std::abs(right.z) * localExtents.x + std::abs(up.z) * localExtents.y + std::abs(fwd.z) * localExtents.z;
+
+                bbox.r[0] = newEx;
+                bbox.r[1] = newEy;
+                bbox.r[2] = newEz;
             }
 
 
-            static int testCollidersLocalSpace(const Collider* a, const Collider* b)
+            /*static int testCollidersLocalSpace(const Collider* a, const Collider* b)
             {
                 // World matrices
                 const Transform* tA = a->gameObj->getComponent<Transform>();
@@ -94,6 +130,11 @@ namespace SpaceEngine
                 };
             
                 return AABB::test(bboxA, bboxB);
+            }*/
+
+            static bool testCollision(const Collider* a, const Collider* b)
+            {
+                return AABB::test(a->bbox, b->bbox);
             }
 
             void fixedUpdate()
@@ -138,7 +179,10 @@ namespace SpaceEngine
             {
                 size_t operator()(const CollisionPair& p) const
                 {
-                    return ((size_t)p.a >> 4) ^ ((size_t)p.b >> 4);
+                    size_t hA = (size_t)p.a;
+                    size_t hB = (size_t)p.b;
+                    if (hA > hB) std::swap(hA, hB);
+                    return (hA ^ (hB << 1));
                 }
             };
 
@@ -172,17 +216,18 @@ namespace SpaceEngine
                 void AddColliderToHGrid(Collider* col)
                 {
                     int level;
-                    float size = MIN_CELL_SIZE, diameter = col->bbox.maxSide();
+                    float size = MIN_CELL_SIZE;
+                    float diameter = col->bbox.maxSide()*2.0f;
 
                     //find the lowest level where objcet fully fits inside cell
-                    for(level = 0; size * SPHERE_TO_CELL_RATIO < diameter; level++)
+                    for(level = 0; size * SPHERE_TO_CELL_RATIO < diameter && level < HGRID_MAX_LEVELS - 1; level++)
                         size *= CELL_TO_CELL_RATIO;
 
                     assert(level < HGRID_MAX_LEVELS);
 
-                    Cell cellPos(static_cast<int>((col->bbox.c.x + col->pos.x)/ size), 
-                        static_cast<int>((col->bbox.c.y + col->pos.y) / size), 
-                        static_cast<int>((col->bbox.c.z + col->pos.z) / size), 
+                    Cell cellPos(static_cast<int>((col->pos.x)/ size), 
+                        static_cast<int>((col->pos.y) / size), 
+                        static_cast<int>((col->pos.z) / size), 
                         level);
                     int bucket = ComputeHashBucketIndex(cellPos);
                     col->bucket = bucket;
@@ -198,6 +243,8 @@ namespace SpaceEngine
 
                 void RemoveObjectFromGrid(Collider* col)
                 {
+                    if (col->bucket == -1) return;
+
                     if(--collidersAtLevel[col->level] == 0)
                         occupiedLevelsMask &= ~(1 << col->level);
 
@@ -210,6 +257,8 @@ namespace SpaceEngine
                                 
                     if (col->pNext)
                         col->pNext->pPrev = col->pPrev;
+
+                    col->bucket = -1;
                 }
 
                 void CheckObjAgainstGrid(Collider* col, std::unordered_set<CollisionPair, CollisionPairHash>& currCollisions)
@@ -217,7 +266,7 @@ namespace SpaceEngine
                     float size = MIN_CELL_SIZE;
                     int startLevel = 0;
                     uint32_t occupiedLevelsMask = this->occupiedLevelsMask;
-                    Vector3 pos = col->bbox.c + col->pos;
+                    Vector3 pos = col->pos;
 
                     //tick++;
 
@@ -248,18 +297,13 @@ namespace SpaceEngine
                                     Cell cellPos(x, y, z, level);
                                     int bucket = ComputeHashBucketIndex(cellPos);
 
-                                    if(timeStamp[bucket] == tick) 
-                                        continue;
-
-                                    timeStamp[bucket] = tick;
-
                                     Collider *p = colliderBucket[bucket];
 
                                     while(p)
                                     {
-                                        if(p != col && !p->gameObj->pendingDestroy)
+                                        if(p != col && !p->gameObj->pendingDestroy && !col->gameObj->pendingDestroy)
                                         {
-                                            if(Collider::testCollidersLocalSpace(col, p))
+                                            if(Collider::testCollision(col, p))
                                             {
                                                 CollisionPair pair{col, p};
                                                 currCollisions.insert(pair);
