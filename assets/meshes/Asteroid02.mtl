@@ -9,5 +9,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Ns C:/Asteroid02_Roughness.png
-map_Bump -bm 0.500000 C:/Asteroid02_Normals.png
+map_ka Asteroid02_AO.png
+map_Kd Asteroid02_Albedo.png
+map_Pr Asteroid02_Roughness.png
+norm Asteroid02_Normals.png
