@@ -139,8 +139,9 @@ namespace SpaceEngine {
         m_invulnTimer = 0.0f;
         m_blinkTimer = 0.0f;
 
+        //to review
         if (m_pMesh == nullptr) {
-            m_pMesh = MeshManager::loadMesh("PlayerShip.obj"); 
+            m_pMesh = MeshManager::loadMesh("PlayerShipV2.obj"); 
         }
         if (m_pTransform) {
             m_pTransform->setLocalPosition(Vector3(0.0f, 0.0f, -8.0f)); 

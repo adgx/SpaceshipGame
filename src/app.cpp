@@ -83,7 +83,7 @@ namespace SpaceEngine
         pScene->setAudioManager(&audioManager);
         pScene->Init();
         //crea e inizializza il player
-        PlayerShip* pPlayer = new PlayerShip(pScene, "PlayerShip.obj");
+        PlayerShip* pPlayer = new PlayerShip(pScene, "PlayerShipV2.obj");
         pPlayer->Init();
         if (SpaceScene* spaceScene = dynamic_cast<SpaceScene*>(pScene)) {
             spaceScene->SetPlayer(pPlayer);

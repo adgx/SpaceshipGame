@@ -203,7 +203,7 @@ namespace SpaceEngine
 
         if(!m_pEnemy)
         {
-            m_pEnemy = new EnemyShip(this, "Enemy.obj");
+            m_pEnemy = new EnemyShip(this, "EnemyV2.obj");
         }
 
         if(m_asteroids.empty())
