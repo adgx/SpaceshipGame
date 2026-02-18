@@ -51,6 +51,12 @@ namespace SpaceEngine
                                 strLight = "lights[" + std::to_string(i) + "].color"; 
                                 shader->setUniform(strLight.c_str(), rParams.lights[i]->color);
                                 GL_CHECK_ERRORS();
+                                strLight = "lights[" + std::to_string(i) + "].dir"; 
+                                shader->setUniform(strLight.c_str(), rParams.lights[i]->dir);
+                                GL_CHECK_ERRORS();
+                                strLight = "lights[" + std::to_string(i) + "].type"; 
+                                shader->setUniform(strLight.c_str(), rParams.lights[i]->type);
+                                GL_CHECK_ERRORS();
                             }
                         }
 

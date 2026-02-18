@@ -101,15 +101,25 @@ namespace SpaceEngine
         pScene->addSceneComponent<PerspectiveCamera*>(pCamera);
 
         //Initialize lights
-        Light* pLight = new Light(Vector3{-10.f, 10.f, 0.f}, Vector3{2.f, 2.f, 2.f}); //left-top
+        #if 0
+        Light* pLight = new Light(Vector3{-10.f, 10.f, 0.f}, Vector3{25.f, 25.f, 25.f}); //left-top
         pScene->addSceneComponent<Light*>(pLight);
-        pLight = new Light(Vector3{10.f, 10.f, 0.f}, Vector3{2.f, 2.f, 2.f}); //right-top
+        pLight = new Light(Vector3{10.f, 10.f, 0.f}, Vector3{25.f, 25.f, 25.f}); //right-top
         pScene->addSceneComponent<Light*>(pLight);
-        pLight = new Light(Vector3{10.f, -10.f, 0.f}, Vector3{2.f, 2.f, 2.f}); //right-bottom
+        pLight = new Light(Vector3{10.f, -10.f, 0.f}, Vector3{25.f, 25.f, 25.f}); //right-bottom
         pScene->addSceneComponent<Light*>(pLight);
-        pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{2.f, 2.f, 2.f}); //left-bottom
+        pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{25.f, 25.f, 25.f}); //left-bottom
         GL_CHECK_ERRORS();
-
+        #else 
+        Light* pLight = new Light(Vector3{-10.f, 10.f, 0.f}, Vector3{10.f, 10.f, 10.f}, Math::getDirection(90.f, 0.f, 135.f)); //left-top
+        pScene->addSceneComponent<Light*>(pLight);
+        pLight = new Light(Vector3{10.f, 10.f, 0.f}, Vector3{25.f, 25.f, 25.f}, Math::getDirection(90.f, 0.f, -135.f)); //right-top
+        pScene->addSceneComponent<Light*>(pLight);
+        pLight = new Light(Vector3{10.f, -10.f, 0.f}, Vector3{10.f, 10.f, 10.f}, Math::getDirection(90.f, 0.f, -45.f)); //right-bottom
+        pScene->addSceneComponent<Light*>(pLight);
+        pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{25.f, 25.f, 25.f}, Math::getDirection(90.f, 0.f, 45.f)); //left-bottom
+        GL_CHECK_ERRORS();
+        #endif
         
         //actually the order of insert is important        
         //TitleScreen scene

@@ -80,6 +80,15 @@ namespace SpaceEngine
         {
             return a*a;
         }
+
+        //degree
+        inline Vector3 getDirection(float x, float y, float z)
+        {
+            Quat q = glm::quat(glm::radians(Vector3(x, y, z))); 
+            Vector3 forward = q * Vector3(0, 0, -1);
+
+            return glm::normalize(forward);
+        }
     }
 
     class PRNG

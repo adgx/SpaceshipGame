@@ -19,10 +19,16 @@ uniform sampler2D normal_map_tex;
 uniform sampler2D ambient_occlusion_tex;
 
 // lights
+#define POINT_LIGHT_NODEC 0
+#define POINT_LIGHT 1
+#define DIRECTIONAL_LIGHT 2
+
 struct Light
 {
     vec3 pos;
     vec3 color;
+    vec3 dir;
+    int type;
 };
 
 uniform Light lights[4];
@@ -162,6 +168,25 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+//light functions
+vec3 dirLight(Light light)
+{
+    if(light.type == DIRECTIONAL_LIGHT)
+        return normalize(light.dir);
+    return normalize(light.pos - WorldPos);
+}
+
+vec3 getLightRadiance(Light light)
+{
+    if(light.type == DIRECTIONAL_LIGHT || light.type == POINT_LIGHT_NODEC)
+        return light.color;
+    
+    float distance = length(light.pos - WorldPos);
+    float attenuation = 1.0 / (distance * distance);
+
+    return light.color * attenuation;
+}
+
 void main()
 {
     vec3 albedo = albedoMode();
@@ -180,12 +205,12 @@ void main()
     for(int i = 0; i < 4; i++)
     {
         // calculate per-light radiance
-        vec3 L = normalize(lights[i].pos - WorldPos);
+        vec3 L = dirLight(lights[i]);
         vec3 H = normalize(V + L);
 
         //float distance = length(lights[i].pos - WorldPos);
         //float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lights[i].color;
+        vec3 radiance = getLightRadiance(lights[i]);
         //cook-torrance BRDF
         float NDF = distributionGGX(N, H, roughness);
         float G = geometrySmith(N, V, L, roughness);
