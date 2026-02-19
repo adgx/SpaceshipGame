@@ -47,6 +47,7 @@ namespace SpaceEngine
         renderer = new Renderer();
         uiRenderer = new UIRenderer();
         textRenderer = new TextRenderer();
+        screenRenderer = new ScreenRenderer();
 
         SPACE_ENGINE_INFO("Initilization app done");
         //scene 
@@ -187,13 +188,14 @@ namespace SpaceEngine
         float currentTime;
         //handle the tunneling caused by a to slow frame dt
         //fixed time step
-        float fixed_dt = 1.f/60.f;
+        float fixed_dt = 1.f/30.f;
         float accumulator = 0.0;
         
         //Gathers
         std::vector<RenderObject> worldRenderables;
         std::vector<UIRenderObject> uiRenderables;
         std::vector<TextRenderObject> textRenderables;
+        std::vector<ScreenRenderObject> screenRenderables;
 
         while(!windowManager.WindowShouldClose())
         {
@@ -222,14 +224,19 @@ namespace SpaceEngine
             sceneManager.Update(dt);
 
             //collects the renderizable objects in the scene
-            sceneManager.GatherRenderables(worldRenderables, uiRenderables, textRenderables);
+            sceneManager.GatherRenderables(worldRenderables, 
+                uiRenderables,
+                textRenderables,
+                screenRenderables);
             //gather scene object to rendering the scene
             RendererParams rParams{worldRenderables, 
                 *(sceneManager.GetLights()), 
                 sceneManager.GetActiveCamera(), 
                 sceneManager.GetSkybox()};
             
-            GL_CHECK_ERRORS(); 
+            GL_CHECK_ERRORS();
+            screenRenderer->render(screenRenderables);
+            GL_CHECK_ERRORS();
             renderer->render(rParams);
             GL_CHECK_ERRORS();
             uiRenderer->render(uiRenderables);

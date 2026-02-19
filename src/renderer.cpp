@@ -173,4 +173,31 @@ namespace SpaceEngine
         glEnable(GL_CULL_FACE);
         glUseProgram(0);
     }
+
+    void ScreenRenderer::render(const std::vector<ScreenRenderObject>& screenRenderables)
+    {
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        for (const auto& screenR : screenRenderables)
+        {
+            if (!screenR.pPlaneMesh || !screenR.pMaterial) continue;
+
+            ShaderProgram* shader = screenR.pMaterial->getShader();
+            GL_CHECK_ERRORS();
+            if (shader)
+            {
+                shader->use();
+                screenR.pMaterial->bindingPropsToShader();
+            }
+            //draw
+            screenR.pPlaneMesh->bindVAO();
+            screenR.pPlaneMesh->draw();
+            GL_CHECK_ERRORS();
+            glUseProgram(0);
+        }
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+    }
+
 };

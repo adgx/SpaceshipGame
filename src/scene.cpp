@@ -114,7 +114,10 @@ namespace SpaceEngine
             );
     }
 
-    void Scene::gatherRenderables(std::vector<RenderObject>& worldRenderables, std::vector<UIRenderObject>& uiRenderables, std::vector<TextRenderObject>& textRenderables)
+    void Scene::gatherRenderables(std::vector<RenderObject>& worldRenderables,
+            std::vector<UIRenderObject>& uiRenderables,
+            std::vector<TextRenderObject>& textRenderables,
+            std::vector<ScreenRenderObject>& screenRenderables)
     {
         for (auto& gameObj : gameObjects)
         {
@@ -154,6 +157,11 @@ namespace SpaceEngine
                     std::move_iterator(vecTextRendObjs.end())
                 );
             }
+        }
+
+        if(m_vecScreenRendObj.size())
+        {
+            screenRenderables = m_vecScreenRendObj; 
         }
     }
 
@@ -665,7 +673,7 @@ namespace SpaceEngine
         float z = -100.0f;
 
         float x = randomRange(-safeX, safeX);
-        float y = randomRange(-safeY, safeY);
+        float y = 0.f;
 
         int PowerUprandomType = rand() % 3;
         PowerUpType type = PowerUpType::RAPID_FIRE;

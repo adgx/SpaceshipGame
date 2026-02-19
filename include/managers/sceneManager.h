@@ -20,7 +20,8 @@ namespace SpaceEngine
             void LateUpdate();
             void GatherRenderables(std::vector<RenderObject>& worldRenderables, 
                 std::vector<UIRenderObject>& uiRenderables, 
-                std::vector<TextRenderObject>& textRenderables);
+                std::vector<TextRenderObject>& textRenderables,
+                std::vector<ScreenRenderObject>& screenRenderables);
             BaseCamera* GetActiveCamera();
             std::vector<Light*>* GetLights();
             Skybox* GetSkybox();

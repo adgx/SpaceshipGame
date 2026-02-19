@@ -27,6 +27,12 @@ namespace SpaceEngine
         Rect* pRect = nullptr;
     };
 
+    struct ScreenRenderObject
+    {
+        PlaneMesh* pPlaneMesh = nullptr;
+        BaseMaterial* pMaterial = nullptr;
+    };
+
     struct TextRenderObject
     {
         Text* pText = nullptr;
@@ -58,5 +64,11 @@ namespace SpaceEngine
     {
         public:
             void render(const std::vector<TextRenderObject>& textRenderables);
+    };
+
+    class ScreenRenderer
+    {
+        public:
+            void render(const std::vector<ScreenRenderObject>& screenRenderables);
     };
 }

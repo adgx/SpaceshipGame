@@ -98,6 +98,8 @@ namespace SpaceEngine{
         pUILayout->addUIElement(pLeaderboard);
         pUILayout->addUIElement(pExit);
         pUILayout->addUIElement(pSettings);
+
+        //add the screen render object
     }
 
     void TitleScreen::UpdateScene(float dt)

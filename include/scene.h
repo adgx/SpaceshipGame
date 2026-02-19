@@ -102,7 +102,11 @@ namespace SpaceEngine
                 SPACE_ENGINE_ERROR("Component not valid!");
             }
 
-            void gatherRenderables(std::vector<RenderObject>& worldRenderables, std::vector<UIRenderObject>& uiRenderables, std::vector<TextRenderObject>& textRenderables);
+            void gatherRenderables(std::vector<RenderObject>& worldRenderables, 
+                std::vector<UIRenderObject>& uiRenderables, 
+                std::vector<TextRenderObject>& textRenderables,
+                std::vector<ScreenRenderObject>& screenRenderables);
+                
             void requestDestroy(GameObject* pGameObj);
             
             template <typename T>
@@ -164,7 +168,7 @@ namespace SpaceEngine
 
             //Don't use it to instantiate GameObjects directly instead use RequestInstatiate
             GameObject* instantiate(const SpawnRequest& sr);
-            //may be is useful a table with duoble link list to keep the gameObjects
+            //may be is useful a table with double link list to keep the gameObjects
             //for avoing a complex gathering
             //vector<GameObject*> gameObjects;
             std::queue<GameObject*> destroyQ;
@@ -178,6 +182,7 @@ namespace SpaceEngine
             bool active = true;
         protected:
             vector<GameObject*> gameObjects;
+            std::vector<ScreenRenderObject> m_vecScreenRendObj;
             std::string name;
             std::vector<UILayout*> m_vecUILayouts;
     };

@@ -20,6 +20,33 @@
 namespace SpaceEngine
 {
 
+        const static int N_VERTEX_QUAD = 12;
+    const static int N_TEXTURE_CORD_QUAD = 8;
+    const static int N_INDICES_QUAD = 6;
+    // data quad vertex coords,  texture coords
+    float UIQuad[] =
+        {
+            // vertex  texture
+            0.f, 1.f, 0.f, 1.f, // top-left
+            1.f, 1.f, 1.f, 1.f, // top-right
+            0.f, 0.f, 0.f, 0.f, // bottom-left
+            1.f, 0.f, 1.f, 0.f  // bottom-right
+    };
+
+    float plane[] =
+        {
+            // vertex  texture
+            -1.f,  1.f, 0.f, 1.f, // top-left
+             1.f,  1.f, 1.f, 1.f, // top-right
+            -1.f, -1.f, 0.f, 0.f, // bottom-left
+             1.f, -1.f, 1.f, 0.f  // bottom-right
+    };
+    uint32_t UIindices[N_INDICES_QUAD] =
+        {
+            0, 1, 2,
+            2, 1, 3};
+
+
     //---------------------------------------------//
     //-------------------Mesh----------------------//
     //---------------------------------------------//
@@ -89,12 +116,14 @@ namespace SpaceEngine
         return materials[subMeshes[index].materialIndex];
     }
 
+
     //------------------------------------------//
     //--------------MeshManager-----------------//
     //------------------------------------------//
     Mesh *MeshManager::pTMPMesh = nullptr;
     UIMesh *MeshManager::pUIMesh = nullptr;
     TextMesh *MeshManager::pTextMesh = nullptr;
+    PlaneMesh *MeshManager::pPlaneMesh = nullptr;
     std::unordered_map<std::string, Mesh *> MeshManager::meshMap;
 
     UIMesh *MeshManager::getUIMesh()
@@ -124,6 +153,16 @@ namespace SpaceEngine
         }
 
         return pTextMesh;
+    }
+
+    PlaneMesh* MeshManager::getPlaneMesh()
+    {
+        if(!pPlaneMesh)
+        {
+            pPlaneMesh = new PlaneMesh();
+        }
+        
+        return pPlaneMesh;
     }
 
     Mesh *MeshManager::loadMesh(const std::string &fileName)
@@ -603,23 +642,6 @@ namespace SpaceEngine
         glBindVertexArray(0);
     }
 
-    const static int N_VERTEX_QUAD = 12;
-    const static int N_TEXTURE_CORD_QUAD = 8;
-    const static int N_INDICES_QUAD = 6;
-    // data quad vertex coords,  texture coords
-    float UIQuad[] =
-        {
-            // vertex  texture
-            0.f, 1.f, 0.f, 1.f, // top-left
-            1.f, 1.f, 1.f, 1.f, // top-right
-            0.f, 0.f, 0.f, 0.f, // bottom-left
-            1.f, 0.f, 1.f, 0.f  // bottom-right
-    };
-    uint32_t UIindices[N_INDICES_QUAD] =
-        {
-            0, 1, 2,
-            2, 1, 3};
-
     //------------------------------------------//
     //-----------------UIMesh-------------------//
     //------------------------------------------//
@@ -772,5 +794,47 @@ namespace SpaceEngine
     TextMesh *TextMeshRenderer::getTextMesh()
     {
         return pMesh;
+    }
+
+    //----------------------------------------------//
+    //------------------PlaneMesh-------------------//
+    //----------------------------------------------//
+    PlaneMesh::PlaneMesh()
+    {
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        glGenBuffers(2, buffers);
+        populateBuffers();
+    }
+    void PlaneMesh::draw()
+    {
+        glDrawElements(GL_TRIANGLES,
+                       N_INDICES_QUAD,
+                       GL_UNSIGNED_INT,
+                       0);
+        GL_CHECK_ERRORS();
+        // Make sure the VAO is not changed from the outside
+        glBindVertexArray(0);
+    }
+    void PlaneMesh::bindVAO()
+    {
+        glBindVertexArray(VAO);
+    }
+    void PlaneMesh::populateBuffers()
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
+
+        glBufferData(GL_ARRAY_BUFFER, sizeof(UIQuad), UIQuad, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(UIindices), UIindices, GL_STATIC_DRAW);
+
+        size_t NumFloats = 0;
+
+        glVertexAttribPointer(POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (const void *)(NumFloats * sizeof(float)));
+        glEnableVertexAttribArray(POSITION_LOCATION);
+        NumFloats += 2;
+
+        glVertexAttribPointer(TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (const void *)(NumFloats * sizeof(float)));
+        glEnableVertexAttribArray(TEX_COORD_LOCATION);
     }
 }

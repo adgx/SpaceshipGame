@@ -767,6 +767,8 @@ namespace SpaceEngine
         createShaderProgram("glyphs");
         GL_CHECK_ERRORS();
         createShaderProgram("powerup");
+        GL_CHECK_ERRORS();
+        createShaderProgram("space");
         GL_CHECK_ERRORS(); 
     }
 

@@ -75,6 +75,18 @@ namespace SpaceEngine
         friend class MeshManager;
     };
 
+    class PlaneMesh
+    {
+        public:
+            PlaneMesh();
+            void draw();
+            void bindVAO();
+        protected:
+            void populateBuffers();
+            GLuint VAO = 0;
+            GLuint buffers[2] = {0};
+    };
+
     class UIMesh
     {
     public:
@@ -130,6 +142,7 @@ namespace SpaceEngine
 
         // create box
         // create square
+        static PlaneMesh* getPlaneMesh();
         // create a sphere
         void Shutdown();
 
@@ -154,7 +167,7 @@ namespace SpaceEngine
         static std::unordered_map<std::string, Mesh *> meshMap;
         static UIMesh *pUIMesh;
         static TextMesh *pTextMesh;
-
+        static PlaneMesh *pPlaneMesh;
     };
 
     class UIMeshRenderer
