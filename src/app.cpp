@@ -240,9 +240,9 @@ namespace SpaceEngine
             renderer->render(rParams);
             GL_CHECK_ERRORS();
             uiRenderer->render(uiRenderables);
-            //GL_CHECK_ERRORS();
-            //textRenderer->render(textRenderables);
-            //GL_CHECK_ERRORS();
+            GL_CHECK_ERRORS();
+            textRenderer->render(textRenderables);
+            GL_CHECK_ERRORS();
             
             sceneManager.LateUpdate();
             
