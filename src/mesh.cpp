@@ -825,7 +825,7 @@ namespace SpaceEngine
         glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);        
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
 
-        glBufferData(GL_ARRAY_BUFFER, sizeof(UIQuad), UIQuad, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(UIindices), UIindices, GL_STATIC_DRAW);
 
         size_t NumFloats = 0;

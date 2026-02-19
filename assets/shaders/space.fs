@@ -60,7 +60,7 @@ float fbm(vec3 p)
 void main()
 {
     float timeS = time * 0.1; 
-    vec2 xy = -1.0 + 2.0 * FragCoord.xy / res.xy;
+    vec2 xy =FragCoord.xy / res.xy;
 
     //fade stuff
     float fade = min(1., timeS * 1.) * min(1., max(0., 15. - timeS));
@@ -69,7 +69,7 @@ void main()
     float glow = max(-0.25, 1. + pow(fade2, 10.) - 0.001 * pow(fade2, 25.));
 
     //camera
-    vec3 campos = vec3(500.0, 850., -1500.);
+    vec3 campos = vec3(500.0, 850., -5000.);
     vec3 camtar = vec3(0., 0., 0.); 
 
     float roll = 0.3;

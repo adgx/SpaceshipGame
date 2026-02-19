@@ -100,6 +100,10 @@ namespace SpaceEngine{
         pUILayout->addUIElement(pSettings);
 
         //add the screen render object
+        BaseMaterial* pScreenMat = MaterialManager::createMaterial<BaseMaterial>("ScreeBackground");
+        pScreenMat->pShader = ShaderManager::findShaderProgram("space");
+        PlaneMesh* pPlaneMesh = MeshManager::getPlaneMesh();
+        m_vecScreenRendObj.push_back(ScreenRenderObject{pPlaneMesh, pScreenMat});
     }
 
     void TitleScreen::UpdateScene(float dt)
@@ -110,9 +114,15 @@ namespace SpaceEngine{
             m_lastHeight = WindowManager::height;
             notifyChangeRes(); 
         }
+
         if (Keyboard::keyDown(SPACE_ENGINE_KEY_BUTTON_ESCAPE))
         {
             ExitGame(); // Chiama la tua funzione che fa exit(0)
+        }
+
+        if(m_vecScreenRendObj.size())
+        {
+            m_vecScreenRendObj[0].pMaterial->addProperty("time", static_cast<float>(glfwGetTime()));
         }
     }
 

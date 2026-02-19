@@ -8,9 +8,7 @@ namespace SpaceEngine
     
     void Renderer::render(const RendererParams& rParams)
     {
-        //before rendering
-        glClearColor(1.f, 1.f, 1.f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -95,6 +93,7 @@ namespace SpaceEngine
 
     void UIRenderer::render(const std::vector<UIRenderObject>& uiRenderables)
     {
+        
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -176,9 +175,9 @@ namespace SpaceEngine
 
     void ScreenRenderer::render(const std::vector<ScreenRenderObject>& screenRenderables)
     {
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //before rendering
+        //glClearColor(0.f, 0.f, 1.f, 1.f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         for (const auto& screenR : screenRenderables)
         {
             if (!screenR.pPlaneMesh || !screenR.pMaterial) continue;
@@ -189,15 +188,15 @@ namespace SpaceEngine
             {
                 shader->use();
                 screenR.pMaterial->bindingPropsToShader();
+                shader->setUniform("res", Vector2{WindowManager::width, WindowManager::height});
             }
+
             //draw
             screenR.pPlaneMesh->bindVAO();
             screenR.pPlaneMesh->draw();
             GL_CHECK_ERRORS();
             glUseProgram(0);
         }
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
     }
 
 };
