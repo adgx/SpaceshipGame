@@ -111,13 +111,20 @@ namespace SpaceEngine
         pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{25.f, 25.f, 25.f}); //left-bottom
         GL_CHECK_ERRORS();
         #else 
-        Light* pLight = new Light(Vector3{-10.f, 10.f, 0.f}, Vector3{10.f, 10.f, 10.f}, Math::getDirection(90.f, 0.f, 135.f)); //left-top
+        Vector3 colorLT(0.231, 0.078, 0.474);//dark purple
+        Vector3 colorRT(0.184, 0.055, 0.506);//dark purple
+        Vector3 colorRB(0.443, 0.11, 0.667);//dark purple
+        Vector3 colorLB(0.098, 0.035, 0.255);//dark purple
+        float pow1 = 20.f;
+        float pow2 = 30.f;
+
+        Light* pLight = new Light(Vector3{-10.f, 10.f, 0.f}, colorLT*pow1, Math::getDirection(90.f, 0.f, 135.f)); //left-top
         pScene->addSceneComponent<Light*>(pLight);
-        pLight = new Light(Vector3{10.f, 10.f, 0.f}, Vector3{25.f, 25.f, 25.f}, Math::getDirection(90.f, 0.f, -135.f)); //right-top
+        pLight = new Light(Vector3{10.f, 10.f, 0.f}, colorRT*pow2, Math::getDirection(90.f, 0.f, -135.f)); //right-top
         pScene->addSceneComponent<Light*>(pLight);
-        pLight = new Light(Vector3{10.f, -10.f, 0.f}, Vector3{10.f, 10.f, 10.f}, Math::getDirection(90.f, 0.f, -45.f)); //right-bottom
+        pLight = new Light(Vector3{10.f, -10.f, 0.f}, colorRB*pow1, Math::getDirection(90.f, 0.f, -45.f)); //right-bottom
         pScene->addSceneComponent<Light*>(pLight);
-        pLight = new Light(Vector3{-10.f, -10.f, 0.f}, Vector3{25.f, 25.f, 25.f}, Math::getDirection(90.f, 0.f, 45.f)); //left-bottom
+        pLight = new Light(Vector3{-10.f, -10.f, 0.f}, colorLB*pow2, Math::getDirection(90.f, 0.f, 45.f)); //left-bottom
         GL_CHECK_ERRORS();
         #endif
         

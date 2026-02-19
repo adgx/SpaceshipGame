@@ -52,7 +52,7 @@ namespace SpaceEngine
         Vector3 pos = m_pTransform->getWorldPosition() + moveDir * m_vel * dt;
         m_pTransform->setWorldPosition(pos);
         //culling
-        if(m_pTransform->getWorldPosition().z > 5.f || m_pTransform->getWorldPosition().z < -80.f)
+        if(m_pTransform->getWorldPosition().z > 5.f || m_pTransform->getWorldPosition().z < -50.f)
         {
             pScene->requestDestroy(this);
         }
