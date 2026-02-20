@@ -3,6 +3,7 @@
 #include "utils/utils.h"
 #include "log.h"
 #include "font.h"
+#include "managers/windowManager.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -14,6 +15,10 @@ constexpr std::size_t N_CUBEMAP_TEX = 6;
 
 namespace SpaceEngine
 {
+    //------------------------------------------------------//    
+    //------------------------Texture-----------------------//    
+    //------------------------------------------------------//
+    
     Texture::Texture(GLenum textureTarget, const std::string &FileName)
     {
         this->textureTarget = textureTarget;
@@ -45,7 +50,11 @@ namespace SpaceEngine
         glActiveTexture(textureUnit);
         glBindTexture(textureTarget, textureObj);
     }
-    // Texture manager
+
+    //------------------------------------------------------//    
+    //--------------------TextureManager--------------------//    
+    //------------------------------------------------------//
+    
     std::unordered_map<std::string, Texture *> TextureManager::texMap;
 
     void TextureManager::insert(std::string &nameKey, Texture *pTex)
@@ -305,12 +314,71 @@ namespace SpaceEngine
         }
         return nullptr;
     }
+    
+    Texture *TextureManager::genTexture(const GLenum textureTarget, TexSetParams params, std::string &texName)
+    {
+        Texture* tex = new Texture(textureTarget);
+        
+        glGenTextures(1, &(tex->textureObj));
+        glBindTexture(textureTarget, tex->textureObj);
+
+        glTexImage2D(textureTarget, 
+            params.level, 
+            params.internalformat, 
+            params.width, 
+            params.height, 
+            params.border, 
+            params.format, 
+            params.type, 
+            params.data);
+
+        
+        //for now is default setting change it in future
+        glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        insert(texName, tex);
+
+        return tex;
+    }
 
     void TextureManager::Shutdown()
     {
         for (auto &[name, pTex] : texMap)
             delete pTex;
         texMap.clear();
+    }
+
+
+    //------------------------------------------------------//    
+    //---------------------FrameBuffer----------------------//    
+    //------------------------------------------------------//
+
+    FrameBuffer::FrameBuffer()
+    {
+        glGenFramebuffers(1, &frameBufferObj);
+    }
+    
+    void FrameBuffer::addColorBuffer()
+    {
+        TexSetParams params = {
+            0, 
+            GL_RGBA16F, 
+            WindowManager::width, 
+            WindowManager::height, 
+            0, 
+            GL_RGBA, 
+            GL_FLOAT, 
+            NULL};
+        std::string name = "ColorBuffer"+std::to_string(colorBuffers.size());
+        Texture* pColorBuffer = TextureManager::genTexture(GL_TEXTURE_2D, params, name);
+        //unbind??
+        glFramebufferTexture2D(GL_FRAMEBUFFER, 
+            GL_COLOR_ATTACHMENT0 + colorBuffers.size(), 
+            GL_TEXTURE_2D, 
+            pColorBuffer->getTexture(), 
+            0);
     }
 
 }

@@ -46,6 +46,20 @@ namespace SpaceEngine
         Skybox* pSkybox = nullptr; 
     };
 
+    class RenderBuffer
+    {
+        //blabla
+    };
+
+    class RendererV2
+    {
+        public:
+            void init();
+            void render(const RendererParams& rParams);
+        private:
+            bool debug;
+    }; 
+
     class Renderer
     {
         public:

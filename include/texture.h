@@ -44,6 +44,42 @@ namespace SpaceEngine
         friend class TextureManager;
     };
 
+    class FrameBuffer
+    {
+    public:
+        FrameBuffer();
+        ~FrameBuffer() = default; 
+        
+        void addColorBuffer();
+        inline int bindFrameBuffer()
+        {
+            if(frameBufferObj)
+            {
+                glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObj);
+                return 0;
+            }
+            
+            return -1;
+        }
+
+    private:
+        GLenum frameBufferObj = 0;
+        std::vector<Texture*> colorBuffers;
+
+    };
+
+    struct TexSetParams
+    {
+        GLint level;
+  	    GLint internalformat;
+  	    GLsizei width;
+  	    GLsizei height;
+  	    GLint border;
+  	    GLenum format;
+  	    GLenum type;
+  	    void * data;
+    };
+
     class TextureManager
     {
     public:
@@ -51,6 +87,7 @@ namespace SpaceEngine
         ~TextureManager() = default;
         void Initialize() {};
         static Texture *loadCubeMap(const std::string &path);
+        static Texture *genTexture(const GLenum textureTarget, TexSetParams params, std::string &texName);
         static Texture *load(const std::string &path, bool isSRGB = false);
         static Texture *load(const std::string &texName, uint32_t bufferSize, void *pBufferData, bool isSRGB = false);
         static Texture *loadRaw(const std::string &, int width, int height, int BPP, const unsigned char *pImageData, bool isSRGB);
