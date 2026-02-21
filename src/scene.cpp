@@ -604,7 +604,8 @@ namespace SpaceEngine
             .budget{BudgetAsteroidE},
             .minSpawn{1},
             .maxSpawn{1},
-            .spawnInterval{TimeAsterorid}
+            .spawnInterval{TimeAsterorid},
+            .bulletSpeed{1.f}
         },
         {
             .weights{0.3f, 0.7f, 0.f},
@@ -612,7 +613,8 @@ namespace SpaceEngine
             .budget{BudgetAsteroidM},
             .minSpawn{1},
             .maxSpawn{2},
-            .spawnInterval{TimeAsterorid * TimeAsteroridXM}
+            .spawnInterval{TimeAsterorid * TimeAsteroridXM},
+            .bulletSpeed{1.f}
         },
         {
             .weights{0.1f, 0.3f, 0.6f},
@@ -620,7 +622,8 @@ namespace SpaceEngine
             .budget{BudgetAsteroidH},
             .minSpawn{1},
             .maxSpawn{3},
-            .spawnInterval{TimeAsterorid * TimeAsteroridXH}
+            .spawnInterval{TimeAsterorid * TimeAsteroridXH},
+            .bulletSpeed{1.f}
         },
         {
             .weights{1.f, 0.f, 0.f},
@@ -628,7 +631,8 @@ namespace SpaceEngine
             .budget{BudgetEnemyE},
             .minSpawn{1},
             .maxSpawn{1},
-            .spawnInterval{TimeEnemy}
+            .spawnInterval{TimeEnemy},
+            .bulletSpeed{1.f}
         },
         {
             .weights{0.3f, 0.7f, 0.f},
@@ -636,7 +640,8 @@ namespace SpaceEngine
             .budget{BudgetEnemyM},
             .minSpawn{1},
             .maxSpawn{2},
-            .spawnInterval{TimeEnemy * TimeEnemyXM}
+            .spawnInterval{TimeEnemy * TimeEnemyXM},
+            .bulletSpeed{1.4f}
         },
         {
             .weights{0.2f,0.6f,0.2f},
@@ -644,7 +649,8 @@ namespace SpaceEngine
             .budget{BudgetEnemyH},
             .minSpawn{1},
             .maxSpawn{3},
-            .spawnInterval{TimeEnemy * TimeEnemyXH}
+            .spawnInterval{TimeEnemy * TimeEnemyXH},
+            .bulletSpeed{1.7f}
         },
         {
             .weights{0.2f,0.6f,0.2f},
@@ -652,7 +658,8 @@ namespace SpaceEngine
             .budget{30},
             .minSpawn{1},
             .maxSpawn{3},
-            .spawnInterval{TimeEnemy * TimeEnemyXH}
+            .spawnInterval{TimeEnemy * TimeEnemyXH},
+            .bulletSpeed{2.f}
         }
     };
 
@@ -844,7 +851,7 @@ namespace SpaceEngine
             EnemyType enemyType = static_cast<EnemyType>(weightedRandom(m_stage.weights, 3));
             EnemyShip* pEnemy = m_pScene->requestInstantiate(SpaceScene::m_pEnemy);
 
-            pEnemy->Init(Vector3{getPosX(index), 0.f, -100.f}, enemyType, SpaceScene::m_pPlayer,  VelEnemy/m_stage.spawnInterval, index);
+            pEnemy->Init(Vector3{getPosX(index), 0.f, -100.f}, enemyType, SpaceScene::m_pPlayer,  VelEnemy/m_stage.spawnInterval, index, m_stage.bulletSpeed);
             m_pSpawnerObs->space[index] = ESlot::ENEMY;
         }
     }

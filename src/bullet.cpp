@@ -65,6 +65,11 @@ namespace SpaceEngine
         {
             return; //ignora la collisione se fatta con il proprietario
         }
+
+        if (col->gameObj->getLayer() == ELayers::BULLET_ENEMY_LAYER || col->gameObj->getLayer() == ELayers::BULLET_PLAYER_LAYER) 
+        {
+            return;
+        }
         
         pScene->requestDestroy(this);
         

@@ -25,9 +25,10 @@ namespace SpaceEngine {
         delete m_pSpawnerSub;
     }
 
-    void EnemyShip::Init(Vector3 spawnPos, EnemyType type, GameObject* pTarget, float vel, int ticket) {
+    void EnemyShip::Init(Vector3 spawnPos, EnemyType type, GameObject* pTarget, float vel, int ticket, float bulletSpeed) {
         m_type = type;
         m_pTarget = pTarget;
+        m_bulletSpeed = bulletSpeed;
         m_pSub = new PointSubject();
         m_pSpawnerSub = new SpawnerSubject(ticket);
         
@@ -84,6 +85,9 @@ namespace SpaceEngine {
     
         Vector3 baseRotation = glm::eulerAngles(qRot);// converte quaternione in vettore di angoli
         baseRotation.x += 1.5708f; //per sparare verso il player
+
+        float baseBulletSpeed = m_speed + 5.0f;
+        float finalBulletSpeed = baseBulletSpeed * m_bulletSpeed;
         
         if (m_type == EnemyType::SPREAD) 
         {
@@ -96,7 +100,7 @@ namespace SpaceEngine {
                 float rotY = atan2(shootDir.x, shootDir.z);
                 Vector3 visualRot(1.5708f, rotY, 0.0f);
 
-                pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, shootDir, visualRot, m_speed + 3.f);
+                pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, shootDir, visualRot, finalBulletSpeed);
             }
         }
         else if(m_type == EnemyType::AIMER && m_pTarget) {
@@ -108,13 +112,13 @@ namespace SpaceEngine {
             
             Vector3 aimRot = Vector3(1.5708f, angleY, 0); 
 
-            pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, direction, aimRot, m_speed + 3.f);
+            pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, direction, aimRot, finalBulletSpeed);
         }
         else{
             Vector3 shootDir(0.0f, 0.0f, 1.0f); // Dritto verso +Z
             Vector3 visualRot(1.5708f, 0.0f, 0.0f);
 
-            pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, shootDir, visualRot, m_speed + 3.f);
+            pScene->requestInstantiate(SpaceScene::pBulletEnemy)->Fire(spawnPos, shootDir, visualRot, finalBulletSpeed);
         }
 
         if (auto* audioMgr = pScene->getAudioManager()) {

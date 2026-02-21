@@ -20,7 +20,7 @@ namespace SpaceEngine {
     public:
         EnemyShip(Scene* pScene, std::string filePathModel);
         virtual ~EnemyShip();
-        void Init(Vector3 spawnPos, EnemyType type, GameObject* pTarget = nullptr, float vel = 0.f, int ticket = 0);
+        void Init(Vector3 spawnPos, EnemyType type, GameObject* pTarget = nullptr, float vel = 0.f, int ticket = 0, float bulletSpeed = 1.0f);
         virtual void update(float dt) override;
         virtual void onCollisionEnter(Collider* col) override;
         void DecreaseHealth();
@@ -41,6 +41,8 @@ namespace SpaceEngine {
         float m_spawnZ, m_despawnZ;
         float m_shootCooldown; // Ogni quanto spara
         float m_shootTimer;
+
+        float m_bulletSpeed = 1.f;
         
         int m_health;
         int m_score = 100;

@@ -228,6 +228,7 @@ namespace SpaceEngine
             uint32_t minSpawn;
             uint32_t maxSpawn;
             float spawnInterval;
+            float bulletSpeed;
         };
         
         inline float getPosX(int index){return StartOffsetSpace + index * OffsetSpace;}
