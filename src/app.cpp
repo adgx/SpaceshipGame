@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#define DEBUG_RENDERERV2 1
+
 namespace SpaceEngine
 {
     EAppState App::state = EAppState::START;
@@ -27,7 +29,7 @@ namespace SpaceEngine
         materialManager.Initialize();
         textureManager.Initialize();
         sceneManager.Initialize();
-        
+        rendererV2.Initialize();
         audioManager.Initialize();
 
         audioManager.LoadSound("menu_music", AUDIO_PATH"menu.wav");
@@ -92,7 +94,6 @@ namespace SpaceEngine
         GL_CHECK_ERRORS();
         //add GameObject to the scene
         pScene->addSceneComponent<GameObject*>(pPlayer);
-
 
         //TODO: initialize correctly the camera please 
         PerspectiveCamera* pCamera = new PerspectiveCamera();
@@ -234,6 +235,7 @@ namespace SpaceEngine
                 sceneManager.GetActiveCamera(), 
                 sceneManager.GetSkybox()};
             
+            #if !DEBUG_RENDERERV2
             GL_CHECK_ERRORS();
             screenRenderer->render(screenRenderables);
             GL_CHECK_ERRORS();
@@ -243,6 +245,22 @@ namespace SpaceEngine
             GL_CHECK_ERRORS();
             textRenderer->render(textRenderables);
             GL_CHECK_ERRORS();
+            #else
+            GL_CHECK_ERRORS();
+            rendererV2.clear();
+            GL_CHECK_ERRORS();
+            rendererV2.render(screenRenderables);
+            GL_CHECK_ERRORS();
+            rendererV2.render(rParams);
+            GL_CHECK_ERRORS();
+            rendererV2.render(uiRenderables);
+            GL_CHECK_ERRORS();
+            rendererV2.render(textRenderables);
+            GL_CHECK_ERRORS();
+            rendererV2.postprocessing(true);
+            GL_CHECK_ERRORS();
+            #endif
+
             
             sceneManager.LateUpdate();
             

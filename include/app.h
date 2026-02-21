@@ -34,6 +34,7 @@ namespace SpaceEngine
             PhysicsManager physicsManager;
             AudioManager audioManager;
             SceneManager sceneManager;
+            RendererV2 rendererV2;
             //Objects
             Scene* pScene;
             Renderer* renderer;

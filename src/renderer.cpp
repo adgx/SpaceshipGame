@@ -296,6 +296,7 @@ namespace SpaceEngine
             m_pHDRShader->use();
             m_pHDRShader->setUniform("scene", 0);
             m_pHDRShader->setUniform("highlight", 1);
+            GL_CHECK_ERRORS();
 
             //enable HDR range for rendering
             m_HDRFrameBuffer.init();
@@ -330,6 +331,7 @@ namespace SpaceEngine
                 m_pBloomShader->use();
                 m_pBloomShader->setUniform("LumThresh", 2.f);
                 m_pBloomShader->setUniform("BlurTex", 0);
+                GL_CHECK_ERRORS();
 
                 //sample the gauss filter
                 float weights[10], sum, sigma2 = 25.f;
@@ -350,6 +352,7 @@ namespace SpaceEngine
                     float val = weights[i] / sum;
                     m_pBloomShader->setUniform(strWeight.c_str(), val);
                 }
+                GL_CHECK_ERRORS();
                 glUseProgram(0);
             }
         }
@@ -370,6 +373,7 @@ namespace SpaceEngine
         //render the scene into floating point framebuffer
         m_HDRFrameBuffer.bindFrameBuffer();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GL_CHECK_ERRORS();
     }
 
     //screen shaders renderer
@@ -569,17 +573,16 @@ namespace SpaceEngine
     {
         m_HDRFrameBuffer.unbindFrameBuffer();
         PlaneMesh* pPlaneMesh = MeshManager::getPlaneMesh();
-        ShaderProgram* pBloomShader = ShaderManager::findShaderProgram("bloomVFX");
         uint32_t horizontal = 1;
         
-        if(m_bloomVFX && pBloomShader)
+        if(m_bloomVFX && m_pBloomShader)
         {
             uint32_t amount = 10; //apply 5 times the 2D gaussian filter
             
             //apply the gaussian filter on the scene render buffer
-            pBloomShader->use();
+            m_pBloomShader->use();
             m_BloomFrameBuffers[1].bindFrameBuffer();
-            pBloomShader->setSubroutinesUniform(GL_FRAGMENT_SHADER, 1, &horizontal);
+            m_pBloomShader->setSubroutinesUniform(GL_FRAGMENT_SHADER, 1, &horizontal);
             glBindTexture(GL_TEXTURE_2D, m_HDRFrameBuffer.getColorBuffer(1));
             pPlaneMesh->bindVAO();
             pPlaneMesh->draw();
@@ -588,7 +591,7 @@ namespace SpaceEngine
             for(uint32_t i = 1; i < amount; i++)
             {
                 m_BloomFrameBuffers[horizontal].bindFrameBuffer();
-                pBloomShader->setSubroutinesUniform(GL_FRAGMENT_SHADER, 1, &horizontal);
+                m_pBloomShader->setSubroutinesUniform(GL_FRAGMENT_SHADER, 1, &horizontal);
                 glBindTexture(GL_TEXTURE_2D, m_BloomFrameBuffers[horizontal ^ 1].getColorBuffer(0));
                 pPlaneMesh->bindVAO();
                 pPlaneMesh->draw();
