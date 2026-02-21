@@ -253,7 +253,7 @@ namespace SpaceEngine
         Texture* pColorBuffer = TextureManager::genTexture(GL_TEXTURE_2D, params, name);
         //unbind??
         glFramebufferTexture2D(GL_FRAMEBUFFER, 
-            GL_COLOR_ATTACHMENT0 + m_vecColorBuffers.size(), 
+            GL_COLOR_ATTACHMENT0 + static_cast<GLenum>(m_vecColorBuffers.size()), 
             GL_TEXTURE_2D, 
             pColorBuffer->getTexture(), 
             0);
@@ -273,7 +273,7 @@ namespace SpaceEngine
            attachments.push_back(GL_COLOR_ATTACHMENT0 + i); 
         }
 
-        glDrawBuffers(m_vecColorBuffers.size(), attachments.data());
+        glDrawBuffers(static_cast<GLsizei>(m_vecColorBuffers.size()), attachments.data());
     }
 
     //------------------------------------------------------//    

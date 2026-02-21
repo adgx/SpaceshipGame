@@ -62,7 +62,7 @@ namespace SpaceEngine
     {
     public:
         FrameBuffer();
-        ~FrameBuffer() = default; 
+        ~FrameBuffer(); 
         
         void init();
         void addColorBuffer();
