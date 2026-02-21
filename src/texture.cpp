@@ -351,34 +351,6 @@ namespace SpaceEngine
     }
 
 
-    //------------------------------------------------------//    
-    //---------------------FrameBuffer----------------------//    
-    //------------------------------------------------------//
 
-    FrameBuffer::FrameBuffer()
-    {
-        glGenFramebuffers(1, &frameBufferObj);
-    }
-    
-    void FrameBuffer::addColorBuffer()
-    {
-        TexSetParams params = {
-            0, 
-            GL_RGBA16F, 
-            WindowManager::width, 
-            WindowManager::height, 
-            0, 
-            GL_RGBA, 
-            GL_FLOAT, 
-            NULL};
-        std::string name = "ColorBuffer"+std::to_string(colorBuffers.size());
-        Texture* pColorBuffer = TextureManager::genTexture(GL_TEXTURE_2D, params, name);
-        //unbind??
-        glFramebufferTexture2D(GL_FRAMEBUFFER, 
-            GL_COLOR_ATTACHMENT0 + colorBuffers.size(), 
-            GL_TEXTURE_2D, 
-            pColorBuffer->getTexture(), 
-            0);
-    }
 
 }

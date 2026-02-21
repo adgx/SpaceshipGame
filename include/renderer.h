@@ -8,6 +8,7 @@
 #include "ui.h"
 #include "light.h"
 #include "font.h"
+#include "texture.h"
 
 #include <vector>
 
@@ -48,16 +49,65 @@ namespace SpaceEngine
 
     class RenderBuffer
     {
-        //blabla
+        public:
+            RenderBuffer(GLenum target, GLenum attachment);
+            void init(GLenum target, GLenum attachment);
+        private:
+            GLenum m_renderBufferObj = 0;
+            GLenum m_target = 0;
+            GLenum m_attachment = 0;
     };
+
+    class FrameBuffer
+    {
+    public:
+        FrameBuffer();
+        ~FrameBuffer() = default; 
+        
+        void init();
+        void addColorBuffer();
+        void addRenderBuffer();
+        void drawBuffers();
+
+        inline int bindFrameBuffer()
+        {
+            if(m_frameBufferObj)
+            {
+                glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferObj);
+                return 0;
+            }
+            
+            return -1;
+        }
+
+        inline void unbindFrameBuffer(){glBindFramebuffer(GL_FRAMEBUFFER, 0);}
+
+    private:
+        GLenum m_frameBufferObj = 0;
+        std::vector<Texture*> m_vecColorBuffers;
+        RenderBuffer* m_pRenderBuffer;
+    };
+
+
 
     class RendererV2
     {
         public:
-            void init();
-            void render(const RendererParams& rParams);
+            void Initialize();
+            void Shutdown();
+            static void clear();
+            static void render(const std::vector<ScreenRenderObject>& screenRenderables); // screen shaders renderer
+            static void render(const RendererParams& rParams); //mesh renderer
+            static void render(const std::vector<UIRenderObject>& uiRenderables); //UI renderer
+            static void render(const std::vector<TextRenderObject>& textRenderables); //Text renderer
+            static void postprocessing();
+
         private:
-            bool debug;
+            static bool m_postprocessing;
+            static bool m_preprocessing;
+            static bool m_debug;
+            static FrameBuffer m_HDRFrameBuffer;
+            static FrameBuffer m_BloomFrameBuffers[2];
     }; 
 
     class Renderer

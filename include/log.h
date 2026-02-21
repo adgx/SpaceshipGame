@@ -125,6 +125,12 @@ static const char* getGLErrorString(GLenum error)
             SPACE_ENGINE_FATAL("GL error: {}, file:{}, line:{}", getGLErrorString(err), __FILE__, __LINE__); \
     } while (0)
 
+#define GL_CHECK_FRAMEBUFFER_STATUS()                                     \
+    do {                                                      \
+        if (GLenum err = glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)    \
+            SPACE_ENGINE_FATAL("GL Framebuffer not complete: {}, file:{}, line:{}", getGLErrorString(err), __FILE__, __LINE__); \
+    } while (0)
+
 #define FT_CHECK(call)                                                  \
     do                                                                  \
     {                                                                   \

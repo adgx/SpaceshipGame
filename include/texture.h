@@ -44,30 +44,6 @@ namespace SpaceEngine
         friend class TextureManager;
     };
 
-    class FrameBuffer
-    {
-    public:
-        FrameBuffer();
-        ~FrameBuffer() = default; 
-        
-        void addColorBuffer();
-        inline int bindFrameBuffer()
-        {
-            if(frameBufferObj)
-            {
-                glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObj);
-                return 0;
-            }
-            
-            return -1;
-        }
-
-    private:
-        GLenum frameBufferObj = 0;
-        std::vector<Texture*> colorBuffers;
-
-    };
-
     struct TexSetParams
     {
         GLint level;
