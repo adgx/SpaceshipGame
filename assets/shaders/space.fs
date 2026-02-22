@@ -75,7 +75,7 @@ void main()
   float glow = 1.;
 
   //camera
-  vec3 campos = vec3(500.0, 850., -5000.);
+  vec3 campos = vec3(500.0, 850., -900.);
   vec3 camtar = vec3(0., 0., 0.); //target
 
   float roll = 0.3; //forward rotation
@@ -99,7 +99,7 @@ void main()
   vec3 stars = 85.5 * vec3(pow(fbmslow(rd.xyz * 312.0), 7.0)) * vec3(pow(fbmslow(rd.zxy * 440.3), 8.0));
   
   //moving background fog (3 layer)
-  vec3 cpos = 1500 * rd + vec3(831.0 - timeS * 30., 321.0, 1000.);
+  vec3 cpos = 1500 * rd + vec3(831.0 - timeS * 30., 321.0, 500.);
   col += vec3(0.4, 0.5, 1.0) * ((fbmslow(cpos * 0.035) - 0.5));
 
   cpos += vec3(831.0 - timeS * 33., 321.0, 999.);
