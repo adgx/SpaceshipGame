@@ -9,11 +9,34 @@ namespace SpaceEngine
     void Renderer::render(const RendererParams& rParams)
     {
         //before rendering
-        glClearColor(1.f, 1.f, 1.f, 1.f);
+        glClearColor(1.f, 1.f, 1.f, 0.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                if(rParams.pSkybox)
+        {
+            GL_CHECK_ERRORS();
+            ShaderProgram* pShaderSkybox = rParams.pSkybox->pShader;
+            Matrix4 viewNoTransl = Matrix4(Matrix3(rParams.cam->getViewMatrix()));
+            pShaderSkybox->use();
+            pShaderSkybox->setUniform("view", viewNoTransl);
+            pShaderSkybox->setUniform("projection", rParams.cam->getProjectionMatrix());
+            pShaderSkybox->setUniform("skybox", 0);
+            // disegna la skybox come se fosse lontanissima
+            glDepthFunc(GL_LEQUAL);
+            glDisable(GL_CULL_FACE);
+
+            rParams.pSkybox->bindTex();
+            rParams.pSkybox->bindVAO();
+            rParams.pSkybox->draw();
+
+            glEnable(GL_CULL_FACE);
+            glDepthFunc(GL_LESS);
+            GL_CHECK_ERRORS();
+            glUseProgram(0);
+        }
 
         if(rParams.cam)
         {
@@ -69,28 +92,7 @@ namespace SpaceEngine
                 }    
             }
         }
-        if(rParams.pSkybox)
-        {
-            GL_CHECK_ERRORS();
-            ShaderProgram* pShaderSkybox = rParams.pSkybox->pShader;
-            Matrix4 viewNoTransl = Matrix4(Matrix3(rParams.cam->getViewMatrix()));
-            pShaderSkybox->use();
-            pShaderSkybox->setUniform("view", viewNoTransl);
-            pShaderSkybox->setUniform("projection", rParams.cam->getProjectionMatrix());
-            pShaderSkybox->setUniform("skybox", 0);
-            // disegna la skybox come se fosse lontanissima
-            glDepthFunc(GL_LEQUAL);
-            glDisable(GL_CULL_FACE);
 
-            rParams.pSkybox->bindTex();
-            rParams.pSkybox->bindVAO();
-            rParams.pSkybox->draw();
-
-            glEnable(GL_CULL_FACE);
-            glDepthFunc(GL_LESS);
-            GL_CHECK_ERRORS();
-            glUseProgram(0);
-        }
     }
 
     void UIRenderer::render(const std::vector<UIRenderObject>& uiRenderables)

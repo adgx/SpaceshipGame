@@ -11,7 +11,7 @@ namespace SpaceEngine {
 
     class PowerUp : public GameObject {
     public:
-        PowerUp(Scene* pScene, PowerUpType type, std::string modelPath);
+        PowerUp(Scene* pScene, PowerUpType type, std::string modelPath, std::string matName);
         virtual ~PowerUp() = default;
 
         void Init(Vector3 position);

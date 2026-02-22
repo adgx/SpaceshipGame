@@ -6,10 +6,15 @@
 
 namespace SpaceEngine {
 
-    PowerUp::PowerUp(Scene* pScene, PowerUpType type, std::string modelPath) 
+    PowerUp::PowerUp(Scene* pScene, PowerUpType type, std::string modelPath, std::string matName) 
         : GameObject(pScene), m_type(type) {
+  
+        BaseMaterial* pMat;
         
-        m_pMesh = MeshManager::loadMesh(modelPath); 
+        m_pMesh = MeshManager::loadMesh(modelPath);
+        pMat = MaterialManager::findMaterial(matName);
+
+        m_pMesh->bindMaterialToSubMeshIndex(0, pMat); 
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
         m_layer = ELayers::POWERUP_LAYER; 
