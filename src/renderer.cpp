@@ -240,6 +240,7 @@ namespace SpaceEngine
 
     void FrameBuffer::addColorBuffer()
     {
+        bindFrameBuffer();
         TexSetParams params = {
             0, 
             GL_RGBA16F, 
@@ -251,12 +252,15 @@ namespace SpaceEngine
             NULL};
         std::string name = "ColorBuffer"+std::to_string(m_vecColorBuffers.size());
         Texture* pColorBuffer = TextureManager::genTexture(GL_TEXTURE_2D, params, name);
+        GL_CHECK_ERRORS();
         //unbind??
         glFramebufferTexture2D(GL_FRAMEBUFFER, 
-            GL_COLOR_ATTACHMENT0 + static_cast<GLenum>(m_vecColorBuffers.size()), 
+            GL_COLOR_ATTACHMENT0 + static_cast<GLuint>(m_vecColorBuffers.size()), 
             GL_TEXTURE_2D, 
             pColorBuffer->getTexture(), 
             0);
+        GL_CHECK_ERRORS();
+        m_vecColorBuffers.push_back(pColorBuffer);
     }
 
     void FrameBuffer::addRenderBuffer()
