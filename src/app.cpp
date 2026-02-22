@@ -80,6 +80,13 @@ namespace SpaceEngine
     void App::Start()
     {
         state = EAppState::START;
+        //crate material for the buller 
+        BaseMaterial* pBulletMat = MaterialManager::createMaterial<BaseMaterial>("BulletMat");
+        pBulletMat->addProperty("color_val", Vector4(8.f, 1.f, 1.f, 1.f));
+        pBulletMat->subroutines["getColorTex"] = {false, "colorMode"};
+        pBulletMat->subroutines["getColorVal"] = {true, "colorMode"};
+
+        pBulletMat->pShader = ShaderManager::findShaderProgram("simpleTex");
         FontLoader::LoadFont("Orbitron-Regular.ttf");
         //initialize main scene
         pScene = new SpaceScene(&physicsManager);

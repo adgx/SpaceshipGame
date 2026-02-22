@@ -343,6 +343,19 @@ namespace SpaceEngine
         return tex;
     }
 
+    int TextureManager::destroyTex(Texture* pTex)
+    {
+        if(pTex)
+        {
+            glDeleteTextures(1, &pTex->textureObj);
+            texMap.erase(pTex->fileName);
+            delete pTex;
+            return 1;
+        }
+        return 0;
+    }
+
+
     void TextureManager::Shutdown()
     {
         for (auto &[name, pTex] : texMap)

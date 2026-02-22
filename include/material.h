@@ -77,7 +77,7 @@ namespace SpaceEngine
             std::string name;
             std::unordered_map<std::string, PropertyValue> props;
             //name subroutine/ bool is active
-            //when switch for a subroutine to another remember to turn of the subroutine
+            //when switch for a subroutine to another remember to turn off the subroutine
             struct subroutineInfo
             {
                 bool active = false;

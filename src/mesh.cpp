@@ -90,7 +90,8 @@ namespace SpaceEngine
             return -1;
         }
 
-        materials[index] = pMat;
+        materials.push_back(pMat);
+        subMeshes[index].materialIndex = static_cast<uint32_t>(materials.size()-1);
 
         return 1;
     }

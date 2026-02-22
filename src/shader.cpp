@@ -527,8 +527,6 @@ namespace SpaceEngine
             return;
 	    }
 
-        
-        
         //search on fs
         pos = fsSubroutinesInfo.find(name);
 

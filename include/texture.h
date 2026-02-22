@@ -68,6 +68,7 @@ namespace SpaceEngine
         static Texture *load(const std::string &texName, uint32_t bufferSize, void *pBufferData, bool isSRGB = false);
         static Texture *loadRaw(const std::string &, int width, int height, int BPP, const unsigned char *pImageData, bool isSRGB);
         static Texture *findTexture(const std::string &texName);
+        static int destroyTex(Texture* pTex);
         static std::map<char, Character> loadFontChars(const std::string &nameFont);
 
         void Shutdown();

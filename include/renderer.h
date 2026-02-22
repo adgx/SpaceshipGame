@@ -49,6 +49,7 @@ namespace SpaceEngine
 
     class RenderBuffer
     {
+        friend class FrameBuffer;
         public:
             RenderBuffer(GLenum target, GLenum attachment);
             void init(GLenum target, GLenum attachment);
@@ -66,8 +67,11 @@ namespace SpaceEngine
         
         void init();
         void addColorBuffer();
+        void addColorBuffer(int width, int height);
         void addRenderBuffer();
         void drawBuffers();
+        int destroyColorAndDepth();
+        void resize(int width, int height, int nColorBuff, bool depth);
 
         inline int bindFrameBuffer()
         {
@@ -110,6 +114,7 @@ namespace SpaceEngine
             static void render(const std::vector<UIRenderObject>& uiRenderables); //UI renderer
             static void render(const std::vector<TextRenderObject>& textRenderables); //Text renderer
             static void postprocessing(bool bloomVFX);
+            static void resizeBuffers(int width, int height);
 
         private:
             static bool m_preprocessing;

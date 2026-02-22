@@ -179,7 +179,10 @@ namespace SpaceEngine
                 static_cast<float>(height),
                 0.0f);
             Scene* pScene = SceneManager::GetActiveScene();
+            
             if(pScene)pScene->notifyChangeRes();
+
+            RendererV2::resizeBuffers(width, height);
         }
     }
 

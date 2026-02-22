@@ -10,6 +10,7 @@ namespace SpaceEngine
     Bullet::Bullet(Scene* pScene, std::string filePathModel):GameObject(pScene)
     {
         m_pMesh = MeshManager::loadMesh(filePathModel);
+        m_pMesh->bindMaterialToSubMeshIndex(0, MaterialManager::findMaterial("BulletMat"));
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
     }

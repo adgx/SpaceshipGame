@@ -238,13 +238,14 @@ namespace SpaceEngine
         glGenFramebuffers(1, &m_frameBufferObj);
     }
 
-    void FrameBuffer::addColorBuffer()
+    
+    void FrameBuffer::addColorBuffer(int width, int height)
     {
         TexSetParams params = {
             0, 
             GL_RGBA16F, 
-            WindowManager::width, 
-            WindowManager::height, 
+            width, 
+            height, 
             0, 
             GL_RGBA, 
             GL_FLOAT, 
@@ -260,6 +261,12 @@ namespace SpaceEngine
             0);
         GL_CHECK_ERRORS();
         m_vecColorBuffers.push_back(pColorBuffer);
+    }
+
+    void FrameBuffer::addColorBuffer()
+    {
+        addColorBuffer(WindowManager::width, 
+            WindowManager::height);
     }
 
     void FrameBuffer::addRenderBuffer()
@@ -278,6 +285,42 @@ namespace SpaceEngine
 
         glDrawBuffers(static_cast<GLsizei>(m_vecColorBuffers.size()), attachments.data());
     }
+
+    int FrameBuffer::destroyColorAndDepth()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        for(Texture* pTex : m_vecColorBuffers)
+        {
+            TextureManager::destroyTex(pTex);
+        }
+
+        m_vecColorBuffers.clear();
+
+        if(m_pRenderBuffer)
+        {
+            glDeleteRenderbuffers(1, &m_pRenderBuffer->m_renderBufferObj);
+            delete m_pRenderBuffer;
+        }
+        return 1;
+    }
+
+    void FrameBuffer::resize(int width, int height, int nColorBuff, bool depth)
+    {
+        destroyColorAndDepth();
+        GL_CHECK_ERRORS();
+        bindFrameBuffer();
+        
+        for(int i = 0; i < nColorBuff; i++)
+            addColorBuffer(width, height);
+       
+        if(depth)
+            addRenderBuffer();
+        
+        unbindFrameBuffer();
+        GL_CHECK_ERRORS();
+    }
+
 
     //------------------------------------------------------//    
     //---------------------RendererV2-----------------------//    
@@ -626,5 +669,19 @@ namespace SpaceEngine
         pPlaneMesh->draw();
         glUseProgram(0);
     }
+
+    void RendererV2::resizeBuffers(int width, int height)
+    {
+        m_HDRFrameBuffer.resize(width, height, 2, true);
+        m_HDRFrameBuffer.bindFrameBuffer();
+        m_HDRFrameBuffer.drawBuffers();
+        m_HDRFrameBuffer.unbindFrameBuffer();
+
+        for(int i = 0; i < 2; i++)
+            m_BloomFrameBuffers[i].resize(width, height, 1, false);
+        
+        GL_CHECK_ERRORS();
+    }
+
 
 };
