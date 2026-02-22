@@ -248,12 +248,12 @@ namespace SpaceEngine
             return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
         }
         
-        static constexpr int32_t BudgetAsteroidE = 10;
-        static constexpr int32_t BudgetAsteroidM = 20;
-        static constexpr int32_t BudgetAsteroidH = 15;
-        static constexpr int32_t BudgetEnemyE = 10;
-        static constexpr int32_t BudgetEnemyM = 10;
-        static constexpr int32_t BudgetEnemyH = 10;
+        static constexpr int32_t BudgetAsteroidE = 5;
+        static constexpr int32_t BudgetAsteroidM = 9;
+        static constexpr int32_t BudgetAsteroidH = 12;
+        static constexpr int32_t BudgetEnemyE = 5;
+        static constexpr int32_t BudgetEnemyM = 5;
+        static constexpr int32_t BudgetEnemyH = 5;
         
         static constexpr float FarDistance = -80.f;
         static constexpr float DeltaSpace = 2.5f;          
