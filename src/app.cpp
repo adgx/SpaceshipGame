@@ -85,15 +85,15 @@ namespace SpaceEngine
         pBulletMat->addProperty("color_val", Vector4(8.f, 1.f, 1.f, 1.f));
         pBulletMat->subroutines["getColorTex"] = {false, "colorMode"};
         pBulletMat->subroutines["getColorVal"] = {true, "colorMode"};
-
         pBulletMat->pShader = ShaderManager::findShaderProgram("simpleTex");
+        
         FontLoader::LoadFont("Orbitron-Regular.ttf");
         //initialize main scene
         pScene = new SpaceScene(&physicsManager);
         pScene->setAudioManager(&audioManager);
         pScene->Init();
         //crea e inizializza il player
-        PlayerShip* pPlayer = new PlayerShip(pScene, "PlayerShipV2.obj");
+        PlayerShip* pPlayer = new PlayerShip(pScene, "PlayerShipV3.obj"); 
         pPlayer->Init();
         if (SpaceScene* spaceScene = dynamic_cast<SpaceScene*>(pScene)) {
             spaceScene->SetPlayer(pPlayer);

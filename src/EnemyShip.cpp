@@ -14,6 +14,8 @@ namespace SpaceEngine {
         m_spawnZ(-100.0f), m_despawnZ(20.0f)
     {
         m_pMesh = MeshManager::loadMesh(filePathModel);
+        BaseMaterial* pJetMat = MaterialManager::createMaterial<BaseMaterial>("JetMat");
+        m_pMesh->bindMaterialToSubMeshIndex(1, pJetMat);
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
 

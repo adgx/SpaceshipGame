@@ -15,6 +15,13 @@ namespace SpaceEngine {
     PlayerShip::PlayerShip(Scene* pScene, std::string filePathModel):GameObject(pScene)
     {
         m_pMesh = MeshManager::loadMesh(filePathModel);
+        BaseMaterial* pJetMat = MaterialManager::createMaterial<BaseMaterial>("JetMat");
+        pJetMat->addProperty("color_val", Vector4(0.8f, 0.8f, 6.f, 1.f));
+        pJetMat->subroutines["getColorTex"] = {false, "colorMode"};
+        pJetMat->subroutines["getColorVal"] = {true, "colorMode"};
+        pJetMat->pShader = ShaderManager::findShaderProgram("simpleTex");
+
+        m_pMesh->bindMaterialToSubMeshIndex(1, pJetMat);
         m_pTransform = new Transform();
         m_pCollider = new Collider(this);
         m_pBullet = new Bullet(pScene, "Bullet.obj");
@@ -141,7 +148,7 @@ namespace SpaceEngine {
 
         //to review
         if (m_pMesh == nullptr) {
-            m_pMesh = MeshManager::loadMesh("PlayerShipV2.obj"); 
+            m_pMesh = MeshManager::loadMesh("PlayerShipV3.obj"); 
         }
         if (m_pTransform) {
             m_pTransform->setLocalPosition(Vector3(0.0f, 0.0f, -8.0f)); 
