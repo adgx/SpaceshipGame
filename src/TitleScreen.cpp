@@ -70,7 +70,7 @@ namespace SpaceEngine{
         Button* pStart = new Button({0.f, 0.f},
             {153.f, 300.f},
             pStartMat, 
-            [this]() {return StartNewGame();}
+            [this]() {Mouse::hideCursor(); return StartNewGame();}
         ); 
         Button* pLeaderboard = new Button({0.f, 0.f},
             {153.f, 422.f}, 
