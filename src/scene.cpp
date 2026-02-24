@@ -382,6 +382,10 @@ namespace SpaceEngine
         if (m_pPlayer )m_pPlayer->Reset();
         if(pScoreSys) pScoreSys->Reset(); 
         ResetHealthIcons();
+
+        if (pSpawnerSys) {
+            pSpawnerSys->clearSpace();
+        }
         
         SPACE_ENGINE_INFO("Game Reset Complete");
     }
@@ -534,6 +538,10 @@ namespace SpaceEngine
                 requestDestroy(obj);
                 if (pScoreSys) pScoreSys->onNotify(*obj, 50); 
             }
+        }
+
+        if (pSpawnerSys) {
+            pSpawnerSys->clearSpace();
         }
     }
 
@@ -809,7 +817,7 @@ namespace SpaceEngine
         
         getAvailableSlot(availableSlots, dim);
         
-        for(int i = 0, prev = -1; i < dim && nSpawned < spawnCount; i++, nSpawned++)
+        for(int i = 0, prev = -1; i < dim && nSpawned < spawnCount; i++)
         {
             int index = pickSlot(prev, i, spawnCount);
             if(m_pSpawnerObs->space[index] != ESlot::FREE)
@@ -819,6 +827,8 @@ namespace SpaceEngine
 
             pEnemy->Init(Vector3{getPosX(index), 0.f, -100.f}, enemyType, SpaceScene::m_pPlayer,  VelEnemy/m_stage.spawnInterval, index, m_stage.bulletSpeed);
             m_pSpawnerObs->space[index] = ESlot::ENEMY;
+
+            nSpawned++;
         }
     }
 
