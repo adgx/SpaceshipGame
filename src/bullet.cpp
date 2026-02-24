@@ -53,9 +53,22 @@ namespace SpaceEngine
         Vector3 pos = m_pTransform->getWorldPosition() + moveDir * m_vel * dt;
         m_pTransform->setWorldPosition(pos);
         //culling
-        if(m_pTransform->getWorldPosition().z > 5.f || m_pTransform->getWorldPosition().z < -50.f)
+
+        float currentZ = m_pTransform->getWorldPosition().z;
+
+        if (m_layer == ELayers::BULLET_PLAYER_LAYER)
         {
-            pScene->requestDestroy(this);
+            if (currentZ > 5.f || currentZ < -50.f)
+            {
+                pScene->requestDestroy(this);
+            }
+        }
+        else if (m_layer == ELayers::BULLET_ENEMY_LAYER)
+        {
+            if (currentZ > 25.f || currentZ < -120.f)
+            {
+                pScene->requestDestroy(this);
+            }
         }
     }
 
@@ -75,28 +88,6 @@ namespace SpaceEngine
         pScene->requestDestroy(this);
         
         SPACE_ENGINE_INFO("Bullet Collision onEnter Called with Collider: {}", reinterpret_cast<std::uintptr_t>(col));
-        if(col->gameObj->getLayer() == ELayers::ENEMY_LAYER && m_layer == ELayers::BULLET_PLAYER_LAYER)
-        {
-            SPACE_ENGINE_INFO("Bullet hit an Enemy!");
-            //dynamic cast
-            EnemyShip* pEnemy = dynamic_cast<EnemyShip*>(col->gameObj);
-            if(pEnemy)
-            {
-                pEnemy->DecreaseHealth();
-            }
-        }
-        else if(col->gameObj->getLayer() == ELayers::ASTEROID_LAYER && m_layer == ELayers::BULLET_PLAYER_LAYER){
-            SPACE_ENGINE_INFO("Bullet hit an Asteroid!");
-        }
-
-        else if(col->gameObj->getLayer() == ELayers::PLAYER_LAYER && m_layer == ELayers::BULLET_ENEMY_LAYER)
-        {
-            PlayerShip* pPlayer = dynamic_cast<PlayerShip*>(col->gameObj);
-            if(pPlayer)
-            {
-                pPlayer->DecreaseHealth();
-            }
-            
-        }
+        
     }
 }
