@@ -73,7 +73,7 @@ namespace SpaceEngine {
 
         //bottone wnew game
         UIButtonMaterial* pNewGameMat = MaterialManager::createMaterial<UIButtonMaterial>("BtnNewGame");
-        Texture* pTexNewGame = TextureManager::load(TEXTURES_PATH"buttons/NewGame.png");
+        Texture* pTexNewGame = TextureManager::load(TEXTURES_PATH"buttons/NewGame_dead.png");
         pNewGameMat->addTexture("ui_tex", pTexNewGame);
         m_pBtnNewGame = new Button({0.5f, 0.5f}, {-160.f, 70.f}, pNewGameMat, 
             [this]() { 
