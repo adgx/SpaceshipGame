@@ -124,8 +124,8 @@ namespace SpaceEngine
         Vector3 colorRT(0.184, 0.055, 0.506);//dark purple
         Vector3 colorRB(0.443, 0.11, 0.667);//dark purple
         Vector3 colorLB(0.098, 0.035, 0.255);//dark purple
-        float pow1 = 20.f;
-        float pow2 = 30.f;
+        float pow1 = 15.f;
+        float pow2 = 23.f;
 
         Light* pLight = new Light(Vector3{-10.f, 10.f, 0.f}, colorLT*pow1, Math::getDirection(90.f, 0.f, 135.f)); //left-top
         pScene->addSceneComponent<Light*>(pLight);
